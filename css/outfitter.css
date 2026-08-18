@@ -263,8 +263,7 @@
 }
 
 .outfiter .list_el {
-    margin: 4px 0 0 0;
-    padding: 1px 3px 1px 3px;
+    padding: 5px 3px 1px 3px;
     position: relative;
 }
 
@@ -734,8 +733,8 @@
     border-width: 2px;
     display: inline-block;
     height: 8px;
-    margin: 0 0 1px 1px;
     width: 8px;
+    padding: 0px 0px 1px 1px;
 }
 
 .outfiter .color_table_d_sel {
