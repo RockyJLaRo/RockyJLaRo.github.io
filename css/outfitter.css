@@ -267,6 +267,10 @@
     position: relative;
 }
 
+.list_el:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
 .outfiter .list_el:first-child {
     margin-top: 0;
 }
