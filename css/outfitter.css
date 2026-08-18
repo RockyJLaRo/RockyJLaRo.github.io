@@ -1,0 +1,1018 @@
+/* general
+ * Layout: 3 left selector panels (Mounts / Creatures / Outfits) + one viewer column.
+ * Left column is 240px so the longest mount/outfit names fit without a horizontal
+ * scrollbar. Each left row is 238px; viewer spans all three rows. Backgrounds rely
+ * on height:100% and flex so the dark panel texture fills the full viewer height.
+ */
+.outfiter {
+    color: #c0c0c0;
+    font: 700 11px Verdana, Arial;
+    line-height: 13px;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 242px 888px;
+    grid-template-rows: 255px 255px 255px auto;
+    grid-template-areas:
+        "mount viewer"
+        "creature viewer"
+        "outfit viewer"
+        "anistep anistep"
+    ;
+    gap: 5px;
+    align-items: stretch;
+}
+
+.outfiter .mselector {
+    grid-area: mount;
+    height: 100%;
+}
+
+.outfiter .cselector {
+    grid-area: creature;
+    height: 100%;
+}
+
+.outfiter .oselector {
+    grid-area: outfit;
+    height: 100%;
+}
+
+.outfiter .viewer {
+    grid-area: viewer;
+    grid-row: 1 / 4;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure the dark background fills the full height of the main viewer box */
+.outfiter .viewer>.div2 {
+    height: 100%;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.outfiter .viewer .omain_wrap {
+    flex: 1 1 auto;
+}
+
+.outfiter .hide {
+    height: 0;
+    overflow: hidden;
+}
+
+.outfiter .clear {
+    clear: both;
+}
+
+.outfiter label {
+    cursor: pointer;
+    display: block;
+}
+
+.outfiter label.sep {
+    margin-top: 13px;
+}
+
+.outfiter input[type="text"],
+.outfiter textarea,
+.outfiter button,
+.outfiter input[type="button"] {
+    border-radius: 0;
+    box-shadow: none;
+    color: #c0c0c0;
+    font-family: Verdana, Arial;
+    font-weight: 700;
+    outline: 0;
+    text-align: center;
+    vertical-align: bottom;
+}
+
+.outfiter input[type="text"][disabled],
+.outfiter textarea[disabled],
+.outfiter button[disabled],
+.outfiter input[type="button"][disabled] {
+    opacity: 0.6;
+}
+
+.outfiter input[type="text"],
+.outfiter textarea {
+    font-size: 9px;
+    line-height: 12px;
+    padding: 3px 0;
+}
+
+.outfiter button,
+.outfiter input[type="button"],
+.outfiter .button {
+    cursor: pointer;
+    display: inline-block;
+    height: auto;
+    line-height: 1;
+}
+
+.outfiter .no_pointer {
+    cursor: auto;
+}
+
+.outfiter .nbutton {
+    border: 1px solid;
+    box-sizing: border-box;
+    font-size: 8px;
+    height: auto;
+    line-height: 1;
+    padding: 5px 8px 5px 8px;
+}
+
+.outfiter .download_image {
+    display: block;
+    margin: 8px auto 4px auto;
+    width: auto;
+    min-width: 120px;
+    max-width: 160px;
+    text-align: center;
+}
+
+/* Advanced save options (APNG / GIF / 4x Rotate / All Addons) — hidden until toggled */
+.outfiter .save_advanced_opts {
+    display: none;
+}
+
+.outfiter .save_advanced_opts.is-visible {
+    display: block;
+}
+
+/* 4x Rotate checkbox — sits with Save-as / Download controls */
+.outfiter .rotate4x_wrap {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 4px auto 2px auto;
+    text-align: left;
+    max-width: 160px;
+    box-sizing: border-box;
+}
+
+.outfiter .rotate4x_wrap .help_label {
+    flex: 0 1 auto;
+    margin-right: 4px;
+}
+
+.outfiter .rotate4x_wrap .help_q {
+    margin-left: auto;
+    /* pin 12x12 Help_Icon to the far right of the box */
+}
+
+.outfiter .rotate4x_wrap.disabled {
+    color: #707070;
+}
+
+.outfiter .all_addons_wrap {
+    margin-top: 2px;
+}
+
+/* Center the Save-as block (radios + download) under its title */
+.outfiter .ot-card .divtitle {
+    text-align: center;
+}
+
+.outfiter .save_format_wrap {
+    text-align: center;
+    margin-top: 4px;
+}
+
+.outfiter .save_format_wrap .divcheck {
+    display: inline-block;
+    margin: 2px 8px;
+    text-align: left;
+}
+
+.outfiter .sep_line {
+    border-bottom: 1px solid #757575;
+    border-top: 1px solid #2a2a2a;
+    margin: 0 0 5px 0;
+}
+
+.outfiter .nbutton,
+.outfiter .outer_border,
+.outfiter .outer_border_no_bottom,
+.outfiter .dcolor_table * {
+    border-color: #757575 #2a2a2a #2a2a2a #757575;
+}
+
+.outfiter .radio_list_out,
+.outfiter .omain_wrap,
+.outfiter .divcheck,
+.outfiter .body_main_div,
+.outfiter .oitem_select_name,
+.outfiter input[type="text"],
+.outfiter textarea,
+.outfiter .nbutton:active,
+.outfiter .color_table_d_sel,
+.outfiter .anistep_step {
+    border: 1px solid;
+    border-color: #2a2a2a #757575 #757575 #2a2a2a;
+}
+
+.outfiter input[type="text"] {
+    border: 1px solid !important;
+    border-color: #2a2a2a #757575 #757575 #2a2a2a !important;
+}
+
+.outfiter.outfiter_loading label,
+.outfiter.outfiter_loading button,
+.outfiter.outfiter_loading input[type="button"],
+.outfiter.outfiter_loading .button {
+    cursor: default;
+}
+
+/* radio_list_wrap */
+.outfiter .radio_list_wrap {
+    width: 246px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.outfiter .radio_list_wrap .sep_line {
+    margin-top: 5px;
+}
+
+.outfiter .radio_list_wrap .sep_line+.list_el {
+    margin-top: 0;
+}
+
+.outfiter .radio_list_cont {
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.outfiter .radio_list_out {
+    font-size: 10px;
+    line-height: 10px;
+    height: 219px;
+    flex: 1 1 auto;
+    min-height: 219px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0 0 3px 0;
+}
+
+.outfiter .list_el {
+    margin: 4px 0 0 0;
+    padding: 1px 3px 1px 3px;
+    position: relative;
+}
+
+.outfiter .list_el:first-child {
+    margin-top: 0;
+}
+
+.outfiter .list_el .t {
+    display: inline-block;
+    max-width: calc(100% - 24px);
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.outfiter input[type="text"].omsearch {
+    text-align: left;
+    padding-left: 0.5em;
+    top: 0;
+    position: sticky;
+    z-index: 100;
+    width: 100%;
+}
+
+/* containers */
+.outfiter td {
+    vertical-align: top;
+}
+
+.outfiter .outer_border,
+.outfiter .outer_border_no_bottom {
+    border-style: solid;
+    border-width: 2px;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.outfiter .outer_border {
+    /* full raised frame on all four sides (matches main outfitter box) */
+    border-width: 2px;
+    border-style: solid;
+    border-color: #757575 #2a2a2a #2a2a2a #757575;
+}
+
+.outfiter .outer_border_no_bottom {
+    border-bottom: 0;
+}
+
+/* Left selector panels (Mounts / Creatures / Outfits) — same finished box as viewer */
+.outfiter .mselector.outer_border,
+.outfiter .cselector.outer_border,
+.outfiter .oselector.outer_border,
+.outfiter .viewer.outer_border {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #757575 #2a2a2a #2a2a2a #757575;
+    overflow: hidden;
+}
+
+.outfiter .div2,
+.outfiter .div2_no_padding {
+    padding: 0 1px 1px 1px;
+    box-sizing: border-box;
+}
+
+.outfiter .div2_no_padding {
+    padding: 0 1px 1px 1px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.outfiter .div2_title {
+    color: #909090;
+    line-height: 14px;
+    text-align: center;
+    flex: 0 0 auto;
+}
+
+.outfiter .omain_wrap {
+    border-style: solid;
+    border-width: 1px;
+    box-sizing: content-box;
+    padding: 12px 9px 1px 10px;
+    width: 860px;
+}
+
+.outfiter .omain_wrap_left,
+.outfiter .omain_wrap_right {
+    box-sizing: border-box;
+    float: left;
+    padding: 0 3px 0 2px;
+    width: 197px;
+}
+
+.outfiter .omain_wrap_right {
+    width: 660px;
+}
+
+.outfiter .omain_cont_left {
+    box-sizing: border-box;
+}
+
+.outfiter .omain_cont_left+.omain_cont_left {
+    padding: 6px 0 0 0;
+}
+
+/* inner */
+.outfiter .divtitle {
+    margin: 0 0 5px 0;
+    text-align: center;
+}
+
+.outfiter .divcheck {
+    color: inherit;
+    line-height: 12px;
+    margin: 0 0 5px 0;
+    padding: 4px 3px 4px 3px;
+    position: relative;
+    vertical-align: baseline;
+}
+
+.outfiter .divcheck.disabled {
+    color: #707070;
+}
+
+.outfiter .darkchk,
+.outfiter .darkrad {
+    cursor: pointer;
+    height: 1px;
+    margin: 0;
+    opacity: 0.01;
+    position: absolute;
+    vertical-align: bottom;
+    width: 1px;
+}
+
+.outfiter .darkchk+.darkchk_in,
+.outfiter .darkrad+.darkrad_in {
+    background-color: transparent;
+    background-position: left top;
+    display: inline-block;
+    height: 12px;
+    margin: 0 4px 0 0;
+    vertical-align: bottom;
+    width: 12px;
+}
+
+.outfiter .darkchk:checked+.darkchk_in {
+    background-position: left -12px;
+}
+
+.outfiter .darkchk:checked:disabled+.darkchk_in {
+    background-position: left -24px;
+}
+
+.outfiter .darkrad+.darkrad_in {
+    background-position: right top;
+    vertical-align: middle;
+}
+
+.outfiter .darkrad:checked+.darkrad_in {
+    background-position: right -12px;
+}
+
+.outfiter .darkrad:checked:disabled+.darkrad_in {
+    background-position: right -24px;
+}
+
+/* Expanded outfit preview (2x original ~320x192 → 640x384; min matches floor ~318x188) */
+.outfiter .body_main_div {
+    box-sizing: border-box;
+    width: 656px;
+    max-width: 100%;
+    min-width: 318px;
+    height: 400px;
+    min-height: 188px;
+    margin: 0 0 5px 0;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    text-align: center;
+}
+
+.outfiter .body_main {
+    left: 50%;
+    position: absolute;
+    top: 125px;
+    transform: translate(-50%, 0);
+    vertical-align: bottom;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.outfiter .body_main.body_main_with_floor {
+    top: 0;
+}
+
+.outfiter .body_main.is-zoomed {
+    cursor: grab;
+}
+
+.outfiter .body_main.is-dragging {
+    cursor: grabbing;
+}
+
+.outfiter .leftb,
+.outfiter .rightb {
+    background-color: #757575;
+    border: 0;
+    height: 20px;
+    width: 20px;
+}
+
+.outfiter .leftb[disabled],
+.outfiter .rightb[disabled] {
+    opacity: 0.6;
+}
+
+.outfiter .leftb {
+    background-position: left top;
+}
+
+.outfiter .leftb:active {
+    background-position: right top;
+}
+
+.outfiter .rightb {
+    background-position: left -20px;
+}
+
+.outfiter .rightb:active {
+    background-position: right -20px;
+}
+
+.outfiter .tleftb {
+    background-position: left -40px;
+    bottom: 1px;
+    left: 1px;
+    position: absolute;
+}
+
+.outfiter .tleftb:active {
+    background-position: right -40px;
+}
+
+.outfiter .trightb {
+    background-position: left -60px;
+    bottom: 1px;
+    position: absolute;
+    right: 1px;
+}
+
+.outfiter .trightb:active {
+    background-position: right -60px;
+}
+
+/* Zoom controls at the top of the outfit preview (20x20 base64 icons) */
+.outfiter .body_main_div .zoom_btn {
+    position: absolute;
+    top: 1px;
+    z-index: 3;
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid;
+    border-color: #757575 #2a2a2a #2a2a2a #757575;
+    background-color: #464747;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 20px 20px;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 20px;
+    color: #c0c0c0;
+    text-align: center;
+}
+
+.outfiter .body_main_div .zoom_btn:active {
+    border-color: #2a2a2a #757575 #757575 #2a2a2a;
+}
+
+.outfiter .body_main_div .zoom_btn[disabled] {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.outfiter .body_main_div .zoomout {
+    left: 1px;
+}
+
+.outfiter .body_main_div .zoomreset {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.outfiter .body_main_div .zoomin {
+    right: 1px;
+}
+
+.outfiter .body_main {
+    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.outfiter .oitem_select_cont {
+    display: block;
+    margin: 0 0 5px 0;
+}
+
+.outfiter .oitem_select_cont .leftb {
+    float: left;
+    margin: 1px 0;
+}
+
+.outfiter .oitem_select_cont .rightb {
+    float: right;
+    margin: 1px 0;
+}
+
+.outfiter .oitem_select_name {
+    display: block;
+    line-height: 12px;
+    margin: 0 25px;
+    padding: 4px 0;
+    text-align: center;
+}
+
+.outfiter .colourise_cont {
+    margin: 0 0 5px 0;
+    text-align: center;
+}
+
+.outfiter .colourise_title {
+    float: left;
+    padding: 4px 0 3px 0;
+    vertical-align: middle;
+}
+
+/* Stacked action buttons: Copy → Random Colours → Random Outfit */
+.outfiter .colourise_btns {
+    float: right;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    margin: 0 0 4px 0;
+}
+
+.outfiter .colourise_btns .nbutton {
+    min-width: 110px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.outfiter .colourise_copy {
+    /* kept for any legacy float rules; layout now via .colourise_btns */
+    min-width: 89px;
+}
+
+.outfiter .colourise_item {
+    display: inline-block;
+    padding: 2px 2px 2px 3px;
+    position: relative;
+    white-space: nowrap;
+}
+
+.outfiter .colourise_item.disabled {
+    color: #707070;
+}
+
+.outfiter .colourise_item .t {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.outfiter .colors_cont {
+    margin: 0 auto 5px auto;
+    width: 254px;
+    position: relative;
+    top: -50px;
+}
+
+.outfiter .colors_cont,
+.outfiter .charn_cont,
+.outfiter .url_input_cont,
+.outfiter .template_code_code_cont {
+    position: relative;
+    top: -50px;
+}
+
+.outfiter .color_tab {
+    background: none;
+    border: 0;
+    box-sizing: border-box;
+    float: left;
+    font-size: 8px;
+    line-height: 10px;
+    margin: 0 0 0 -1px;
+    padding: 0;
+    position: relative;
+    width: 64px;
+    z-index: 0;
+}
+
+.outfiter .color_tab:first-child {
+    margin-left: 0;
+}
+
+.outfiter .color_tab:nth-child(2) {
+    z-index: 3;
+}
+
+.outfiter .color_tab:nth-child(3) {
+    z-index: 2;
+}
+
+.outfiter .color_tab:nth-child(4) {
+    z-index: 1;
+}
+
+.outfiter .color_tab.sel {
+    z-index: 10;
+}
+
+.outfiter .color_tab:disabled {
+    opacity: 1;
+}
+
+.outfiter .color_tab_in {
+    box-sizing: border-box;
+    display: block;
+    padding: 2px 0 4px 0;
+    width: 100%;
+}
+
+.outfiter .dcolor_table_out {
+    box-sizing: content-box;
+    margin: -2px 0 0 0;
+    padding: 2px 1px 1px 1px;
+    position: relative;
+    width: 248px;
+    z-index: 5;
+}
+
+.outfiter .dcolor_table {
+    line-height: 8px;
+    position: relative;
+    width: 247px;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto auto;
+    grid-gap: 0px;
+}
+
+.outfiter .dcolor_table * {
+    border-style: solid;
+    border-width: 2px;
+    display: inline-block;
+    height: 8px;
+    margin: 0 0 1px 1px;
+    width: 8px;
+}
+
+.outfiter .color_table_d_sel {
+    position: relative;
+}
+
+.outfiter .color_table_d_sel::after {
+    border: 1px solid #fff;
+    content: ' ';
+    height: 12px;
+    left: -3px;
+    position: absolute;
+    top: -3px;
+    width: 12px;
+}
+
+.outfiter .charn_cont {
+    margin: 0 auto 5px auto;
+    width: auto;
+    max-width: 100%;
+    text-align: center;
+    /* centered under the color selector column */
+}
+
+.outfiter .charn_cont .charn_row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.outfiter .charn_title {
+    float: none;
+    display: inline-block;
+    padding: 0;
+    white-space: nowrap;
+    vertical-align: middle;
+    position: relative;
+    top: -3px;
+}
+
+.outfiter .charn {
+    float: none;
+    box-sizing: border-box;
+    width: 184px;
+    max-width: 100%;
+    margin: 0;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.outfiter .use_name,
+.outfiter .clear_name {
+    float: none;
+    display: inline-block;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.outfiter .url_input_cont,
+.outfiter .template_code_code_cont {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    margin: 0 0 5px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.outfiter .template_code_code_cont:empty {
+    display: none;
+    margin: 0;
+}
+
+.outfiter .url_input_text {
+    float: none;
+    flex: 0 0 auto;
+    line-height: 18px;
+    padding: 3px 0;
+    white-space: nowrap;
+}
+
+.outfiter .url_input_out,
+.outfiter .template_code_out {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    margin: 0 4px 0 0;
+}
+
+.outfiter .url_input,
+.outfiter .template_code_code {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    margin: 0 0 2px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.outfiter .template_code_code {
+    display: block;
+    margin: 0;
+    max-width: none;
+    min-height: 28px;
+    padding: 3px;
+    font-size: 9px;
+    line-height: 12px;
+}
+
+.outfiter .copy_btn {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin: 1px 0 0 0;
+    padding: 0;
+    border: 1px solid;
+    border-color: #757575 #2a2a2a #2a2a2a #757575;
+    background-color: #464747;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 12px 12px;
+    cursor: pointer;
+    vertical-align: top;
+}
+
+.outfiter .copy_btn:active {
+    border-color: #2a2a2a #757575 #757575 #2a2a2a;
+}
+
+.outfiter .anistep_panel {
+    grid-area: anistep;
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.outfiter .anistep_panel.is-visible {
+    display: block;
+}
+
+.outfiter .anistep_panel>.div2 {
+    padding: 0 1px 6px 1px;
+    box-sizing: border-box;
+}
+
+.outfiter .anistep_step_cont {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-auto-rows: auto;
+    gap: 6px;
+    justify-items: center;
+    align-items: center;
+    margin: 4px 8px 4px 8px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.outfiter .anistep_step {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 128px;
+    min-height: 64px;
+    padding: 4px;
+    border: 1px solid;
+    border-color: #2a2a2a #757575 #757575 #2a2a2a;
+    background: #464747;
+}
+
+.outfiter .anistep_step img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+/* let the main viewer grow when template / steps are shown */
+.outfiter .viewer.outer_border {
+    overflow: visible;
+}
+
+.outfiter .viewer {
+    height: auto;
+    min-height: 100%;
+    align-self: start;
+}
+
+.outfiter .viewer>.div2 {
+    height: auto;
+    min-height: 100%;
+}
+
+.outfiter_template {
+    background: none !important;
+}
+
+.outfiter {
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+/* Help icon (12x12 Help_Icon) next to Save as / 4x Rotate / All Addons.
+ * Tooltips are rendered in a floating .outfiter_help_tip element (JS) so they are
+ * not clipped by parent overflow:hidden on .outer_border / .help_q.
+ */
+.outfiter .help_q {
+    display: inline-block;
+    position: relative;
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    /* background-image set via injected Help_Icon in JS */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 12px 12px;
+    font-size: 0;
+    line-height: 0;
+    color: transparent;
+    /* Do NOT set overflow:hidden here — it would clip any pseudo-element tips */
+    overflow: visible;
+    vertical-align: middle;
+    cursor: help;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+}
+
+.outfiter .help_q:hover,
+.outfiter .help_q:focus,
+.outfiter .help_q.is-open {
+    outline: 1px solid #c0c0c0;
+    outline-offset: 1px;
+    filter: brightness(1.25);
+}
+
+.outfiter .divtitle .help_q {
+    margin-left: 6px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+}
+
+/* Floating tooltip (appended to body by JS; survives parent overflow clipping) */
+.outfiter_help_tip {
+    position: fixed;
+    z-index: 100000;
+    max-width: min(240px, 70vw);
+    width: max-content;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: #1e1e1e;
+    border: 1px solid #6a6a6a;
+    color: #f0f0f0;
+    font: normal 11px/1.35 Verdana, Arial, sans-serif;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.12s ease, visibility 0.12s ease;
+}
+
+.outfiter_help_tip.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
