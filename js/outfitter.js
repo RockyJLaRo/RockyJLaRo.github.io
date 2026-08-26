@@ -207,7 +207,6 @@ $(function () {
             //145
             'Dark_Torturer', 'Spectre', 'Destroyer', 'Diabolic_Imp', 'Defiler',
             //150
-            //Need to Add Base64 for creatures below this line. Keep in sync with Template:CreatureLink. Names use underscores (spaces in UI).
             'Wyvern', 'Hellhound', 'Phantasm', 'Massive_Fire_Elemental', 'Hellfire_Fighter',
             //155
             'Juggernaut', 'Nightmare', 'Blightwalker', 'Plaguesmith', 'Frost_Dragon',
@@ -244,10 +243,10 @@ $(function () {
             //235
             'Terramite', 'Wailing_Widow', 'Lancer_Beetle', 'Insect_Swarm', 'Sandcrawler',
             //240
-            'Ghastly_Dragon', 'Brimstone_Bug', 'Spawn_of_Devovorga', 'Devovorga_(Imune)', 'Souleater',
+            'Ghastly_Dragon', 'Brimstone_Bug', 'Spawn_of_Devovorga', 'Devovorga_(Immune)', 'Souleater',
             //245
             'Snake_God_Essence', 'Draken_Abomination', 'Killer_Caiman', 'Irahsae', 'Teneshpar',
-            //250
+            //250 - Still need to add Base64 for the ones below.
             'Chikhaton', 'Draken_Elite', 'Anmothra', 'Lizard_Abomination', 'Devovorga',
             //255
             'Boar', 'Stampor', 'Draptor', 'Crustacea_Gigantica', 'Undead_Cavebear',
@@ -372,93 +371,93 @@ $(function () {
             //555
             'Snowbash', 'Sandscourge', 'Bladespark', 'Exotic_Bat', 'Ratmiral_Blackwhiskers',
             //560
-
+            'The_Abomination', 'Lavaworm', 'Varnished_Diremaw', 'Streaked_Devourer', 'Eyeless_Devourer',
             //565
-
+            'Blemished_Spawn', 'Afflicted_Strider', 'Lavafungus', 'The_Brainstealer', 'The_Mega_Magmaoid',
             //570
-
+            'Lava_Elemental', 'Phant', 'Carnisylvan_Sapling', 'Murmillion', 'Scissorion',
             //575
-
+            'Hoodinion', 'Mearidion', 'Domestikion', 'Uninvited', 'Unexpected',
             //580
-
+            'Unwanted', 'Unsolicited', 'Lucky_Dragon', 'Morshabaal', 'Lord_Retro',
             //585
-
+            'Parder', 'Jungle_Moa', 'Two-headed_Turtle', 'Naga_Boss_(A)', 'Naga_Boss_(B)',
             //590
-
+            'Timira_the_Many-headed', 'Sulphider', 'Sulphur_Spouter', 'Gore_Horn', 'Sabretooth',
             //595
-
+            'Emerald_Tortoise', 'Undertaker', 'Nighthunter', 'Hulking_Prehemoth', 'Stalking_Stalk',
             //600
-
+            'Fungosaurus', 'Mantosaurus', 'Headpecker', 'Noxious_Ripptor', 'Gorerilla',
             //605
-
+            'Shrieking_Cry-stal', 'Mercurial_Menace', 'Foam_Stalker', 'Makara', 'The_Primal_Menace',
             //610
-
+            'Plunder_Patriarch', 'The_End_of_Days', 'Blue_Mutagen', 'Yellow_Mutagen', 'Purple_Mutagen',
             //615
-
+            'Iks_Aucar', 'Iks_Chuka', 'Iks_Pututu', 'Iks_Ahpututu', 'Ahau',
             //620
-
+            'Cursed_Ape', 'Avatar_of_Steel', 'Avatar_of_Light', 'Avatar_of_Storm', 'Avatar_of_Nature',
             //625
-
+            'The_Monster', 'Crape_man', 'Liodile', 'Boar_man', 'Harpy',
             //630
-
+            'Carnivostrich', 'Rhindeer', 'Mycobiontic_Beetle', 'Meandering_Mushroom', 'Darklight_Construct',
             //635
-
+            'Converter', 'Darklight_Matter', 'Oozing_Corpus', 'Oozing_Carcass', 'Darklight_Emitter',
             //640
-
+            'Bloodjaw', 'White_Tiger', 'Bloated_Man-maggot', 'Rotten_Man-maggot', 'Walking_Pillar',
             //645
-
+            'Wandering_Pillar', 'Sopping_Carcass', 'Sopping_Corpus', 'Darklight_Source', 'Darklight_Striker',
             //650
-
+            'Murcion', 'Ichgahal', 'Chagorz', 'Vemiath', 'Echo_Of_Ichgahal_/_Murcion',
             //655
-
+            'Echo_Of_Chagorz_/_Vemiath', 'Bakragore', 'Albino_Dragon', 'Ragged_Rabid_Wolf', 'The_Rest_of_Ratha',
             //660
-
+            'Ship_(White)', 'Ship_(Red)', 'Ship_(Yellow)', 'Ship_(Green)', 'Ship_(Blue)',
             //665
-
+            'Ship_(Black)', 'Storm', 'Fryclops', 'Atab', 'Iks_Yapunac',
             //670
-
+            'The_Draccoon', 'Dragolisk', 'Wardragon', 'Mitmah_Scout', 'Mitmah_Seer',
             //675
-
+            'Mega_Dragon', 'Mitmah_Vanguard', 'Bulltaur_Brute', 'Bulltaur_Alchemist', 'Bulltaur_Forgepriest',
             //680
-
+            'Mystic_Jaguar', 'Chocolate_Blob', 'Honey_Elemental', 'Wafer_Paper_Butterfly', 'Gingerbread_Man',
             //685
-
+            'Candy_Horror', 'Quara_Looter', 'Candy_Floss_Elemental', 'Truffle', 'Truffle_Cook',
             //690
-
+            'Truffle_Worker', 'Sugar_Cube', 'Fruit_Drop', 'Mint_Drop', 'Sugar_Cube_Worker',
             //695
-
+            'Cream_Blob', 'Quara_Plunderer', 'Quara_Raider', 'Rootthing_Nutshell', 'Rootthing_Amber_Shaper',
             //700
-
+            'Rootthing_Bug_Tracker', 'Sugar_Daddy_/_Mommy', 'The_Rootkraken', 'Blightling', 'Grove_Guardian',
             //705
-
+            'Carniphila_(B)', 'Carniphila_(C)', 'Common_Beetle', 'Blight_Bug', 'Thorn_Lily',
             //710
-
+            'Rampant_Barrier', 'Herd_Weevil', 'Spellreaper_Inferniarch', 'Hellhunter_Inferniarch', 'Brinebrute_Inferniarch',
             //715
-
+            'Sineater_Inferniarch', 'Broodrider_Inferniarch', 'Gorger_Inferniarch', 'Arbaziloth_(E)', 'Arbaziloth_(D)',
             //720
-
+            'Arbaziloth_(C)', 'Arbaziloth_(B)', 'Arbaziloth_(A)', 'Rotrender_(B)', 'Imp',
             //725
-
+            'Omniphant', 'Moonhunter', 'Merudri', 'Avatar_of_Balance', 'Rotrender_(A)',
             //730
-
+            'Rotrender_(C)', 'Spirit_Elemental', 'Vampiric_Essence', 'Bluebeak', 'Norcferatu_Nightweaver',
             //735
-
+            'Norcferatu_Heartless', 'Dworc_Shadowstalker', 'Orclops_Bloodbreaker', 'Varg', 'Hawk_Hopper',
             //740
-
+            'Lion_Hydra', 'Vladrukh', 'Gloom_Maw', 'Vampire_Bat', 'Norcferatu_Abomination',
             //745
-
+            'Eldritch_Dragon_Lord', 'The_Gravedigger', 'Ice_Horror', 'Dragon_Ancestor', 'Cyclursus',
             //750
-
+            'Crypt_Fiend', 'Walking_Dread', 'Crypt_Construct', 'Haunted_Hunter', 'Creepy_Crawler',
             //755
-
+            'Night_Harpy', 'Court_Warlock', 'Roaming_Dread', 'Crypt_Mage', 'Stag',
             //760
-
+            'Imperial', 'Herald_of_Fire', 'Storm_(B)', 'Moonstone_Excavator', 'Mimar_Haffar',
             //765
-
+            'Phosphorus_(A)', 'Moonstone_Overseer', 'Maior_Domus_(A)', 'Maior_Domus_(B)', 'Phosphorus_(B)',
             //770
-
+            'Radiant_Warden', 'Radiant_Templar', 'Radiant_Paragon', 'Radiant_Inquisitor', 'Radiant_Zealot',
             //775
-
+            'Radiant_Acolyte', 'Moonspawn_Blightspitter', 'Moonspawn_Oozecrown', 'Moonspawn_Juggernaut'
             //780
 
             //785
@@ -929,7 +928,7 @@ $(function () {
             Lancer_Beetle: 2,
             Brimstone_Bug: 2,
             Spawn_of_Devovorga: 2,
-            'Devovorga_(Imune)': 2,
+            'Devovorga_(Immune)': 2,
             Souleater: 2,
             Snake_God_Essence: 2,
             Draken_Abomination: 2,
@@ -1058,6 +1057,91 @@ $(function () {
             //   colourisable: true, addon1: true, addon2: true, exclusive_addons: true
             // },
             Rafzan: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            'Naga_Boss_(A)': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            'Naga_Boss_(B)': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            'Timira_the_Many-headed': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            'Sugar_Daddy_/_Mommy': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            'Spellreaper_Inferniarch': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            'Hellhunter_Inferniarch': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            'Brinebrute_Inferniarch': {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Merudri: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            Moonstone_Excavator: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Mimar_Haffar: {
+                standing: 8, walking: 8,
+                standing_delay: 100, walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Moonstone_Overseer: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            Radiant_Warden: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Radiant_Templar: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            Radiant_Paragon: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Radiant_Inquisitor: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: true,
+            },
+            Radiant_Zealot: {
+                standing: 1, walking: 8,
+                walking_delay: 300,
+                addon1: true, addon2: false,
+            },
+            Radiant_Acolyte: {
                 standing: 1, walking: 8,
                 walking_delay: 300,
                 addon1: true, addon2: true,
