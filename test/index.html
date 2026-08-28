@@ -193,6 +193,12 @@
             background-color: #4a6741;
             transform: scale(1.2);
         }
+
+        /* Offset anchor targets for the fixed top nav (h-20 = 5rem) */
+        section[id],
+        header[id] {
+            scroll-margin-top: 6rem;
+        }
     </style>
 
     <!-- External CSS & JavaScript -->
@@ -390,12 +396,12 @@
         </div>
 
         <div class="space-y-6 text-center">
-            <a href="#about" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">About Us</a>
-            <a href="#education" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Education</a>
-            <a href="#pricing" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Pricing</a>
-            <a href="#journey" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">The Process</a>
-            <a href="#eligibility" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Eligibility</a>
-            <a href="#gallery" onclick="toggleMenu()" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Cat Gallery</a>
+            <a href="#about" onclick="return navigateMobile(event, 'about')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">About Us</a>
+            <a href="#education" onclick="return navigateMobile(event, 'education')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Education</a>
+            <a href="#pricing" onclick="return navigateMobile(event, 'pricing')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Pricing</a>
+            <a href="#journey" onclick="return navigateMobile(event, 'journey')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">The Process</a>
+            <a href="#eligibility" onclick="return navigateMobile(event, 'eligibility')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Eligibility</a>
+            <a href="#gallery" onclick="return navigateMobile(event, 'gallery')" class="block text-2xl font-bold text-slate-800 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">Cat Gallery</a>
         </div>
 
         <div class="mt-auto pt-10 mb-6 space-y-6">
@@ -971,18 +977,23 @@
         }
 
         // Mobile menu toggle with icon animation + accessibility
-        function toggleMenu() {
+        // forceClose = true always closes (used when a menu link is tapped)
+        function toggleMenu(forceClose) {
             const m = document.getElementById('mobile-menu');
             const bars = document.getElementById('menu-icon-bars');
             const xIcon = document.getElementById('menu-icon-x');
             const btn = document.querySelector('button[aria-label="Toggle mobile menu"]');
+            if (!m) return;
 
-            const isActive = m.classList.toggle('active');
-            document.body.classList.toggle('no-scroll');
+            const currentlyOpen = m.classList.contains('active');
+            const shouldOpen = forceClose ? false : !currentlyOpen;
 
-            if (btn) btn.setAttribute('aria-expanded', isActive);
+            m.classList.toggle('active', shouldOpen);
+            document.body.classList.toggle('no-scroll', shouldOpen);
 
-            if (isActive) {
+            if (btn) btn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+
+            if (shouldOpen) {
                 if (bars && xIcon) {
                     bars.style.opacity = "0";
                     bars.style.transform = "scale(0.5) rotate(-90deg)";
@@ -997,6 +1008,30 @@
                     xIcon.style.transform = "scale(0.5) rotate(90deg)";
                 }
             }
+        }
+
+        // Close mobile menu, restore body scroll, then scroll to the section.
+        // Needed because overflow:hidden on body blocks in-page hash navigation.
+        function navigateMobile(event, sectionId) {
+            if (event) event.preventDefault();
+
+            toggleMenu(true); // always close
+
+            const target = document.getElementById(sectionId);
+            if (!target) return false;
+
+            // Wait a tick so no-scroll is removed and layout can settle
+            setTimeout(function () {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Keep URL hash in sync without relying on default link behavior
+                if (history.replaceState) {
+                    history.replaceState(null, '', '#' + sectionId);
+                } else {
+                    window.location.hash = sectionId;
+                }
+            }, 50);
+
+            return false;
         }
 
         // Show selected process step (uses PROCESS_STEPS config)
