@@ -246,7 +246,7 @@ $(function () {
             'Ghastly_Dragon', 'Brimstone_Bug', 'Spawn_of_Devovorga', 'Devovorga_(Immune)', 'Souleater',
             //245
             'Snake_God_Essence', 'Draken_Abomination', 'Killer_Caiman', 'Irahsae', 'Teneshpar',
-            //250 - Still need to add Base64 for the ones below.
+            //250
             'Chikhaton', 'Draken_Elite', 'Anmothra', 'Lizard_Abomination', 'Devovorga',
             //255
             'Boar', 'Stampor', 'Draptor', 'Crustacea_Gigantica', 'Undead_Cavebear',
@@ -268,7 +268,7 @@ $(function () {
             'Obujos', 'Tanjis', 'Ladybug', 'Manta_Ray', 'Calamary',
             //300
             'Jellyfish', 'Shark', 'Northern_Pike', 'Fish', 'Crawler',
-            //305
+            //305 - Still need to add Base64 for the ones below.
             'Spidris', 'Kollos', 'Floor_Blob', 'Swarmer', 'Spitter',
             //310
             'Waspoid', 'Poodle', 'Deepling_Worker', 'Wild_Dog', 'Stone_Devourer',
