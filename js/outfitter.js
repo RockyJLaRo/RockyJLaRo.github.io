@@ -268,7 +268,7 @@ $(function () {
             'Obujos', 'Tanjis', 'Ladybug', 'Manta_Ray', 'Calamary',
             //300
             'Jellyfish', 'Shark', 'Northern_Pike', 'Fish', 'Crawler',
-            //305 - Still need to add Base64 for the ones below.
+            //305
             'Spidris', 'Kollos', 'Floor_Blob', 'Swarmer', 'Spitter',
             //310
             'Waspoid', 'Poodle', 'Deepling_Worker', 'Wild_Dog', 'Stone_Devourer',
@@ -288,7 +288,7 @@ $(function () {
             'Rafzan', 'Yellow_Paper_Man', 'Hamster', 'Rorc', 'Shadow_Pupil',
             //350
             'Blood_Hand', 'Blood_Priest', 'Vicious_Manbat', 'Vampire_Viscount', 'Nightfiend',
-            //355
+            //355 - Still need to add Base64 for the ones below.
             'The_Pale_Count', 'Gravedigger', 'White_Shade', 'Elder_Wyrm', 'Tyrn',
             //360
             'The_Welter', 'White_Pale', 'Shlorg', 'Tarnished_Spirit', 'Leaf_Golem',
