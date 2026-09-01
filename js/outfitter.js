@@ -288,7 +288,7 @@ $(function () {
             'Rafzan', 'Yellow_Paper_Man', 'Hamster', 'Rorc', 'Shadow_Pupil',
             //350
             'Blood_Hand', 'Blood_Priest', 'Vicious_Manbat', 'Vampire_Viscount', 'Nightfiend',
-            //355 - Still need to add Base64 for the ones below.
+            //355
             'The_Pale_Count', 'Gravedigger', 'White_Shade', 'Elder_Wyrm', 'Tyrn',
             //360
             'The_Welter', 'White_Pale', 'Shlorg', 'Tarnished_Spirit', 'Leaf_Golem',
@@ -322,7 +322,7 @@ $(function () {
             'Giant_Spider_Black_Eyes', 'Giant_Spider_Green_Eyes', 'Wolf_(Nostalgia)', 'Bear_(Nostalgia)', 'Bug_(Nostalgia)',
             //435
             'Pig_(Nostalgia)', 'Spider_(Nostalgia)', 'Wasp_(Nostalgia)', 'Bonelord_(Nostalgia)', 'Black_Dragon',
-            //440
+            //440 - Still need to add Base64 for the ones below.
             'Zorvorax_(A)', 'Shaper_Matriarch', 'Orclops_Doomhauler', 'Stone_Rhino', 'Dragonking_Zyrtarch',
             //445
             'The_Last_Lore_Keeper', 'Lloyd', 'The_Freezing_Time_Guardian', 'The_Blazing_Time_Guardian', 'The_Time_Guardian',
@@ -1058,92 +1058,92 @@ $(function () {
             // },
             Rafzan: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             'Naga_Boss_(A)': {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             'Naga_Boss_(B)': {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             'Timira_the_Many-headed': {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             'Sugar_Daddy_/_Mommy': {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
-            'Spellreaper_Inferniarch': {
+            Spellreaper_Inferniarch: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
-            'Hellhunter_Inferniarch': {
+            Hellhunter_Inferniarch: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
-            'Brinebrute_Inferniarch': {
+            Brinebrute_Inferniarch: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Merudri: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             Moonstone_Excavator: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Mimar_Haffar: {
                 standing: 8, walking: 8,
-                standing_delay: 100, walking_delay: 300,
+                standing_delay: 100, walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Moonstone_Overseer: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             Radiant_Warden: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Radiant_Templar: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             Radiant_Paragon: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Radiant_Inquisitor: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
             Radiant_Zealot: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: false,
             },
             Radiant_Acolyte: {
                 standing: 1, walking: 8,
-                walking_delay: 300,
+                walking_delay: 100,
                 addon1: true, addon2: true,
             },
         },
