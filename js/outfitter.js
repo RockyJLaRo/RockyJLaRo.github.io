@@ -1048,7 +1048,7 @@ $(function () {
                 addon1: true, addon2: true,
             },
             Spirit_Elemental: {
-                standing: 1, walking: 8,
+                standing: 8, walking: 8,
                 walking_delay: 100,
                 addon1: true, addon2: true,
             },
