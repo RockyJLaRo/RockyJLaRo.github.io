@@ -953,7 +953,7 @@ $(function () {
             'Wasp_(Nostalgia)': 2,
             'Bonelord_(Nostalgia)': 2,
             Ancient_Spawn_Of_Morgathla: 2,
-            Sugar_Cube_Worker: 4
+            Sugar_Cube_Worker: 8
         },
 
         // ---------------------------------------------------------------------------
