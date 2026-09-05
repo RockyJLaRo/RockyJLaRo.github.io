@@ -1006,7 +1006,7 @@ $(function () {
             Tremendous_Tyrant: {
                 standing: 8, walking: 8,
                 standing_delay: 100, walking_delay: 300,
-                addon1: true, addon2: true,
+                colourisable: true, addon1: true, addon2: true,
             },
             'Naga_Boss_(A)': {
                 standing: 1, walking: 8,
