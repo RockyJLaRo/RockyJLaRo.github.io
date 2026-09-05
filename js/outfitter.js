@@ -821,7 +821,6 @@ $(function () {
             Defiler: 2,
             Hellhound: 2,
             Massive_Fire_Elemental: 2,
-            Hellfire_Fighter: 1,
             Juggernaut: 2,
             Nightmare: 2,
             Blightwalker: 2,
@@ -993,6 +992,11 @@ $(function () {
                 standing: 1, walking: 8,
                 walking_delay: 100,
                 addon1: true, addon2: true,
+            },
+            Hellfire_Fighter: {
+                standing: 0, walking: 2,
+                walking_delay: 300,
+                addon1: false, addon2: false,
             },
             Cave_Chimera: {
                 standing: 1, walking: 8,
