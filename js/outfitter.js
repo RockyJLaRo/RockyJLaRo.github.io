@@ -779,7 +779,6 @@ $(function () {
             The_Rootkraken: 8,
             Rampant_Barrier: 8,
             Omniphant: 8,
-            Moonhunter: 8,
             Avatar_of_Balance: 8,
             Vampiric_Essence: 8,
             Norcferatu_Nightweaver: 8,
