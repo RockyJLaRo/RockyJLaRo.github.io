@@ -778,7 +778,7 @@ $(function () {
             Wafer_Paper_Butterfly: 8,
             The_Rootkraken: 8,
             Rampant_Barrier: 8,
-            Omniphant: 8,
+            Omniphant: 13,
             Avatar_of_Balance: 8,
             Vampiric_Essence: 8,
             Norcferatu_Nightweaver: 8,
