@@ -322,7 +322,7 @@ $(function () {
             'Giant_Spider_Black_Eyes', 'Giant_Spider_Green_Eyes', 'Wolf_(Nostalgia)', 'Bear_(Nostalgia)', 'Bug_(Nostalgia)',
             //435
             'Pig_(Nostalgia)', 'Spider_(Nostalgia)', 'Wasp_(Nostalgia)', 'Bonelord_(Nostalgia)', 'Black_Dragon',
-            //440 - Still need to add Base64 for the ones below.
+            //440
             'Zorvorax_(A)', 'Shaper_Matriarch', 'Orclops_Doomhauler', 'Stone_Rhino', 'Dragonking_Zyrtarch',
             //445
             'The_Last_Lore_Keeper', 'Lloyd', 'The_Freezing_Time_Guardian', 'The_Blazing_Time_Guardian', 'The_Time_Guardian',
@@ -353,7 +353,7 @@ $(function () {
             //510
             'Baleful_Bunny', 'Bonny_Bunny', 'Animated_Snowman', 'Percht_Disguise', 'Cart_Packed_With_Gold',
             //515
-            'Adult_Goanna', 'Young_Goanna', 'Urmahlullu_the_Immaculate', 'Scarlett_Etzel', 'Ogre_Ruffian',
+            'Adult_Goanna', 'Young_Goanna', 'Urmahlullu_The_Immaculate', 'Scarlett_Etzel', 'Ogre_Ruffian',
             //520
             'Ogre_Rowdy', 'Ogre_Sage', 'Ugly_Monster', 'Gryphon', 'King_Zelos',
             //525
@@ -375,7 +375,7 @@ $(function () {
             //565
             'Blemished_Spawn', 'Afflicted_Strider', 'Lavafungus', 'The_Brainstealer', 'The_Mega_Magmaoid',
             //570
-            'Lava_Elemental', 'Phant', 'Carnisylvan_Sapling', 'Murmillion', 'Scissorion',
+            'Lava_Elemental', 'Cave_Chimera', 'Carnisylvan_Sapling', 'Murmillion', 'Scissorion',
             //575
             'Hoodinion', 'Mearidion', 'Domestikion', 'Uninvited', 'Unexpected',
             //580
@@ -397,7 +397,7 @@ $(function () {
             //620
             'Cursed_Ape', 'Avatar_of_Steel', 'Avatar_of_Light', 'Avatar_of_Storm', 'Avatar_of_Nature',
             //625
-            'The_Monster', 'Crape_man', 'Liodile', 'Boar_man', 'Harpy',
+            'The_Monster', 'Crape_Man', 'Liodile', 'Boar_Man', 'Harpy',
             //630
             'Carnivostrich', 'Rhindeer', 'Mycobiontic_Beetle', 'Meandering_Mushroom', 'Darklight_Construct',
             //635
@@ -407,13 +407,13 @@ $(function () {
             //645
             'Wandering_Pillar', 'Sopping_Carcass', 'Sopping_Corpus', 'Darklight_Source', 'Darklight_Striker',
             //650
-            'Murcion', 'Ichgahal', 'Chagorz', 'Vemiath', 'Echo_Of_Ichgahal_/_Murcion',
+            'Murcion', 'Ichgahal', 'Chagorz', 'Vemiath', 'Echo_of_Ichgahal_-_Murcion',
             //655
-            'Echo_Of_Chagorz_/_Vemiath', 'Bakragore', 'Albino_Dragon', 'Ragged_Rabid_Wolf', 'The_Rest_of_Ratha',
+            'Echo_of_Chagorz_-_Vemiath', 'Bakragore', 'Albino_Dragon', 'Ragged_Rabid_Wolf', 'The_Rest_of_Ratha',
             //660
             'Ship_(White)', 'Ship_(Red)', 'Ship_(Yellow)', 'Ship_(Green)', 'Ship_(Blue)',
             //665
-            'Ship_(Black)', 'Storm', 'Fryclops', 'Atab', 'Iks_Yapunac',
+            'Ship_(Black)', 'Storm_(A)', 'Fryclops', 'Atab', 'Iks_Yapunac',
             //670
             'The_Draccoon', 'Dragolisk', 'Wardragon', 'Mitmah_Scout', 'Mitmah_Seer',
             //675
@@ -427,7 +427,7 @@ $(function () {
             //695
             'Cream_Blob', 'Quara_Plunderer', 'Quara_Raider', 'Rootthing_Nutshell', 'Rootthing_Amber_Shaper',
             //700
-            'Rootthing_Bug_Tracker', 'Sugar_Daddy_/_Mommy', 'The_Rootkraken', 'Blightling', 'Grove_Guardian',
+            'Rootthing_Bug_Tracker', 'Sugar_Daddy_-_Mommy', 'The_Rootkraken', 'Blightling', 'Grove_Guardian',
             //705
             'Carniphila_(B)', 'Carniphila_(C)', 'Common_Beetle', 'Blight_Bug', 'Thorn_Lily',
             //710
@@ -451,17 +451,17 @@ $(function () {
             //755
             'Night_Harpy', 'Court_Warlock', 'Roaming_Dread', 'Crypt_Mage', 'Stag',
             //760
-            'Imperial', 'Herald_of_Fire', 'Storm_(B)', 'Moonstone_Excavator', 'Mimar_Haffar',
+            'Imperial', 'Blue_Rotworm', 'Green_Rotworm', 'Red_Rotworm', 'Yellow_Rotworm',
             //765
-            'Phosphorus_(A)', 'Moonstone_Overseer', 'Maior_Domus_(A)', 'Maior_Domus_(B)', 'Phosphorus_(B)',
+            'Lizard_Henchman', 'Lizard_Magician', 'Lizard_Swordmaster', 'Lizard_Commander', 'Herald_of_Fire',
             //770
-            'Radiant_Warden', 'Radiant_Templar', 'Radiant_Paragon', 'Radiant_Inquisitor', 'Radiant_Zealot',
+            'Storm_(B)', 'Moonstone_Excavator', 'Mimar_Haffar', 'Phosphorus_(A)', 'Moonstone_Overseer',
             //775
-            'Radiant_Acolyte', 'Moonspawn_Blightspitter', 'Moonspawn_Oozecrown', 'Moonspawn_Juggernaut'
+            'Maior_Domus_(A)', 'Maior_Domus_(B)', 'Phosphorus_(B)', 'Radiant_Warden', 'Radiant_Templar',
             //780
-
+            'Radiant_Paragon', 'Radiant_Inquisitor', 'Radiant_Zealot', 'Radiant_Acolyte', 'Moonspawn_Blightspitter',
             //785
-
+            'Moonspawn_Oozecrown', 'Moonspawn_Juggernaut', 'Tremendous_Tyrant'
             //790
 
             //795
@@ -477,76 +477,6 @@ $(function () {
             //820
 
             //825
-
-            //830
-
-            //835
-
-            //840
-
-            //845
-
-            //850
-
-            //855
-
-            //860
-
-            //865
-
-            //870
-
-            //875
-
-            //880
-
-            //885
-
-            //890
-
-            //895
-
-            //900
-
-            //905
-
-            //910
-
-            //915
-
-            //920
-
-            //925
-
-            //930
-
-            //935
-
-            //940
-
-            //945
-
-            //950
-
-            //955
-
-            //960
-
-            //965
-
-            //970
-
-            //975
-
-            //980
-
-            //985
-
-            //990
-
-            //995
-
-            //1000
 
         ],
 
@@ -1065,6 +995,16 @@ $(function () {
                 walking_delay: 100,
                 addon1: true, addon2: true,
             },
+            Cave_Chimera: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                addon1: true, addon2: true,
+            },
+            Tremendous_Tyrant: {
+                standing: 8, walking: 8,
+                standing_delay: 100, walking_delay: 300,
+                addon1: true, addon2: true,
+            },
             'Naga_Boss_(A)': {
                 standing: 1, walking: 8,
                 walking_delay: 100,
@@ -1080,7 +1020,7 @@ $(function () {
                 walking_delay: 100,
                 addon1: true, addon2: true,
             },
-            'Sugar_Daddy_/_Mommy': {
+            'Sugar_Daddy_-_Mommy': {
                 standing: 1, walking: 8,
                 walking_delay: 100,
                 addon1: true, addon2: true,
@@ -1104,6 +1044,31 @@ $(function () {
                 standing: 1, walking: 8,
                 walking_delay: 100,
                 addon1: true, addon2: true,
+            },
+            Spirit_Elemental: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                addon1: true, addon2: true,
+            },
+            Lizard_Henchman: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                colourisable: true, addon1: false, addon2: false,
+            },
+            Lizard_Magician: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                colourisable: true, addon1: false, addon2: false,
+            },
+            Lizard_Swordmaster: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                colourisable: true, addon1: false, addon2: false,
+            },
+            Lizard_Commander: {
+                standing: 1, walking: 8,
+                walking_delay: 100,
+                colourisable: true, addon1: false, addon2: false,
             },
             Moonstone_Excavator: {
                 standing: 1, walking: 8,
