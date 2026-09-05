@@ -31,7 +31,7 @@ $(function () {
             //35
             'Water_Buffalo_(Mount)', 'Tombstinger', 'Platesaurian', 'Ursagrodon', 'The_Hellgrip',
             //40
-            'Noble_Lion_(Mount', 'Desert_King', 'Shock_Head_(Mount)', 'Walker_(Mount)', 'Azudocus',
+            'Noble_Lion_(Mount)', 'Desert_King', 'Shock_Head_(Mount)', 'Walker_(Mount)', 'Azudocus',
             //45
             'Carpacosaurus', 'Death_Crawler', 'Flamesteed', 'Jade_Lion', 'Jade_Pincer',
             //50
@@ -303,7 +303,7 @@ $(function () {
             //385
             'Metal_Gargoyle', 'Blood_Beast', 'Rustheap_Golem', 'Glooth_Anemone', 'Walker',
             //390
-            'Moohtant', 'Minotaur_Amazon', 'Execowtioner', 'Mooh\'tah Warrior', 'Minotaur_Hunter',
+            'Moohtant', 'Minotaur_Amazon', 'Execowtioner', 'Mooh\'tah_Warrior', 'Minotaur_Hunter',
             //395
             'Worm_Priestess', 'Glooth_Blob', 'Rot_Elemental', 'Devourer', 'Seacrest_Serpent',
             //400
@@ -329,7 +329,7 @@ $(function () {
             //450
             'Putrid_Mummy', 'Pooka', 'Twisted_Pooka', 'The_Source_Of_Corruption', 'Boogy',
             //455
-            'Pixie', 'The_False_God', 'Misguided_Shadow', 'Liqour_Spirit', 'The_Unarmored_Voidborn',
+            'Pixie', 'The_False_God', 'Misguided_Shadow', 'Liquor_Spirit', 'The_Unarmored_Voidborn',
             //460
             'Leiden', 'Nymph', 'Barkless_Devotee', 'Skullfrost', 'Emberwing',
             //465
@@ -630,12 +630,16 @@ $(function () {
             'Werelion', 'Pirat', 'Raccoon', 'Tyrant', 'Girtablilu',
             //160
             'Bashmu', 'Carnisylvan', 'Chimera', 'Naga_(A)', 'Naga_(B)',
-            //170
+            //165
             'Naga_(C)', 'Naga_(D)', 'Gnome_Female', 'Scientist', 'Weretiger',
-            //180
+            //170
             'Werecrocodile', 'Werepanther', 'Merudri', 'Crusader', 'Wyrmling',
-            //185
+            //175
             'Headwalker', 'Shell_Drake', 'Sugar_Fairy', 'Silverfrost', 'Iceplume'
+            //180
+
+            //185
+
             //190
 
             //195
