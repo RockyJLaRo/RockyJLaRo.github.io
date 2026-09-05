@@ -788,7 +788,8 @@ $(function () {
             Herald_of_Fire: 8,
             'Storm_(B)': 8,
             'Phosphorus_(A)': 8,
-            'Phosphorus_(B)': 8
+            'Phosphorus_(B)': 8,
+            Sugar_Cube_Worker: 4
         },
         outfiter_sprites_creature_walking = {
             // e.g. SomeCreature: 2,
