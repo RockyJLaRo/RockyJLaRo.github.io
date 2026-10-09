@@ -1109,3 +1109,556 @@
 .outfiter .copy_btn {
     background-image: url('../images/ui/copy.png');
 }
+
+/* ---------------------------------------------------------------------------
+ * Accessibility (all screen sizes)
+ * ------------------------------------------------------------------------- */
+
+/* List rows alternate between two greys. Both pass WCAG AA contrast (4.5:1)
+ * on the panel texture; the old darker grey (#8F8F8F) only reached 2.9:1. */
+.outfiter .list_el {
+    color: #dedede;
+}
+
+.outfiter .list_el.list_el_alt {
+    color: #bababa;
+}
+
+.outfiter .div2_title {
+    color: #b4b4b4;
+}
+
+/* Hover highlight only for devices that can hover (no "stuck" highlight after a tap). */
+.list_el:hover {
+    background-color: transparent;
+}
+
+@media (hover: hover) {
+    .list_el:hover {
+        background-color: rgba(255, 255, 255, 0.20);
+    }
+}
+
+/* Visible keyboard focus. :focus-visible only shows for keyboard use, so mouse
+ * users see the same interface as before. The real checkboxes/radios are hidden,
+ * so their label shows the focus ring instead. */
+.outfiter button:focus-visible,
+.outfiter input[type="text"]:focus-visible,
+.outfiter textarea:focus-visible,
+.outfiter .help_q:focus-visible,
+.outfiter .dcolor_table div:focus-visible,
+.outfiter .divcheck:has(input:focus-visible),
+.outfiter .colourise_item:has(input:focus-visible),
+.outfiter .list_el:has(input:focus-visible) {
+    outline: 2px solid #f0c040;
+    outline-offset: 1px;
+}
+
+.outfiter .dcolor_table div:focus-visible {
+    position: relative;
+    z-index: 6;
+}
+
+/* Only block page scrolling on the preview while the sprite can actually be
+ * dragged (it is bigger than the preview box). */
+.outfiter .body_main {
+    touch-action: auto;
+}
+
+.outfiter .body_main.is-pannable {
+    touch-action: none;
+}
+
+/* Buttons react immediately on touch screens (no double-tap-to-zoom delay). */
+.outfiter button,
+.outfiter label {
+    touch-action: manipulation;
+}
+
+/* The list switcher is only used in the narrow layout below. */
+.outfiter .list_tabs {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .outfiter *,
+    .outfiter_help_tip {
+        transition: none !important;
+    }
+}
+
+/* ===========================================================================
+ * NARROW SCREENS (phones, tablets, small or zoomed-in windows)
+ * ---------------------------------------------------------------------------
+ * Below 1181px the desktop layout (lists on the left, 888px viewer on the
+ * right) no longer fits. The same elements are then shown in one column:
+ *
+ *     preview -> outfit/mount/creature arrows -> list (one at a time, with
+ *     tabs) -> options -> colours -> name -> link -> animation steps
+ *
+ * "display: contents" removes the viewer's wrapper boxes so their children
+ * can be reordered with "order". Nothing here applies to the desktop layout.
+ * The breakpoint is repeated in js/outfitter.js (outfiter_compact_query).
+ * ========================================================================= */
+@media (max-width: 1180px) {
+    .outfiter {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    /* unwrap the viewer so its parts can be ordered individually */
+    .outfiter .viewer,
+    .outfiter .viewer > .div2,
+    .outfiter .omain_wrap,
+    .outfiter .omain_wrap_right,
+    .outfiter .omain_cont_right {
+        display: contents;
+    }
+
+    .outfiter .viewer > .div2 > .div2_title,
+    .outfiter .clear {
+        display: none;
+    }
+
+    .outfiter .body_main_div { order: 10; }
+    .outfiter .outfiter_status { order: 11; }
+    .outfiter .oitem_select_cont { order: 12; }
+    .outfiter .list_tabs { order: 20; }
+    .outfiter .radio_list_wrap { order: 21; }
+    .outfiter .omain_wrap_left { order: 30; }
+    .outfiter .colourise_cont { order: 40; }
+    .outfiter .colors_cont { order: 41; }
+    .outfiter .charn_cont { order: 50; }
+    .outfiter .url_input_cont { order: 60; }
+    .outfiter .template_code_code_cont { order: 61; }
+    .outfiter .anistep_panel { order: 70; }
+    .outfiter .hide_canvas { order: 99; position: absolute; width: 0; overflow: hidden; }
+
+    /* the desktop layout shifted these up by 50px; not needed here */
+    .outfiter .colors_cont,
+    .outfiter .charn_cont,
+    .outfiter .url_input_cont,
+    .outfiter .template_code_code_cont {
+        top: 0;
+    }
+
+    /* --- preview ------------------------------------------------------- */
+    .outfiter .body_main_div {
+        width: 100%;
+        min-width: 0;
+        /* at least 260px so the default 2x sprite (256px) is never cut off */
+        height: clamp(260px, min(78vw, 62vh), 420px);
+        min-height: 0;
+        margin: 0;
+        background: #464747 url('../images/ui/panel-light.png') repeat;
+    }
+
+    /* centre the sprite vertically (its height is set by outfitter.js) */
+    .outfiter .body_main,
+    .outfiter .body_main.body_main_with_floor {
+        top: max(0px, calc(50% - var(--outfiter-img-h, 128px) / 2));
+    }
+
+    .outfiter .body_main_div .zoom_btn {
+        width: 44px;
+        height: 44px;
+        top: 4px;
+        background-size: 28px 28px;
+    }
+
+    .outfiter .body_main_div .zoomout { left: 4px; }
+    .outfiter .body_main_div .zoomin { right: 4px; }
+
+    /* arrow buttons: 44px touch area, the 20px pixel-art arrow drawn at 2x */
+    .outfiter .leftb,
+    .outfiter .rightb {
+        position: relative;
+        width: 44px;
+        height: 44px;
+        background: transparent none;
+    }
+
+    .outfiter .leftb::before,
+    .outfiter .rightb::before {
+        content: '';
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 20px;
+        height: 20px;
+        background: #757575 url('../images/ui/arrow-buttons.png') no-repeat;
+        transform: scale(2);
+        transform-origin: 0 0;
+        image-rendering: pixelated;
+    }
+
+    .outfiter .leftb::before { background-position: left top; }
+    .outfiter .leftb:active::before { background-position: right top; }
+    .outfiter .rightb::before { background-position: left -20px; }
+    .outfiter .rightb:active::before { background-position: right -20px; }
+    .outfiter .tleftb::before { background-position: left -40px; }
+    .outfiter .tleftb:active::before { background-position: right -40px; }
+    .outfiter .trightb::before { background-position: left -60px; }
+    .outfiter .trightb:active::before { background-position: right -60px; }
+
+    /* the rotate buttons sit in the bottom corners of the preview */
+    .outfiter .tleftb,
+    .outfiter .trightb {
+        position: absolute;
+        bottom: 4px;
+    }
+
+    .outfiter .tleftb { left: 4px; }
+    .outfiter .trightb { right: 4px; }
+
+    .outfiter .leftb[disabled]::before,
+    .outfiter .rightb[disabled]::before {
+        opacity: 0.6;
+    }
+
+    .outfiter .outfiter_status {
+        margin: 0;
+    }
+
+    /* --- selected outfit / mount / creature ----------------------------- */
+    .outfiter .oitem_select_cont {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .outfiter .oitem_select_cont .leftb,
+    .outfiter .oitem_select_cont .rightb {
+        float: none;
+        flex: 0 0 auto;
+        margin: 0;
+    }
+
+    .outfiter .oitem_select_cont .rightb {
+        order: 2;
+    }
+
+    .outfiter .oitem_select_name {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
+        padding: 12px 6px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    /* --- lists: one at a time, chosen with the tabs ------------------- */
+    .outfiter .list_tabs {
+        display: flex;
+        gap: 4px;
+    }
+
+    .outfiter .list_tab {
+        flex: 1 1 0;
+        min-height: 44px;
+        padding: 0 4px;
+        font-size: 13px;
+        border: 2px solid;
+        border-color: #757575 #2a2a2a #2a2a2a #757575;
+        background: #464747 url('../images/ui/panel-light.png') repeat;
+    }
+
+    .outfiter .list_tab[aria-pressed="true"] {
+        border-color: #2a2a2a #757575 #757575 #2a2a2a;
+        background: #2f2f30;
+        color: #ffffff;
+    }
+
+    .outfiter .radio_list_wrap {
+        display: none;
+        width: 100%;
+        height: auto;
+    }
+
+    .outfiter.show-list-oselector .oselector,
+    .outfiter.show-list-mselector .mselector,
+    .outfiter.show-list-cselector .cselector {
+        display: block;
+    }
+
+    .outfiter .radio_list_out {
+        height: min(52vh, 420px);
+        min-height: 220px;
+        font-size: 13px;
+        line-height: 16px;
+        overscroll-behavior: contain;
+    }
+
+    .outfiter .list_el {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 4px 8px;
+        box-sizing: border-box;
+    }
+
+    .outfiter .list_el .t {
+        flex: 1 1 auto;
+        max-width: none;
+    }
+
+    .outfiter input[type="text"].omsearch {
+        min-height: 44px;
+        padding-left: 10px;
+    }
+
+    /* --- options (Preview / Extra / Configure) ------------------------ */
+    .outfiter .omain_wrap_left {
+        float: none;
+        width: auto;
+        padding: 8px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 8px 12px;
+        align-items: start;
+        border: 1px solid;
+        border-color: #2a2a2a #757575 #757575 #2a2a2a;
+        background: #464747 url('../images/ui/panel-light.png') repeat;
+    }
+
+    .outfiter .omain_cont_left + .omain_cont_left {
+        padding: 0;
+    }
+
+    .outfiter .divcheck {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        margin: 0 0 4px 0;
+        padding: 4px 8px;
+        line-height: 16px;
+        box-sizing: border-box;
+    }
+
+    .outfiter .darkchk + .darkchk_in,
+    .outfiter .darkrad + .darkrad_in {
+        flex: 0 0 auto;
+        margin-right: 10px;
+        transform: scale(1.5);
+        image-rendering: pixelated;
+    }
+
+    .outfiter .rotate4x_wrap {
+        max-width: none;
+    }
+
+    .outfiter .help_q {
+        width: 32px;
+        height: 32px;
+        background-size: 16px 16px;
+    }
+
+    .outfiter .nbutton {
+        min-height: 44px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .outfiter .download_image {
+        width: 100%;
+        max-width: none;
+    }
+
+    /* --- colours ---------------------------------------------------------- */
+    .outfiter .colourise_cont {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+        margin: 0;
+    }
+
+    .outfiter .colourise_title {
+        float: none;
+        padding: 0;
+    }
+
+    .outfiter .colourise_item {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 6px;
+    }
+
+    .outfiter .colourise_btns {
+        float: none;
+        order: 5;
+        flex: 1 1 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 0;
+    }
+
+    .outfiter .colourise_btns .nbutton {
+        flex: 1 1 140px;
+        width: auto;
+        min-width: 0;
+    }
+
+    .outfiter .colors_cont {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        max-width: 560px;
+        margin: 0 auto;
+    }
+
+    .outfiter .color_tab {
+        float: none;
+        /* 20% basis: the four tabs share one row and the palette wraps below */
+        flex: 1 1 20%;
+        width: auto;
+        min-width: 0;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .outfiter .color_tab_in {
+        padding: 10px 0;
+    }
+
+    .outfiter .dcolor_table_out {
+        flex: 1 1 100%;
+        width: auto;
+        box-sizing: border-box;
+    }
+
+    .outfiter .dcolor_table {
+        width: 100%;
+        grid-template-columns: repeat(19, 1fr);
+        line-height: 0;
+    }
+
+    .outfiter .dcolor_table * {
+        width: auto;
+        height: auto;
+        aspect-ratio: 1;
+        padding: 0;
+        border-width: 1px;
+    }
+
+    .outfiter .color_table_d_sel::after {
+        width: auto;
+        height: auto;
+        inset: -3px;
+        border-width: 2px;
+    }
+
+    /* --- name, link, template, animation steps --------------------------- */
+    .outfiter .charn_cont {
+        width: 100%;
+        margin: 0;
+    }
+
+    .outfiter .charn_title {
+        top: 0;
+        flex: 1 1 100%;
+        text-align: left;
+    }
+
+    .outfiter .charn {
+        flex: 1 1 160px;
+        width: auto;
+    }
+
+    .outfiter .charn_cont .clear_name,
+    .outfiter .charn_cont .use_name {
+        flex: 1 1 100px;
+    }
+
+    .outfiter .url_input_cont,
+    .outfiter .template_code_code_cont {
+        align-items: center;
+        margin: 0;
+    }
+
+    .outfiter .copy_btn {
+        width: 44px;
+        height: 44px;
+        margin: 0;
+        background-size: 16px 16px;
+    }
+
+    /* 16px text stops phones from zooming in when a field is tapped */
+    .outfiter input[type="text"],
+    .outfiter textarea {
+        font-size: 16px;
+        line-height: 20px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+
+    .outfiter .anistep_step_cont {
+        grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+        margin: 4px;
+    }
+}
+
+/* Phones: two option columns - Configure (most used) next to Preview, and the
+ * Extra group (with Download) across the full width underneath. */
+@media (max-width: 600px) {
+    .outfiter .omain_wrap_left {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .outfiter .omain_cont_left:nth-child(3) {
+        order: -1;
+    }
+
+    .outfiter .omain_cont_left:nth-child(2) {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 6px;
+    }
+
+    .outfiter .omain_cont_left:nth-child(2) > .divtitle,
+    .outfiter .omain_cont_left:nth-child(2) > label:has(.show_advanced),
+    .outfiter .omain_cont_left:nth-child(2) > .save_advanced_opts,
+    .outfiter .omain_cont_left:nth-child(2) > .download_image {
+        grid-column: 1 / -1;
+    }
+
+    .outfiter .save_advanced_opts.is-visible {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 6px;
+    }
+
+    .outfiter .save_advanced_opts > .divtitle,
+    .outfiter .save_advanced_opts > .rotate4x_wrap {
+        grid-column: 1 / -1;
+    }
+}
+
+/* Phones: slightly tighter spacing */
+@media (max-width: 480px) {
+    .outfiter {
+        gap: 6px;
+    }
+
+    .outfiter .omain_wrap_left {
+        gap: 4px 6px;
+        padding: 6px;
+    }
+
+    .outfiter .divcheck {
+        padding: 4px;
+        font-size: 11px;
+    }
+
+    .outfiter .darkchk + .darkchk_in,
+    .outfiter .darkrad + .darkrad_in {
+        margin-right: 8px;
+    }
+}

@@ -74,7 +74,13 @@ $(function () {
     }
 
     $('#outfiter_container').html(
-        '<div class="outfiter">' +
+        '<div class="outfiter show-list-oselector">' +
+        // List switcher - only shown on narrow screens, where one list is visible at a time
+        '<div class="list_tabs" role="group" aria-label="Choose a list">' +
+        '<button type="button" class="list_tab" data-list="oselector" aria-pressed="true">Outfits</button>' +
+        '<button type="button" class="list_tab" data-list="mselector" aria-pressed="false">Mounts</button>' +
+        '<button type="button" class="list_tab" data-list="cselector" aria-pressed="false">Creatures</button>' +
+        '</div>' +
         // Mounts Selector
         '<div class="outer_border radio_list_wrap mselector">' +
         '<div class="div2_no_padding">' +
@@ -195,25 +201,25 @@ $(function () {
         '<button type="button" class="zoom_btn zoomreset" title="Reset View" aria-label="Reset View"></button>' +
         '<button type="button" class="zoom_btn zoomin" title="Zoom In" aria-label="Zoom In"></button>' +
         '<img class="body_main" width="128" height="128" src="' + encodeURI(loading_img) + '" alt="" />' +
-        '<button class="leftb tleftb facingp"></button>' +
-        '<button class="rightb trightb facingm"></button>' +
+        '<button type="button" class="leftb tleftb facingp" aria-label="Rotate left"></button>' +
+        '<button type="button" class="rightb trightb facingm" aria-label="Rotate right"></button>' +
         '</div>' +
         '<div class="outfiter_status" role="status" aria-live="polite"></div>' +
         '<div class="oitem_select_cont">' +
-        '<button class="leftb outfitm"></button>' +
-        '<button class="rightb outfitp"></button>' +
+        '<button type="button" class="leftb outfitm" aria-label="Previous outfit"></button>' +
+        '<button type="button" class="rightb outfitp" aria-label="Next outfit"></button>' +
         '<div class="oitem_select_name outfit_name"></div>' +
         '<div class="clear"></div>' +
         '</div>' +
         '<div class="oitem_select_cont">' +
-        '<button class="leftb mountm"></button>' +
-        '<button class="rightb mountp"></button>' +
+        '<button type="button" class="leftb mountm" aria-label="Previous mount"></button>' +
+        '<button type="button" class="rightb mountp" aria-label="Next mount"></button>' +
         '<div class="oitem_select_name mount_name"></div>' +
         '<div class="clear"></div>' +
         '</div>' +
         '<div class="oitem_select_cont">' +
-        '<button class="leftb creaturem"></button>' +
-        '<button class="rightb creaturep"></button>' +
+        '<button type="button" class="leftb creaturem" aria-label="Previous creature"></button>' +
+        '<button type="button" class="rightb creaturep" aria-label="Next creature"></button>' +
         '<div class="oitem_select_name creature_name"></div>' +
         '<div class="clear"></div>' +
         '</div>' +
@@ -232,21 +238,22 @@ $(function () {
         '<div class="clear"></div>' +
         '</div>' +
         '<div class="colors_cont">' +
-        '<button class="color_tab cb_1 sel"><span class="color_tab_in outer_border_no_bottom">Head</span></button>' +
-        '<button class="color_tab cb_2"><span class="color_tab_in outer_border_no_bottom">Primary</span></button>' +
-        '<button class="color_tab cb_3"><span class="color_tab_in outer_border_no_bottom">Secondary</span></button>' +
-        '<button class="color_tab cb_4"><span class="color_tab_in outer_border_no_bottom">Detail</span></button>' +
+        '<button type="button" class="color_tab cb_1 sel" aria-pressed="true"><span class="color_tab_in outer_border_no_bottom">Head</span></button>' +
+        '<button type="button" class="color_tab cb_2" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Primary</span></button>' +
+        '<button type="button" class="color_tab cb_3" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Secondary</span></button>' +
+        '<button type="button" class="color_tab cb_4" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Detail</span></button>' +
         '<div class="clear"></div>' +
         '<div class="dcolor_table_out outer_border">' +
-        '<div class="dcolor_table">' +
-        '<div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>' +
+        '<div class="dcolor_table" role="radiogroup" aria-label="Head colour">' +
+        // 133 colour swatches (7 rows x 19 colours); colours are filled in by outfiter_init()
+        new Array(134).join('<div role="radio" aria-checked="false" tabindex="-1"></div>') +
         '</div>' +
         '</div>' +
         '</div>' +
         '<div class="charn_cont">' +
         '<div class="charn_row">' +
         '<span class="charn_title">Enter Name:</span>' +
-        '<input type="text" size="30" value="" class="dark_input charn" placeholder="Name" />' +
+        '<input type="text" size="30" value="" class="dark_input charn" placeholder="Name" aria-label="Character name" autocomplete="off" />' +
         '<button type="button" class="nbutton clear_name">Clear Name</button>' +
         '<button type="button" class="nbutton use_name">Use Name</button>' +
         '</div>' +
@@ -257,7 +264,7 @@ $(function () {
         '<div class="url_input_cont">' +
         '<span class="url_input_text">Link:&nbsp;</span>' +
         '<span class="url_input_out">' +
-        '<input type="text" value="" readonly="readonly" class="dark_input url_input" />' +
+        '<input type="text" value="" readonly="readonly" class="dark_input url_input" aria-label="Link to this outfit" />' +
         '</span>' +
         '<button type="button" class="copy_btn copy_url" title="Copy" aria-label="Copy link"></button>' +
         '</div>' +
@@ -921,16 +928,17 @@ $(function () {
                         src = i.attr('src'),
                         new_src = is_fail ? error_img : loading_img;
                     ogebi(':button, :checkbox, :radio', 1)
-                        .not('.outfitm, .outfitp, .mountm, .mountp, .creaturem, .creaturep, [name="radio_outfits"], [name="radio_mounts"], [name="radio_creatures"]')
+                        .not('.outfitm, .outfitp, .mountm, .mountp, .creaturem, .creaturep, .list_tab, [name="radio_outfits"], [name="radio_mounts"], [name="radio_creatures"]')
                         .prop({ disabled: true });
                     $this_main.addClass('outfiter_loading');
                     if (new_src && src !== new_src) {
                         outfiter_pan_x = 0;
                         outfiter_pan_y = 0;
                         outfiter_dragging = false;
+                        i[0].style.setProperty('--outfiter-img-h', '128px');
                         i
                             .attr('src', '')
-                            .attr('src', new_src)
+                            .attr({ src: new_src, alt: is_fail ? 'Sprite could not be loaded' : 'Loading' })
                             .css({ height: '', width: '', transform: 'translate(-50%, 0)', cursor: 'default' })
                             .attr({ height: 128, width: 128 })
                             .removeClass('body_main_with_floor is-zoomed is-dragging');
@@ -1614,7 +1622,8 @@ $(function () {
                 outfiter_base_h = newh;
                 ogebi('.body_main_div .body_main', 1)
                     .attr('src', '')
-                    .attr({ src: output_image }).toggleClass('body_main_with_floor', outfiter_GET.floor);
+                    .attr({ src: output_image, alt: outfiter_describe_preview() }).toggleClass('body_main_with_floor', outfiter_GET.floor);
+                outfiter_fit_zoom();
                 outfiter_apply_zoom();
 
                 ogebi('anistep_step_cont').empty();
@@ -1778,12 +1787,33 @@ $(function () {
                     outfiter_pan_y = 0;
                 }
             },
+            // Narrow-screen layout (keep in sync with the @media rule in css/outfitter.css).
+            outfiter_compact_query = '(max-width: 1180px)',
+            outfiter_is_compact = function () {
+                return !!(window.matchMedia && window.matchMedia(outfiter_compact_query).matches);
+            },
+            outfiter_zoom_user_set = false, // true once the user used the zoom buttons / wheel
+            // Narrow screens only: until the user zooms, pick the largest zoom (up to the
+            // default) at which the whole sprite fits inside the preview box.
+            outfiter_fit_zoom = function () {
+                var box = ogebi('body_main_div')[0], z;
+                if (outfiter_zoom_user_set || !outfiter_is_compact() || !box || !box.clientWidth) { return; }
+                z = outfiter_setting_number('default_zoom', 2);
+                while (z > outfiter_zoom_min && (outfiter_base_w * z > box.clientWidth || outfiter_base_h * z > box.clientHeight)) { z--; }
+                outfiter_zoom = z;
+            },
             outfiter_apply_zoom = function () {
                 var
                     $img = ogebi('.body_main_div .body_main', 1),
+                    box = ogebi('body_main_div')[0],
                     w = Math.round(outfiter_base_w * outfiter_zoom),
                     h = Math.round(outfiter_base_h * outfiter_zoom),
                     tx;
+                // used by the narrow-screen CSS to centre the sprite vertically
+                if ($img[0]) { $img[0].style.setProperty('--outfiter-img-h', h + 'px'); }
+                // touch-dragging (panning) is only enabled when the sprite is bigger than the
+                // preview, so swiping over it still scrolls the page on phones
+                $img.toggleClass('is-pannable', outfiter_zoom > 1 && !!box && (w > box.clientWidth || h > box.clientHeight));
                 if (outfiter_zoom <= 1) {
                     outfiter_pan_x = 0;
                     outfiter_pan_y = 0;
@@ -1804,6 +1834,7 @@ $(function () {
             },
             outfiter_do_zoom = function (delta) {
                 var next = outfiter_zoom + parseInt(delta, 10);
+                outfiter_zoom_user_set = true;
                 if (next < outfiter_zoom_min) { next = outfiter_zoom_min; }
                 else if (next > outfiter_zoom_max) { next = outfiter_zoom_max; }
                 if (next === outfiter_zoom) { return; }
@@ -1815,6 +1846,7 @@ $(function () {
                 outfiter_apply_zoom();
             },
             outfiter_do_zoom_reset = function () {
+                outfiter_zoom_user_set = true;
                 outfiter_zoom = 1;
                 outfiter_pan_x = 0;
                 outfiter_pan_y = 0;
@@ -2768,6 +2800,30 @@ $(function () {
                     .replace(/\s+/g, ' ')
                     .replace(/^\s+|\s+$/g, '');
             },
+            // keep screen-reader state of the colour palette in sync with the highlighted swatch
+            outfiter_sync_swatches = function () {
+                ogebi('.dcolor_table div', 1).each(function () {
+                    var on = $(this).hasClass('color_table_d_sel');
+                    this.setAttribute('aria-checked', on ? 'true' : 'false');
+                    this.tabIndex = on ? 0 : -1;
+                });
+            },
+            // Short description of the preview for screen readers (the image's alt text).
+            outfiter_describe_preview = function () {
+                var nice = function (n) { return String(n || '').replace(/_/g, ' '); },
+                    outfit_n = outfiter_names[outfiter_GET.outfit],
+                    text = '';
+                if (outfiter_GET.creature > 0) { return nice(outfiter_creature_names[outfiter_GET.creature]) + ' (creature)'; }
+                if (outfiter_GET.outfit !== outfiter_outfit_none_id) {
+                    text = nice(outfiter_GET.female && outfiter_f_names[outfit_n] ? outfiter_f_names[outfit_n] : outfit_n) + ' outfit';
+                    if (outfiter_GET.female && outfiter_u_names[outfit_n] !== true) { text += ', female'; }
+                    if (outfiter_GET.addon1 && outfiter_GET.addon2) { text += ', both addons'; }
+                    else if (outfiter_GET.addon1) { text += ', addon 1'; }
+                    else if (outfiter_GET.addon2) { text += ', addon 2'; }
+                }
+                if (outfiter_GET.mount) { text += text ? ' on ' + nice(outfiter_mount_names[outfiter_GET.mount]) : nice(outfiter_mount_names[outfiter_GET.mount]) + ' (mount)'; }
+                return text || 'Empty preview';
+            },
             outfiter_sort_none_first = function (a, b) {
                 if (a[0] === 0 || b[0] === 0) { return a[0] === 0 ? (b[0] === 0 ? 0 : -1) : 1; }
                 if (a[1] < b[1]) { return -1; }
@@ -2832,9 +2888,13 @@ $(function () {
                     .each(function (i) {
                         $(this).css('background-color', '#' + d2h(outfiter_color_t[i][0]) + d2h(outfiter_color_t[i][1]) + d2h(outfiter_color_t[i][2]));
                     });
+                ogebi('.dcolor_table div', 1).each(function (i) {
+                    this.setAttribute('aria-label', 'Colour ' + (i + 1));
+                });
                 ogebi('.cb_1, .cb_2, .cb_3, .cb_4', 1).on('click', function () {
-                    ogebi('.cb_1, .cb_2, .cb_3, .cb_4', 1).removeClass('sel');
-                    $(this).addClass('sel');
+                    ogebi('.cb_1, .cb_2, .cb_3, .cb_4', 1).removeClass('sel').attr('aria-pressed', 'false');
+                    $(this).addClass('sel').attr('aria-pressed', 'true');
+                    ogebi('dcolor_table').attr('aria-label', $(this).text() + ' colour');
                     var
                         num = ($(this).attr('class').match(/\bcb_(\d+)\b/) || [])[1],
                         i = parseInt(num, 10),
@@ -2842,6 +2902,7 @@ $(function () {
                         val_name = (col_type === 'mount' ? 'm' : '') + 'c' + i;
                     ogebi('.dcolor_table div', 1).removeClass('color_table_d_sel')
                         .filter(':eq(' + ogebi(val_name).val() + ')').addClass('color_table_d_sel');
+                    outfiter_sync_swatches();
                 });
                 ogebi('cb_1').trigger('click');
 
@@ -2866,8 +2927,19 @@ $(function () {
                         val_name = (col_type === 'mount' ? 'm' : '') + 'c' + i;
                     ogebi('.dcolor_table div', 1).removeClass('color_table_d_sel');
                     $(this).addClass('color_table_d_sel');
+                    outfiter_sync_swatches();
                     ogebi(val_name).val($(this).index());
                     outfiter_do_addon();
+                });
+                // Keyboard: arrow keys move through the palette (19 colours per row), Enter/Space pick.
+                ogebi('dcolor_table').on('keydown', 'div', function (e) {
+                    var i = $(this).index(), $all = ogebi('.dcolor_table div', 1), next;
+                    if (e.which === 13 || e.which === 32) { e.preventDefault(); $(this).trigger('click'); return; }
+                    next = { 37: i - 1, 39: i + 1, 38: i - 19, 40: i + 19, 36: 0, 35: $all.length - 1 }[e.which];
+                    if (next === undefined) { return; }
+                    e.preventDefault();
+                    if (next < 0 || next >= $all.length || $this_main.hasClass('outfiter_loading')) { return; }
+                    $all.eq(next).trigger('click').focus();
                 });
                 ogebi('[name="radio_colourise"]', 1).on('change', function (e, data) {
                     ogebi('colourise_copy').text('Copy to ' + (
@@ -2922,7 +2994,7 @@ $(function () {
                             $('<input type="radio" />').attr({ name: 'radio_outfits', class: 'darkrad radio_outfits_' + outfiter_names_sorted[x] }),
                             $('<span>').attr({ class: 'darkrad_in' }),
                             $('<div />', { class: 't' }).text(outfiter_names[outfiter_names_sorted[x]].replace(/_/g, ' '))
-                        ).css({ color: (toggle ? '#8F8F8F' : '#bfbfbf') })
+                        ).toggleClass('list_el_alt', toggle)
                     );
                     sep_line = false;
                 }
@@ -2944,7 +3016,7 @@ $(function () {
                                 .prop({ checked: String(outfiter_mount_names_sorted[x]) === ogebi('mount').val() }),
                             $('<span>').attr({ class: 'darkrad_in' }),
                             $('<div />', { class: 't' }).text(outfiter_mount_names[outfiter_mount_names_sorted[x]].replace(/_/g, ' '))
-                        ).css({ color: (toggle ? '#8F8F8F' : '#bfbfbf') })
+                        ).toggleClass('list_el_alt', toggle)
                     );
                     sep_line = false;
                 }
@@ -2966,7 +3038,7 @@ $(function () {
                                 .prop({ checked: String(outfiter_creature_names_sorted[x]) === ogebi('creature').val() }),
                             $('<span>').attr({ class: 'darkrad_in' }),
                             $('<div />', { class: 't' }).text(outfiter_creature_names[outfiter_creature_names_sorted[x]].replace(/_/g, ' '))
-                        ).css({ color: (toggle ? '#8F8F8F' : '#bfbfbf') })
+                        ).toggleClass('list_el_alt', toggle)
                     );
                     sep_line = false;
                 }
@@ -3131,7 +3203,7 @@ $(function () {
                 /* Touch support for pan */
                 ogebi('.body_main_div .body_main', 1).on('touchstart', function (e) {
                     var t;
-                    if (outfiter_zoom <= 1) { return; }
+                    if (outfiter_zoom <= 1 || !$(this).hasClass('is-pannable')) { return; }
                     t = e.originalEvent.touches[0];
                     if (!t) { return; }
                     outfiter_dragging = true;
@@ -3160,6 +3232,25 @@ $(function () {
                     outfiter_dragging = false;
                     ogebi('.body_main_div .body_main', 1).removeClass('is-dragging');
                 });
+                // narrow screens: switch between the Outfits / Mounts / Creatures lists
+                ogebi('.list_tab', 1).on('click', function () {
+                    var list = $(this).attr('data-list');
+                    ogebi('.list_tab', 1).attr('aria-pressed', 'false');
+                    $(this).attr('aria-pressed', 'true');
+                    $this_main.removeClass('show-list-oselector show-list-mselector show-list-cselector').addClass('show-list-' + list);
+                });
+                // re-fit the preview after rotating a phone / resizing the window
+                (function () {
+                    var resize_timer;
+                    $(window).on('resize.outfiter orientationchange.outfiter', function () {
+                        clearTimeout(resize_timer);
+                        resize_timer = setTimeout(function () {
+                            if ($this_main.hasClass('outfiter_loading')) { return; }
+                            outfiter_fit_zoom();
+                            outfiter_apply_zoom();
+                        }, 150);
+                    });
+                }());
                 ogebi('outfitm').on('click', function () { outfiter_do_outfit(-1); });
                 ogebi('outfitp').on('click', function () { outfiter_do_outfit(1); });
                 ogebi('mountm').on('click', function () { outfiter_do_mount(-1); });
