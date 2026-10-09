@@ -1,0 +1,1641 @@
+/*
+ * =============================================================================
+ *  TibiaWiki Outfitter - ASSET LIST                (this is the file you edit)
+ * =============================================================================
+ *  Everything the Outfitter knows about creatures, mounts and outfits lives
+ *  here: their names (= IDs) and the rules for reading their sprite sheets.
+ *  There is no program logic in this file.
+ *
+ *  Step-by-step guide with examples: docs/MAINTAINING.md
+ *  After every change run the checker:  npm run validate
+ *
+ *  HOW IDs WORK
+ *    Each list is an array; an item's position in the array is its ID. IDs are
+ *    used in shared links (?o=3, ?m=12, ?cr=37) and by the TibiaWiki
+ *    {{Outfitter}} template, therefore:
+ *      - ALWAYS add new entries at the END of a list.
+ *      - NEVER delete, reorder or rename existing entries - old links would
+ *        then show a different sprite.
+ *    The //0, //5, //10 ... comments mark every 5th ID to help you count.
+ *
+ *  NAMES AND FILES
+ *    A name must match its sprite file exactly, including capital letters
+ *    (GitHub Pages is case-sensitive). Underscores are shown as spaces.
+ *      Mount 'War_Bear'          -> base64/Mount/War_Bear.txt
+ *      Creature 'Dragon'         -> base64/Creature/Dragon.txt
+ *      Outfit 'Knight'           -> base64/Male/Knight.txt + base64/Female/Knight.txt
+ *      Outfit with ID 100-199    -> base64/Other/<Name>.txt (+ <Name>_Female.txt
+ *                                   if it has a female version)
+ *
+ *  SYNTAX TIPS
+ *    Copy the quotes and commas of the neighbouring lines exactly.
+ *    An apostrophe inside a name needs a backslash: 'Gaz\'haragoth'.
+ *    In the rule lists, names containing ( ) - or ' must be quoted:
+ *      'Rotrender_(A)': 8,      Slime: 8,
+ * =============================================================================
+ */
+window.OutfiterAssets = {
+    // ---------------------------------------------------------------------------
+    // DATA: Mounts (index = mount id). Keep in sync with Template:MountLink.
+    // Append new mounts at the end. Index comments (//0, //5, ...) mark every 5 ids.
+    // Also update outfiter_sprites_mount_standing / _walking / _colourisable / special delays if needed.
+    // ---------------------------------------------------------------------------
+    outfiter_mount_names: [
+        //0
+        'None', 'Widow_Queen', 'Racing_Bird', 'War_Bear', 'Black_Sheep_(Mount)',
+        //5
+        'Midnight_Panther_(Mount)', 'Draptor_(Mount)', 'Titanica', 'Tin_Lizzard', 'Blazebringer',
+        //10
+        'Rapid_Boar', 'Stampor_(Mount)', 'Undead_Cavebear_(Mount)', 'Crystal_Wolf_(Mount)', 'Dromedary_(Mount)',
+        //15
+        'Kingly_Deer', 'Donkey_(Mount)', 'Scorpion_King', 'Tamed_Panda', 'Tiger_Slug',
+        //20
+        'Uniwheel', 'Rented_Horse_(A)', 'Rented_Horse_(B)', 'Rented_Horse_(C)', 'Armoured_War_Horse',
+        //25
+        'War_Horse', 'Lady_Bug', 'Manta_Ray_(Mount)', 'Shadow_Draptor', 'Gnarlhound_(Mount)',
+        //30
+        'Dragonling_(Mount)', 'Magma_Crawler_(Mount)', 'Ironblight_(Mount)', 'Crimson_Ray', 'Steelbeak',
+        //35
+        'Water_Buffalo_(Mount)', 'Tombstinger', 'Platesaurian', 'Ursagrodon', 'The_Hellgrip',
+        //40
+        'Noble_Lion_(Mount)', 'Desert_King', 'Shock_Head_(Mount)', 'Walker_(Mount)', 'Azudocus',
+        //45
+        'Carpacosaurus', 'Death_Crawler', 'Flamesteed', 'Jade_Lion', 'Jade_Pincer',
+        //50
+        'Nethersteed', 'Tempest', 'Winter_King', 'Blackpelt', 'Shadow_Hart',
+        //55
+        'Black_Stag', 'Emperor_Deer', 'Flying_Divan', 'Magic_Carpet', 'Floating_Kashmir',
+        //60
+        'Doombringer', 'Tundra_Rambler', 'Highland_Yak', 'Glacier_Vagabond', 'Golden_Dragonfly',
+        //65
+        'Steel_Bee', 'Copper_Fly', 'Hailstorm_Fury', 'Poisonbane', 'Siegebreaker',
+        //70
+        'Woodland_Prince', 'Glooth_Glider', 'Ringtail_Waccoon', 'Night_Waccoon', 'Emerald_Waccoon',
+        //75
+        'Flitterkatzen', 'Venompaw', 'Batcat', 'Sea_Devil', 'Coralripper',
+        //80
+        'Plumfish', 'Gorongra', 'Noctungra', 'Silverneck', 'Rented_Horse_(Recruiter)',
+        //85
+        'Slagsnare', 'Nightstinger', 'Razorcreep', 'Rift_Runner', 'Nightdweller',
+        //90
+        'Frostflare', 'Cinderhoof', 'Bloodcurl', 'Leafscuttler', 'Mouldpincer',
+        //95
+        'Sparkion_(Mount)', 'Swamp_Snapper', 'Mould_Shell', 'Reed_Lurker', 'Neon_Sparkid',
+        //100[]
+        'Vortexion', 'Ivory_Fang', 'Shadow_Claw', 'Snow_Pelt', 'Stone_Rhino_(Mount)',
+        //105
+        'Arctic_Unicorn', 'Blazing_Unicorn', 'Prismatic_Unicorn', 'Cranium_Spider', 'Cave_Tarantula',
+        //110
+        'Gloom_Widow', 'Mole_(Mount)', 'Marsh_Toad', 'Sanguine_Frog', 'Toxic_Toad',
+        //115
+        'Fleeting_Knowledge', 'Ebony_Tiger', 'Feral_Tiger', 'Jungle_Tiger', 'Tawny_Owl',
+        //120
+        'Snowy_Owl', 'Boreal_Owl', 'Lacewing_Moth', 'Hibernal_Moth', 'Cold_Percht_Sleigh',
+        //125
+        'Bright_Percht_Sleigh', 'Dark_Percht_Sleigh', 'Festive_Snowman', 'Muffled_Snowman', 'Caped_Snowman',
+        //130
+        'Rabbit_Rickshaw', 'Bunny_Dray', 'Cony_Cart', 'Nightmarish_Crocovile', 'River_Crocovile',
+        //135
+        'Swamp_Crocovile', 'Cerberus_Champion', 'Jousting_Eagle', 'Gryphon_(Mount)', 'Battle_Badger',
+        //140
+        'Ether_Badger', 'Zaoan_Badger', 'Blue_Rolling_Barrel', 'Green_Rolling_Barrel', 'Red_Rolling_Barrel',
+        //145
+        'Antelope', 'Haze', 'Snow_Strider', 'Dusk_Pryer', 'Dawn_Strayer',
+        //150
+        'Cold_Percht_Sleigh_Variant', 'Bright_Percht_Sleigh_Variant', 'Dark_Percht_Sleigh_Variant', 'Finished_Cold_Percht_Sleigh', 'Finished_Bright_Percht_Sleigh',
+        //155
+        'Finished_Dark_Percht_Sleigh', 'Benevolent_Coral_Rhea', 'Benevolent_Eventide_Nandu', 'Benevolent_Savanna_Ostrich', 'Coral_Rhea',
+        //160
+        'Eventide_Nandu', 'Savanna_Ostrich', 'Phantasmal_Jade', 'White_Lion', 'Cunning_Hyaena',
+        //165
+        'Scruffy_Hyaena', 'Voracious_Hyaena', 'Krakoloss', 'Festive_Mammoth', 'Holiday_Mammoth',
+        //170
+        'Merry_Mammoth', 'Void_Watcher', 'Rune_Watcher', 'Rift_Watcher', 'Dandelion',
+        //175
+        'Hyacinth', 'Peony', 'Singeing_Steed', 'Shellodon', 'Phant',
+        //180
+        'Rustwurm', 'Bogwurm', 'Gloomwurm', 'Emerald_Raven', 'Mystic_Raven',
+        //185
+        'Radiant_Raven', 'Gloothomotive', 'Dreadhare', 'Ember_Saurian', 'Emerald_Sphinx',
+        //190
+        'Floating_Augur', 'Floating_Sage', 'Floating_Scholar', 'Gold_Sphinx', 'Jackalope',
+        //195
+        'Jungle_Saurian', 'Lagoon_Saurian', 'Shadow_Sphinx', 'Wolpertinger', 'Topaz_Shrine',
+        //200
+        'Jade_Shrine', 'Obsidian_Shrine', 'Poppy_Ibex', 'Mint_Ibex', 'Cinnamon_Ibex',
+        //205
+        'Giant_Beaver', 'Ripptor', 'Parade_Horse', 'Jousting_Horse', 'Tourney_Horse',
+        //210
+        'Mutated_Abomination', 'Brass_Speckled_Koi', 'Ink_Spotted_Koi', 'Tangerine_Flecked_Koi', 'Frostbringer',
+        //215
+        'Winterstride', 'Icebreacher', 'Boisterous_Bull', 'Obstinate_Ox', 'Surly_Steer',
+        //220
+        'Foxmouse_(Mount)', 'Spirit_of_Purity', 'Darkfire_Devourer', 'Corpsefire_Skull', 'Magma_Skull',
+        //225
+        'Doom_Skull', 'Mystic_Jaguar_(Mount)', 'Gorgon_Hydra', 'Dawnbringer_Pegasus', 'Wrathfire_Pegasus',
+        //230
+        'Skybreaker_Pegasus', 'Glacier_Wyrm', 'Bog_Tyrant', 'Crimson_Fang', 'Pegasus',
+        //235
+        'Bumblebee', 'Primal_Demonosaur', 'Pallbearer', 'Hell_Demonosaur', 'Alpha_Demonosaur',
+        //240
+        'Night_Locust', 'Leaf_Locust', 'Pearl_Locust', 'Satin_Moth', 'Corpse_Phoenix',
+        //245
+        'Death_Phoenix', 'Soul_Phoenix', 'Gloom_Maw_(Mount)', 'Battle_Werewolf', 'Battlefrazzle',
+        //250
+        'Tidal_Seawater_Predator', 'Ashen_Coast_Predator', 'Crimson_Bay_Predator', 'Flame_Bear', 'Guardian_Lion',
+        //255
+        'Reliable_Ram', 'Vampiric_Hound', 'Night_Hound', 'Infernal_Hound', 'Djinntaur',
+        //260
+        'Radiant_Nimbus_(Mount)', 'Jaracal_(Mount)', 'Landsailer'
+        //265
+
+        //270
+
+        //275
+
+        //280
+
+        //285
+
+        //290
+
+        //295
+
+        //300
+
+    ],
+
+    // ---------------------------------------------------------------------------
+    // DATA: Creatures (index = creature id). Currently separate from outfits/mounts;
+    // selecting a creature clears outfit+mount and vice versa.
+    // Append new creatures at the end. Add irregular sprite counts to
+    // outfiter_sprites_creature_standing / _walking when needed.
+    // Sprite sheets are loaded from Outfiter:Creature/<Name> (same pattern as mounts).
+    // ---------------------------------------------------------------------------
+    outfiter_creature_names: [
+        //0
+        'None', 'Orc_Warlord', 'War_Wolf', 'Orc_Rider', 'Orc',
+        //5
+        'Orc_Shaman', 'Orc_Warrior', 'Orc_Berserker', 'Necromancer', 'Butterfly_(Yellow)',
+        //10
+        'Massive_Water_Elemental', 'Black_Sheep', 'Sheep', 'Troll', 'Bear',
+        //15
+        'Bonelord', 'Ghoul', 'Slime', 'Quara_Predator', 'Rat',
+        //20
+        'Cyclops', 'Minotaur_Mage', 'Minotaur_Archer', 'Minotaur', 'Rotworm',
+        //25
+        'Wolf', 'Snake', 'Minotaur_Guard', 'Spider', 'Deer',
+        //30
+        'Dog', 'Skeleton', 'Dragon', 'Demon', 'Poison_Spider',
+        //35
+        'Demon_Skeleton', 'Giant_Spider', 'Dragon_Lord', 'Fire_Devil', 'Lion',
+        //40
+        'Polar_Bear', 'Scorpion', 'Wasp', 'Bug', 'Quara_Constrictor',
+        //45
+        'Quara_Hydromancer', 'Ghost', 'Fire_Elemental', 'Orc_Spearman', 'Green_Djinn',
+        //50
+        'Winter_Wolf', 'Frost_Troll', 'Witch', 'Behemoth', 'Cave_Rat',
+        //55
+        'Monk', 'Priestess', 'Orc_Leader', 'Pig', 'Goblin',
+        //60
+        'Elf', 'Elf_Arcanist', 'Elf_Scout', 'Mummy', 'Dwarf_Geomancer',
+        //65
+        'Stone_Golem', 'Vampire', 'Dwarf', 'Dwarf_Guard', 'Dwarf_Soldier',
+        //70
+        'Quara_Mantassin', 'Hero', 'Rabbit', 'Swamp_Troll', 'Quara_Pincher',
+        //75
+        'Banshee', 'Ancient_Scarab', 'Blue_Djinn', 'Cobra', 'Larva',
+        //80
+        'Scarab', 'Undead_Pharaoh_(A)', 'Undead_Pharaoh_(B)', 'Pirate_Marauder', 'Hyaena',
+        //85
+        'Gargoyle', 'Pirate_Cutthroat', 'Pirate_Buccaneer', 'Pirate_Corsair', 'Lich',
+        //90
+        'Crypt_Shambler', 'Bonebeast', 'Deathslicer', 'Efreet', 'Marid',
+        //95
+        'Badger', 'Skunk', 'Elder_Bonelord', 'Gazer', 'Yeti',
+        //100
+        'Chicken', 'Crab', 'Lizard_Templar', 'Lizard_Sentinel', 'Lizard_Snakecharmer',
+        //105
+        'Kongra', 'Merlkin', 'Sibang', 'Crocodile', 'Carniphila_(A)',
+        //110
+        'Hydra', 'Bat', 'Panda', 'Centipede', 'Tiger',
+        //115
+        'Carrion_Worm', 'Enlightened_of_the_Cult', 'Pirate_Skeleton', 'Pirate_Ghost', 'Tortoise',
+        //120
+        'Thornback_Tortoise', 'Mammoth', 'Blood_Crab', 'Elephant', 'Flamingo',
+        //125
+        'Butterfly_(Purple)', 'Dworc_Voodoomaster', 'Dworc_Fleshhunter', 'Dworc_Venomsniper', 'Parrot',
+        //130
+        'Terror_Bird', 'Tarantula', 'Serpent_Spawn', 'Spit_Nettle', 'Toad',
+        //135
+        'Seagull', 'Green_Frog', 'Dark_Monk', 'Butterfly_(Blue)', 'Butterfly_(Red)',
+        //140
+        'Ferumbras', 'Hand_of_Cursed_Fate', 'Undead_Dragon', 'Lost_Soul', 'Betrayed_Wraith',
+        //145
+        'Dark_Torturer', 'Spectre', 'Destroyer', 'Diabolic_Imp', 'Defiler',
+        //150
+        'Wyvern', 'Hellhound', 'Phantasm', 'Massive_Fire_Elemental', 'Hellfire_Fighter',
+        //155
+        'Juggernaut', 'Nightmare', 'Blightwalker', 'Plaguesmith', 'Frost_Dragon',
+        //160
+        'Chakoya_Tribewarden', 'Penguin', 'Braindeath', 'Frost_Giant', 'Husky',
+        //165
+        'Chakoya_Toolshaper', 'Chakoya_Windcaller', 'Ice_Golem', 'Silver_Rabbit', 'Crystal_Spider',
+        //170
+        'Frost_Giantess', 'Customer_Support', 'Dragon_Hatchling', 'Dragon_Lord_Hatchling', 'Squirrel',
+        //175
+        'Sea_Serpent', 'Cat', 'Cyclops_Smith', 'Cyclops_Drone', 'Troll_Champion',
+        //180
+        'Island_Troll', 'Frost_Dragon_Hatchling', 'Cockroach', 'Massive_Earth_Elemental', 'Water_Elemental',
+        //185
+        'The_Count', 'Massive_Energy_Elemental', 'Wyrm', 'The_Mutated_Pumpkin', 'Energy_Elemental',
+        //190
+        'Wisp', 'Rotworm_Queen', 'Goblin_Assassin', 'Goblin_Scavenger', 'Skeleton_Warrior',
+        //195
+        'Bog_Raider', 'Grim_Reaper', 'Earth_Elemental', 'Community_Manager', 'Black_Turtle',
+        //200
+        'Worker_Golem', 'Mutated_Rat', 'Undead_Gladiator', 'Mutated_Bat', 'Werewolf',
+        //205
+        'Azerus', 'Haunted_Treeling', 'Zombie', 'Vampire_Bride', 'Gozzler',
+        //210
+        'Acid_Blob', 'Death_Blob', 'Mercury_Blob', 'Young_Sea_Serpent', 'Mutated_Tiger',
+        //215
+        'Green_Shade', 'Nightstalker', 'Nightmare_Scion', 'Hellspawn', 'Mutated_Human',
+        //220
+        'War_Golem', 'Medusa', 'Queen_Eloise', 'King_Tibianus', 'Clay_Guardian',
+        //225
+        'Draken_Warmaster', 'Lizard_High_Guard', 'Lizard_Legionnaire', 'Lizard_Dragon_Priest', 'Draken_Spellweaver',
+        //230
+        'Gnarlhound', 'Orc_Marauder', 'Lizard_Zaogun', 'Lizard_Chosen', 'Eternal_Guardian',
+        //235
+        'Terramite', 'Wailing_Widow', 'Lancer_Beetle', 'Insect_Swarm', 'Sandcrawler',
+        //240
+        'Ghastly_Dragon', 'Brimstone_Bug', 'Spawn_of_Devovorga', 'Devovorga_(Immune)', 'Souleater',
+        //245
+        'Snake_God_Essence', 'Draken_Abomination', 'Killer_Caiman', 'Irahsae', 'Teneshpar',
+        //250
+        'Chikhaton', 'Draken_Elite', 'Anmothra', 'Lizard_Abomination', 'Devovorga',
+        //255
+        'Boar', 'Stampor', 'Draptor', 'Crustacea_Gigantica', 'Undead_Cavebear',
+        //260
+        'Midnight_Panther', 'Crystal_Wolf', 'Wild_Horse', 'Mad_Mage', 'Iron_Servant',
+        //265
+        'Golden_Servant', 'Diamond_Servant', 'Sandstone_Scorpion', 'Donkey', 'White_Deer',
+        //270
+        'Insectoid_Scout', 'Dromedary', 'Slug', 'Yielothax', 'Shaburak_Lord',
+        //275
+        'Askarak_Lord', 'Bog_Frog', 'Deepling_Scout', 'Thornfire_Wolf', 'Raging_Mage',
+        //280
+        'Shaburak_Demon', 'Shaburak_Prince', 'Askarak_Prince', 'Askarak_Demon', 'Energized_Raging_Mage',
+        //285
+        'Feverish_Citizen', 'Shadow_Draptor', 'Horse', 'Horse_(A)', 'Horse_(B)',
+        //290
+        'Horse_(C)', 'Deepling_Warrior', 'Deepling_Guard', 'Deepling_Spellsinger', 'Jaul',
+        //295
+        'Obujos', 'Tanjis', 'Ladybug', 'Manta_Ray', 'Calamary',
+        //300
+        'Jellyfish', 'Shark', 'Northern_Pike', 'Fish', 'Crawler',
+        //305
+        'Spidris', 'Kollos', 'Floor_Blob', 'Swarmer', 'Spitter',
+        //310
+        'Waspoid', 'Poodle', 'Deepling_Worker', 'Wild_Dog', 'Stone_Devourer',
+        //315
+        'Armadile', 'Humongous_Fungus', 'Weeper', 'Orewalker', 'Lava_Golem',
+        //320
+        'Magma_Crawler', 'Enslaved_Dwarf', 'Abyssador', 'Lost_Berserker', 'Cliff_Strider',
+        //325
+        'Ironblight', 'Hideous_Fungus', 'Deathstrike', 'Gnomevil', 'Dragonling',
+        //330
+        'Crystal_Golem', 'Vulcongra', 'Wiggler', 'Crystalcrusher', 'Humorless_Fungus',
+        //335
+        'Water_Buffalo', 'Drillworm', 'Emerald_Damselfly', 'Salamander', 'Marsh_Stalker',
+        //340
+        'Pigeon', 'Swampling', 'Lost_Husher', 'Lost_Basher', 'Lost_Thrower',
+        //345
+        'Rafzan', 'Yellow_Paper_Man', 'Hamster', 'Rorc', 'Shadow_Pupil',
+        //350
+        'Blood_Hand', 'Blood_Priest', 'Vicious_Manbat', 'Vampire_Viscount', 'Nightfiend',
+        //355
+        'The_Pale_Count', 'Gravedigger', 'White_Shade', 'Elder_Wyrm', 'Tyrn',
+        //360
+        'The_Welter', 'White_Pale', 'Shlorg', 'Tarnished_Spirit', 'Leaf_Golem',
+        //365
+        'Murderous_Ghost', 'Forest_Fury', 'Roaring_Lion', 'Wilting_Leaf_Golem', 'Shock_Head',
+        //370
+        'Sight_of_Surrender', 'Guzzlemaw', 'Silencer', 'Choking_Fear', 'Terrorsleep',
+        //375
+        'Retching_Horror', 'Shimmying_Butterfly', 'Demon_Outcast', 'Gaz\'haragoth', 'Shiversleep',
+        //380
+        'Feversleep', 'Frazzlemaw', 'Mawhawk', 'Wounded_Cave_Draptor', 'Glooth_Golem',
+        //385
+        'Metal_Gargoyle', 'Blood_Beast', 'Rustheap_Golem', 'Glooth_Anemone', 'Walker',
+        //390
+        'Moohtant', 'Minotaur_Amazon', 'Execowtioner', 'Mooh\'tah_Warrior', 'Minotaur_Hunter',
+        //395
+        'Worm_Priestess', 'Glooth_Blob', 'Rot_Elemental', 'Devourer', 'Seacrest_Serpent',
+        //400
+        'Deep_Terror', 'Glooth_Horror', 'Professor_Maxxen', 'Glooth_Bomb', 'Tentacle_(A)',
+        //405
+        'Tainted_Soul', 'Redeemed_Soul', 'Gloom_Wolf', 'Omnivora', 'Werebear',
+        //410
+        'Wereboar', 'Werebadger', 'Ghost_Wolf', 'Feroxa', 'Ferumbras_Soul_Splinter',
+        //415
+        'Ascending_Ferumbras', 'Vexclaw', 'Grimeleech', 'Hellflayer', 'Ogre_Brute',
+        //420
+        'Ogre_Savage', 'Ogre_Shaman', 'Clomp', 'Sparkion', 'Breach_Brood',
+        //425
+        'Reality_Reaver', 'Dread_Intruder', 'Giant_Spider_Red_Eyes', 'Giant_Spider_Yellow_Eyes', 'Giant_Spider_Blue_Eyes',
+        //430
+        'Giant_Spider_Black_Eyes', 'Giant_Spider_Green_Eyes', 'Wolf_(Nostalgia)', 'Bear_(Nostalgia)', 'Bug_(Nostalgia)',
+        //435
+        'Pig_(Nostalgia)', 'Spider_(Nostalgia)', 'Wasp_(Nostalgia)', 'Bonelord_(Nostalgia)', 'Black_Dragon',
+        //440
+        'Zorvorax_(A)', 'Shaper_Matriarch', 'Orclops_Doomhauler', 'Stone_Rhino', 'Dragonking_Zyrtarch',
+        //445
+        'The_Last_Lore_Keeper', 'Lloyd', 'The_Freezing_Time_Guardian', 'The_Blazing_Time_Guardian', 'The_Time_Guardian',
+        //450
+        'Putrid_Mummy', 'Pooka', 'Twisted_Pooka', 'The_Source_Of_Corruption', 'Boogy',
+        //455
+        'Pixie', 'The_False_God', 'Misguided_Shadow', 'Liquor_Spirit', 'The_Unarmored_Voidborn',
+        //460
+        'Leiden', 'Nymph', 'Barkless_Devotee', 'Skullfrost', 'Emberwing',
+        //465
+        'Grovebeast', 'Thundergiant', 'Minotaur_Idol', 'The_Sandking', 'Fox',
+        //470
+        'Werefox', 'Sharpclaw', 'Stonerefiner', 'Deepworm', 'Diremaw',
+        //475
+        'Tunnel_Tyrant', 'Cave_Devourer', 'Chasm_Spawn', 'Black_Vixen', 'Bloodback',
+        //480
+        'Shadowpelt', 'Lava_Lurker', 'Last_Planegazer', 'The_Baron_From_Below', 'The_Count_Of_The_Core',
+        //485
+        'The_Duke_Of_The_Depths', 'Mole', 'Ancient_Spawn_Of_Morgathla', 'Animated_Feather', 'Flying_Book',
+        //490
+        'Ink_Blob', 'Knowledge_Elemental', 'Biting_Book', 'Librarian', 'Deathling_Scout',
+        //495
+        'Brokul', 'Thawing_Dragon_Lord', 'Preceptor_Lazare', 'Zorvorax_(B)', 'Deathling_Spellsinger',
+        //500
+        'Malofur_Mangrinder', 'Plagueroot', 'Thanatursus', 'Arachnophobica', 'Maxxenius',
+        //505
+        'Alptramun', 'The_Nightmare_Beast', 'Lacewing_Moth', 'Hibernal_Moth', 'Burning_Man',
+        //510
+        'Baleful_Bunny', 'Bonny_Bunny', 'Animated_Snowman', 'Percht_Disguise', 'Cart_Packed_With_Gold',
+        //515
+        'Adult_Goanna', 'Young_Goanna', 'Urmahlullu_The_Immaculate', 'Scarlett_Etzel', 'Ogre_Ruffian',
+        //520
+        'Ogre_Rowdy', 'Ogre_Sage', 'Ugly_Monster', 'Gryphon', 'King_Zelos',
+        //525
+        'Cow', 'Roast_Pork', 'King_Chuck', 'The_Great_Schnitzel', 'Rampaging_Beer_Elemental',
+        //530
+        'The_Pale_Worm', 'Greed_Worm', 'The_Fear_Feaster', 'The_Unwelcome', 'The_Dread_Maiden',
+        //535
+        'White_Lion', 'Planedweller', 'Bony_Sea_Devil', 'Cloak_of_Terror', 'Many_Faces',
+        //540
+        'Branchy_Crawler', 'Brachiodemon', 'Goshnar\'s_Cruelty', 'Goshnar\'s_Greed', 'Goshnar\'s_Spite',
+        //545
+        'Goshnar\'s_Malice', 'Goshnar\'s_Hatred', 'Goshnar\'s_Megalomania_(A)', 'Rotten_Golem', 'Infernal_Demon',
+        //550
+        'Turbulent_Elemental', 'Courage_Leech', 'Goshnar\'s_Megalomania_(B)', 'Exotic_Cave_Spider', 'Mossmasher',
+        //555
+        'Snowbash', 'Sandscourge', 'Bladespark', 'Exotic_Bat', 'Ratmiral_Blackwhiskers',
+        //560
+        'The_Abomination', 'Lavaworm', 'Varnished_Diremaw', 'Streaked_Devourer', 'Eyeless_Devourer',
+        //565
+        'Blemished_Spawn', 'Afflicted_Strider', 'Lavafungus', 'The_Brainstealer', 'The_Mega_Magmaoid',
+        //570
+        'Lava_Elemental', 'Cave_Chimera', 'Carnisylvan_Sapling', 'Murmillion', 'Scissorion',
+        //575
+        'Hoodinion', 'Mearidion', 'Domestikion', 'Uninvited', 'Unexpected',
+        //580
+        'Unwanted', 'Unsolicited', 'Lucky_Dragon', 'Morshabaal', 'Lord_Retro',
+        //585
+        'Parder', 'Jungle_Moa', 'Two-headed_Turtle', 'Naga_Boss_(A)', 'Naga_Boss_(B)',
+        //590
+        'Timira_the_Many-headed', 'Sulphider', 'Sulphur_Spouter', 'Gore_Horn', 'Sabretooth',
+        //595
+        'Emerald_Tortoise', 'Undertaker', 'Nighthunter', 'Hulking_Prehemoth', 'Stalking_Stalk',
+        //600
+        'Fungosaurus', 'Mantosaurus', 'Headpecker', 'Noxious_Ripptor', 'Gorerilla',
+        //605
+        'Shrieking_Cry-stal', 'Mercurial_Menace', 'Foam_Stalker', 'Makara', 'The_Primal_Menace',
+        //610
+        'Plunder_Patriarch', 'The_End_of_Days', 'Blue_Mutagen', 'Yellow_Mutagen', 'Purple_Mutagen',
+        //615
+        'Iks_Aucar', 'Iks_Chuka', 'Iks_Pututu', 'Iks_Ahpututu', 'Ahau',
+        //620
+        'Cursed_Ape', 'Avatar_of_Steel', 'Avatar_of_Light', 'Avatar_of_Storm', 'Avatar_of_Nature',
+        //625
+        'The_Monster', 'Crape_Man', 'Liodile', 'Boar_Man', 'Harpy',
+        //630
+        'Carnivostrich', 'Rhindeer', 'Mycobiontic_Beetle', 'Meandering_Mushroom', 'Darklight_Construct',
+        //635
+        'Converter', 'Darklight_Matter', 'Oozing_Corpus', 'Oozing_Carcass', 'Darklight_Emitter',
+        //640
+        'Bloodjaw', 'White_Tiger', 'Bloated_Man-maggot', 'Rotten_Man-maggot', 'Walking_Pillar',
+        //645
+        'Wandering_Pillar', 'Sopping_Carcass', 'Sopping_Corpus', 'Darklight_Source', 'Darklight_Striker',
+        //650
+        'Murcion', 'Ichgahal', 'Chagorz', 'Vemiath', 'Echo_of_Ichgahal_-_Murcion',
+        //655
+        'Echo_of_Chagorz_-_Vemiath', 'Bakragore', 'Albino_Dragon', 'Ragged_Rabid_Wolf', 'The_Rest_of_Ratha',
+        //660
+        'Ship_(White)', 'Ship_(Red)', 'Ship_(Yellow)', 'Ship_(Green)', 'Ship_(Blue)',
+        //665
+        'Ship_(Black)', 'Storm_(A)', 'Fryclops', 'Atab', 'Iks_Yapunac',
+        //670
+        'The_Draccoon', 'Dragolisk', 'Wardragon', 'Mitmah_Scout', 'Mitmah_Seer',
+        //675
+        'Mega_Dragon', 'Mitmah_Vanguard', 'Bulltaur_Brute', 'Bulltaur_Alchemist', 'Bulltaur_Forgepriest',
+        //680
+        'Mystic_Jaguar', 'Chocolate_Blob', 'Honey_Elemental', 'Wafer_Paper_Butterfly', 'Gingerbread_Man',
+        //685
+        'Candy_Horror', 'Quara_Looter', 'Candy_Floss_Elemental', 'Truffle', 'Truffle_Cook',
+        //690
+        'Truffle_Worker', 'Sugar_Cube', 'Fruit_Drop', 'Mint_Drop', 'Sugar_Cube_Worker',
+        //695
+        'Cream_Blob', 'Quara_Plunderer', 'Quara_Raider', 'Rootthing_Nutshell', 'Rootthing_Amber_Shaper',
+        //700
+        'Rootthing_Bug_Tracker', 'Sugar_Daddy_-_Mommy', 'The_Rootkraken', 'Blightling', 'Grove_Guardian',
+        //705
+        'Carniphila_(B)', 'Carniphila_(C)', 'Common_Beetle', 'Blight_Bug', 'Thorn_Lily',
+        //710
+        'Rampant_Barrier', 'Herd_Weevil', 'Spellreaper_Inferniarch', 'Hellhunter_Inferniarch', 'Brinebrute_Inferniarch',
+        //715
+        'Sineater_Inferniarch', 'Broodrider_Inferniarch', 'Gorger_Inferniarch', 'Arbaziloth_(E)', 'Arbaziloth_(D)',
+        //720
+        'Arbaziloth_(C)', 'Arbaziloth_(B)', 'Arbaziloth_(A)', 'Rotrender_(B)', 'Imp',
+        //725
+        'Omniphant', 'Moonhunter', 'Merudri', 'Avatar_of_Balance', 'Rotrender_(A)',
+        //730
+        'Rotrender_(C)', 'Spirit_Elemental', 'Vampiric_Essence', 'Bluebeak', 'Norcferatu_Nightweaver',
+        //735
+        'Norcferatu_Heartless', 'Dworc_Shadowstalker', 'Orclops_Bloodbreaker', 'Varg', 'Hawk_Hopper',
+        //740
+        'Lion_Hydra', 'Vladrukh', 'Gloom_Maw', 'Vampire_Bat', 'Norcferatu_Abomination',
+        //745
+        'Eldritch_Dragon_Lord', 'The_Gravedigger', 'Ice_Horror', 'Dragon_Ancestor', 'Cyclursus',
+        //750
+        'Crypt_Fiend', 'Walking_Dread', 'Crypt_Construct', 'Haunted_Hunter', 'Creepy_Crawler',
+        //755
+        'Night_Harpy', 'Court_Warlock', 'Roaming_Dread', 'Crypt_Mage', 'Stag',
+        //760
+        'Imperial', 'Blue_Rotworm', 'Green_Rotworm', 'Red_Rotworm', 'Yellow_Rotworm',
+        //765
+        'Lizard_Henchman', 'Lizard_Magician', 'Lizard_Swordmaster', 'Lizard_Commander', 'Herald_of_Fire',
+        //770
+        'Storm_(B)', 'Moonstone_Excavator', 'Mimar_Haffar', 'Phosphorus_(A)', 'Moonstone_Overseer',
+        //775
+        'Maior_Domus_(A)', 'Maior_Domus_(B)', 'Phosphorus_(B)', 'Radiant_Warden', 'Radiant_Templar',
+        //780
+        'Radiant_Paragon', 'Radiant_Inquisitor', 'Radiant_Zealot', 'Radiant_Acolyte', 'Moonspawn_Blightspitter',
+        //785
+        'Moonspawn_Oozecrown', 'Moonspawn_Juggernaut', 'Tremendous_Tyrant'
+        //790
+
+        //795
+
+        //800
+
+        //805
+
+        //810
+
+        //815
+
+        //820
+
+        //825
+
+    ],
+
+    // ---------------------------------------------------------------------------
+    // DATA: Outfits 0-99. DO NOT append here past id 99 — use outfiter_names200.
+    // Keep in sync with Template:OutfiterLink. Names use underscores (spaces in UI).
+    // Also update outfiter_sprites_standing/_walking, special delays, and the
+    // outfiter_u/m/a/f/no_ride/no_floor_move name maps when an outfit has exceptions.
+    // ---------------------------------------------------------------------------
+    outfiter_names0: [
+        //0
+        'Citizen', 'Hunter', 'Mage', 'Knight', 'Nobleman',
+        //5
+        'Summoner', 'Warrior', 'Barbarian', 'Druid', 'Wizard',
+        //10
+        'Oriental', 'Pirate', 'Assassin', 'Beggar', 'Shaman',
+        //15
+        'Norseman', 'Jester', 'Brotherhood', 'Nightmare', 'Demon_Hunter',
+        //20
+        'Yalaharian', 'Newly_Wed', 'Warmaster', 'Wayfarer', 'Afflicted',
+        //25
+        'Elementalist', 'Deepling', 'Insectoid', 'Entrepreneur', 'Crystal_Warlord',
+        //30
+        'Soil_Guardian', 'Demon_Outfit', 'Cave_Explorer', 'Dream_Warden', 'Jersey',
+        //35
+        'Glooth_Engineer', 'Beastmaster', 'Champion', 'Conjurer', 'Chaos_Acolyte',
+        //40
+        'Ranger', 'Death_Herald', 'Ceremonial_Garb', 'Puppeteer', 'Spirit_Caller',
+        //45
+        'Evoker', 'Seaweaver', 'Recruiter', 'Sea_Dog', 'Royal_Pumpkin',
+        //50
+        'Rift_Warrior', 'Winter_Warden', 'Philosopher', 'Arena_Champion', 'Lupine_Warden',
+        //55
+        'Retro_Warrior', 'Retro_Summoner', 'Retro_Nobleman', 'Retro_Mage', 'Retro_Knight',
+        //60
+        'Retro_Hunter', 'Retro_Citizen', 'Festive_Outfit', 'Grove_Keeper', 'Pharaoh',
+        //65
+        'Trophy_Hunter', 'Herbalist', 'Sun_Priest', 'Makeshift_Warrior', 'Siege_Master',
+        //70
+        'Mercenary', 'Discoverer', 'Battle_Mage', 'Sinister_Archer', 'Pumpkin_Mummy',
+        //75
+        'Dream_Warrior', 'Percht_Raider', 'Owl_Keeper', 'Guidon_Bearer', 'Lion_of_War',
+        //80
+        'Veteran_Paladin', 'Void_Master', 'Golden_Outfit', 'Hand_of_the_Inquisition', 'Breezy_Garb',
+        //85
+        'Orcsoberfest_Garb', 'Poltergeist', 'Falconer', 'Herder', 'Trailblazer',
+        //90
+        'Dragon_Slayer', 'Revenant', 'Jouster', 'Moth_Cape', 'Rascoohan',
+        //95
+        'Merry_Garb', 'Rune_Master', 'Forest_Warden', 'Citizen_of_Issavi', 'Royal_Bounacean_Advisor'
+        //DO NOT ADD MORE OUTFITS HERE, GO TO outfiter_names200
+    ],
+    // ---------------------------------------------------------------------------
+    // DATA: Outfits 100-199 (mostly non-player / NPC / special). Index = id.
+    // Id 105 is reserved as 'None' (outfiter_outfit_none_id). Keep Template:OutfiterLink in sync.
+    // ---------------------------------------------------------------------------
+    outfiter_names100: [
+        //100
+        'Frog', 'Elf', 'Dwarf', 'Archdemon', 'CM',
+        //105
+        'None', 'Barbarian_(A)', 'Barbarian_(B)', 'Barbarian_(C)', 'Barbarian_(D)',
+        //110
+        'Gnome', 'Corym_(A)', 'Corym_(B)', 'Corym_(C)', 'Cultist',
+        //115
+        'Demon_Hellfire', 'Demon_Ram_(A)', 'Destroyer_from_Beyond', 'Galvanic_Terror', 'Pit_Demon',
+        //120
+        'Faun', 'Orclops_Ravager', 'Shaper', 'The_First_Dragon', 'Falcon_(A)',
+        //125
+        'Falcon_(B)', 'True_Asura', 'Squid', 'Book', 'Guardian_of_Tales',
+        //130
+        'Demon_Ram_(B)', 'Dreamelf', 'Spectre_(A)', 'Spectre_(B)', 'Carnivora',
+        //135
+        'Hireling_Banker', 'Hireling_Trader', 'Hireling_Cook', 'Hireling_Steward', 'Hireling_Servant',
+        //140
+        'Cobra_Mercenary', 'Issavi_Villager', 'Energy_Wisp', 'Lamassu', 'Sphinx',
+        //145
+        'Manticore', 'Lich_Knight_(A)', 'Lich_Knight_(B)', 'Lich_Knight_(C)', 'Orger',
+        //150
+        'Lost_Soul', 'Phantom', 'Lion_(A)', 'Lion_(B)', 'Werehyaena',
+        //155
+        'Werelion', 'Pirat', 'Raccoon', 'Tyrant', 'Girtablilu',
+        //160
+        'Bashmu', 'Carnisylvan', 'Chimera', 'Naga_(A)', 'Naga_(B)',
+        //165
+        'Naga_(C)', 'Naga_(D)', 'Gnome_Female', 'Scientist', 'Weretiger',
+        //170
+        'Werecrocodile', 'Werepanther', 'Merudri', 'Crusader', 'Wyrmling',
+        //175
+        'Headwalker', 'Shell_Drake', 'Sugar_Fairy', 'Silverfrost', 'Iceplume'
+        //180
+
+        //185
+
+        //190
+
+        //195
+
+        //200
+
+        //205
+
+        //210
+
+        //215
+
+        //220
+
+        //225
+
+        //230
+
+        //235
+
+        //240
+
+        //245
+
+        //250
+
+    ],
+    // ---------------------------------------------------------------------------
+    // DATA: Outfits 200+. Append new player outfits here (next free id after last entry).
+    // Keep Template:OutfiterLink in sync. Use underscores in names; UI replaces them with spaces.
+    // ---------------------------------------------------------------------------
+    outfiter_names200: [
+        //200
+        'Dragon_Knight', 'Arbalester', 'Royal_Costume', 'Formal_Dress', 'Ghost_Blade',
+        //205
+        'Nordic_Chieftain', 'Fire-Fighter', 'Fencer', 'Shadowlotus_Disciple', 'Ancient_Aucar',
+        //210
+        'Frost_Tracer', 'Armoured_Archer', 'Decaying_Defender', 'Darklight_Evoker', 'Flamefury_Mage',
+        //215
+        'Draccoon_Herald', 'Doom_Knight', 'Celestial_Avenger', 'Blade_Dancer', 'Rootwalker',
+        //220
+        'Beekeeper', 'Fiend_Slayer', 'Field_Surgeon', 'Monk', 'Winged_Druid',
+        //225
+        'Martial_Artist', 'Necromancer', 'Illuminator', 'Bat_Knight', 'Feral_Trapper',
+        //230
+        'Phoenix_Evoker', 'Aerial_Disciple', 'Vampire_Noble', 'Moon_Guardian', 'Illuminated_Warrior',
+        //235
+        'Captains'
+        //240
+
+        //245
+
+        //250
+
+    ],
+    // ===========================================================================
+    // OUTFIT RULES - only list outfits that are DIFFERENT from the normal case.
+    // A normal outfit sheet: 512px wide (4 directions x [sprite + colour mask]),
+    // 1 standing frame + 8 walking frames, each frame = 3 rows (base, addon 1,
+    // addon 2), and a second set of rows for riding on a mount.
+    // ===========================================================================
+
+    // Outfits with more than 1 STANDING frame (idle animation). Name: number of frames.
+    outfiter_sprites_standing: {
+        Chaos_Acolyte: 8,
+        Evoker: 8,
+        Battle_Mage: 8,
+        Lion_of_War: 8,
+        Veteran_Paladin: 8,
+        Void_Master: 8,
+        Squid: 8,
+        Book: 8,
+        Guardian_of_Tales: 8,
+        'Spectre_(A)': 8,
+        'Spectre_(B)': 8,
+        Hireling_Banker: 13,
+        Hireling_Trader: 11,
+        Hireling_Cook: 11,
+        Hireling_Steward: 12,
+        Hireling_Servant: 5, //pingpong
+        Golden_Outfit: 8,
+        Energy_Wisp: 8,
+        Trailblazer: 8,
+        Lost_Soul: 8,
+        Revenant: 8,
+        Rune_Master: 8,
+        Tyrant: 8,
+        Ghost_Blade: 8,
+        'Fire-Fighter': 8,
+        Armoured_Archer: 8,
+        Decaying_Defender: 8,
+        Darklight_Evoker: 8,
+        Frost_Tracer: 8,
+        Flamefury_Mage: 8,
+        Celestial_Avenger: 8,
+        Blade_Dancer: 8,
+        Beekeeper: 8,
+        Merudri: 8,
+        Winged_Druid: 8,
+        Necromancer: 8,
+        Bat_Knight: 8,
+        Phoenix_Evoker: 8,
+        Aerial_Disciple: 8,
+        Sugar_Fairy: 8
+    },
+    // Outfits with a number of WALKING frames other than 8. Name: number of frames.
+    outfiter_sprites_walking: {
+        //None: 2,
+        Gnome_Female: 2,
+        'Corym_(C)': 2,
+        Hireling_Banker: 13,
+        Hireling_Trader: 11,
+        Hireling_Cook: 11,
+        Hireling_Steward: 12,
+        Hireling_Servant: 5 //pingpong
+    },
+
+    // ===========================================================================
+    // CREATURE RULES - a normal creature sheet is 256px wide (4 directions),
+    // 1 standing frame + 8 walking frames, one 64px row per frame.
+    // ===========================================================================
+
+    // Creatures with a different number of STANDING frames. Name: number of frames.
+    // (Simple list. For anything more - addons, colours, timing - use
+    // outfiter_creature_props further below, which wins over these two lists.)
+    outfiter_sprites_creature_standing: {
+        // e.g. SomeCreature: 8,
+        Ghost: 8,
+        Fire_Elemental: 8,
+        Bonelord: 8,
+        Elder_Bonelord: 8,
+        Bat: 8,
+        'Butterfly_(Yellow)': 8,
+        'Butterfly_(Purple)': 8,
+        Parrot: 8,
+        Spit_Nettle: 8,
+        Seagull: 8,
+        'Butterfly_(Blue)': 8,
+        'Butterfly_(Red)': 8,
+        Wyvern: 8,
+        Wisp: 8,
+        Rotworm_Queen: 8,
+        Mutated_Bat: 8,
+        Acid_Blob: 8,
+        Death_Blob: 8,
+        Mercury_Blob: 8,
+        Insect_Swarm: 8,
+        Anmothra: 8,
+        Jellyfish: 8,
+        Lava_Golem: 8,
+        Pigeon: 8,
+        Tarnished_Spirit: 8,
+        Murderous_Ghost: 8,
+        Shimmying_Butterfly: 8,
+        Glooth_Bomb: 12,
+        Tainted_Soul: 8,
+        Redeemed_Soul: 8,
+        Ascending_Ferumbras: 8,
+        The_Freezing_Time_Guardian: 8,
+        The_Blazing_Time_Guardian: 8,
+        The_Time_Guardian: 8,
+        The_Source_Of_Corruption: 8,
+        Pixie: 8,
+        Misguided_Shadow: 8,
+        Skullfrost: 8,
+        Emberwing: 8,
+        Thundergiant: 8,
+        Lava_Lurker: 8,
+        Animated_Feather: 8,
+        Flying_Book: 8,
+        Ink_Blob: 8,
+        Knowledge_Elemental: 8,
+        Librarian: 8,
+        Alptramun: 8,
+        Burning_Man: 8,
+        King_Zelos: 8,
+        The_Great_Schnitzel: 8,
+        The_Fear_Feaster: 8,
+        The_Dread_Maiden: 8,
+        Cloak_of_Terror: 8,
+        'Goshnar\'s_Greed': 8,
+        'Goshnar\'s_Spite': 8,
+        'Goshnar\'s_Hatred': 8,
+        Mossmasher: 8,
+        Snowbash: 8,
+        Sandscourge: 8,
+        Bladespark: 8,
+        Exotic_Bat: 8,
+        Lavaworm: 8,
+        Sulphur_Spouter: 8,
+        Nighthunter: 8,
+        Mercurial_Menace: 8,
+        Foam_Stalker: 8,
+        The_End_of_Days: 8,
+        Blue_Mutagen: 8,
+        Yellow_Mutagen: 8,
+        Purple_Mutagen: 8,
+        Avatar_of_Steel: 8,
+        Avatar_of_Light: 8,
+        Avatar_of_Storm: 8,
+        Avatar_of_Nature: 8,
+        Darklight_Construct: 8,
+        Converter: 8,
+        Darklight_Matter: 8,
+        Darklight_Emitter: 8,
+        White_Tiger: 8,
+        'Bloated_Man-maggot': 8,
+        'Rotten_Man-maggot': 8,
+        Walking_Pillar: 8,
+        Wandering_Pillar: 8,
+        Darklight_Source: 8,
+        Darklight_Striker: 8,
+        'Ship_(White)': 8,
+        'Ship_(Red)': 8,
+        'Ship_(Yellow)': 8,
+        'Ship_(Green)': 8,
+        'Ship_(Blue)': 8,
+        'Ship_(Black)': 8,
+        'Storm_(A)': 8,
+        Chocolate_Blob: 8,
+        Wafer_Paper_Butterfly: 8,
+        The_Rootkraken: 8,
+        Rampant_Barrier: 8,
+        Omniphant: 13,
+        Avatar_of_Balance: 8,
+        Vampiric_Essence: 8,
+        Norcferatu_Nightweaver: 8,
+        Varg: 8,
+        Vampire_Bat: 8,
+        The_Gravedigger: 8,
+        Herald_of_Fire: 8,
+        'Storm_(B)': 8,
+        'Phosphorus_(A)': 8,
+        'Phosphorus_(B)': 8,
+        Sugar_Cube_Worker: 4,
+        Slime: 8,
+        Wasp: 8,
+        'Rotrender_(A)': 8
+    },
+    // Creatures with a different number of WALKING frames. Name: number of frames.
+    outfiter_sprites_creature_walking: {
+        // e.g. SomeCreature: 2,
+        Massive_Water_Elemental: 2,
+        Orc_Warlord: 2,
+        Quara_Predator: 2,
+        Quara_Constrictor: 2,
+        Frost_Troll: 2,
+        Orc_Leader: 2,
+        Hero: 2,
+        Quara_Pincher: 2,
+        Banshee: 2,
+        'Undead_Pharaoh_(A)': 2,
+        'Undead_Pharaoh_(B)': 2,
+        Gargoyle: 2,
+        Pirate_Buccaneer: 2,
+        Pirate_Corsair: 2,
+        Deathslicer: 2,
+        Marid: 2,
+        Enlightened_of_the_Cult: 2,
+        Terror_Bird: 2,
+        Serpent_Spawn: 2,
+        Toad: 2,
+        Hand_of_Cursed_Fate: 2,
+        Betrayed_Wraith: 2,
+        Dark_Torturer: 2,
+        Spectre: 2,
+        Destroyer: 4,
+        Defiler: 2,
+        Hellhound: 2,
+        Juggernaut: 2,
+        Nightmare: 2,
+        Blightwalker: 2,
+        Plaguesmith: 2,
+        Frost_Dragon: 2,
+        Braindeath: 2,
+        Crystal_Spider: 2,
+        Customer_Support: 2,
+        Sea_Serpent: 2,
+        The_Count: 2,
+        Wyrm: 2,
+        Energy_Elemental: 3,
+        Grim_Reaper: 2,
+        Community_Manager: 2,
+        Black_Turtle: 2,
+        Worker_Golem: 2,
+        Mutated_Rat: 3,
+        Werewolf: 2,
+        Vampire_Bride: 2,
+        Mutated_Tiger: 2,
+        Nightmare_Scion: 2,
+        Hellspawn: 2,
+        War_Golem: 2,
+        Medusa: 2,
+        Queen_Eloise: 2,
+        King_Tibianus: 2,
+        Clay_Guardian: 3,
+        Draken_Warmaster: 2,
+        Lizard_High_Guard: 2,
+        Lizard_Dragon_Priest: 2,
+        Lizard_Zaogun: 2,
+        Lizard_Chosen: 2,
+        Eternal_Guardian: 2,
+        Lancer_Beetle: 2,
+        Brimstone_Bug: 2,
+        Spawn_of_Devovorga: 2,
+        'Devovorga_(Immune)': 2,
+        Souleater: 2,
+        Snake_God_Essence: 2,
+        Draken_Abomination: 2,
+        Killer_Caiman: 2,
+        Irahsae: 2,
+        Teneshpar: 2,
+        Chikhaton: 2,
+        Draken_Elite: 2,
+        Lizard_Abomination: 2,
+        Devovorga: 2,
+        Mad_Mage: 2,
+        Golden_Servant: 2,
+        Diamond_Servant: 2,
+        Shaburak_Lord: 2,
+        Askarak_Lord: 2,
+        Thornfire_Wolf: 2,
+        Raging_Mage: 2,
+        Shaburak_Demon: 2,
+        Shaburak_Prince: 2,
+        Askarak_Prince: 2,
+        Askarak_Demon: 2,
+        Energized_Raging_Mage: 2,
+        Shadow_Draptor: 2,
+        Horse: 2,
+        Deepling_Guard: 2,
+        Jaul: 2,
+        Obujos: 2,
+        Tanjis: 2,
+        Shark: 2,
+        Crawler: 2,
+        Kollos: 2,
+        Floor_Blob: 2,
+        Spitter: 2,
+        Wild_Dog: 2,
+        Humongous_Fungus: 2,
+        Weeper: 2,
+        Orewalker: 2,
+        Enslaved_Dwarf: 2,
+        Abyssador: 2,
+        Lost_Berserker: 2,
+        Cliff_Strider: 2,
+        Hideous_Fungus: 2,
+        Deathstrike: 2,
+        Gnomevil: 2,
+        Vulcongra: 2,
+        Wiggler: 2,
+        Humorless_Fungus: 2,
+        Drillworm: 2,
+        Lost_Husher: 2,
+        Lost_Basher: 2,
+        Lost_Thrower: 2,
+        Yellow_Paper_Man: 2,
+        Hamster: 2,
+        Shadow_Pupil: 2,
+        Vicious_Manbat: 2,
+        Vampire_Viscount: 2,
+        Nightfiend: 2,
+        White_Shade: 3,
+        Elder_Wyrm: 2,
+        Tyrn: 2,
+        Shlorg: 2,
+        Forest_Fury: 2,
+        Silencer: 2,
+        Terrorsleep: 2,
+        Retching_Horror: 2,
+        Demon_Outcast: 2,
+        'Gaz\'haragoth': 2,
+        Shiversleep: 2,
+        Feversleep: 2,
+        Frazzlemaw: 2,
+        Glooth_Golem: 2,
+        Metal_Gargoyle: 2,
+        Blood_Beast: 2,
+        Glooth_Anemone: 2,
+        Minotaur_Amazon: 2,
+        Minotaur_Hunter: 2,
+        Worm_Priestess: 2,
+        Devourer: 2,
+        Glooth_Bomb: 3,
+        Giant_Spider_Red_Eyes: 2,
+        Giant_Spider_Yellow_Eyes: 2,
+        Giant_Spider_Blue_Eyes: 2,
+        Giant_Spider_Black_Eyes: 2,
+        Giant_Spider_Green_Eyes: 2,
+        'Wolf_(Nostalgia)': 2,
+        'Bear_(Nostalgia)': 2,
+        'Bug_(Nostalgia)': 2,
+        'Pig_(Nostalgia)': 2,
+        'Spider_(Nostalgia)': 2,
+        'Wasp_(Nostalgia)': 2,
+        'Bonelord_(Nostalgia)': 4,
+        Ancient_Spawn_Of_Morgathla: 2,
+        Sugar_Cube_Worker: 8
+    },
+
+    // ---------------------------------------------------------------------------
+    // DATA: Per-creature properties (animation, addons, colourisation).
+    // Optional keys — any omitted key falls back to defaults via
+    // outfiter_creature_get_props(). Legacy standing/walking maps still apply
+    // when standing/walking are not set here.
+    //
+    // Keys:
+    //   standing          – standing frame count (default 1)
+    //   walking           – walking frame count (default 8)
+    //   standing_delay    – ms between standing frames (number; default derived)
+    //   walking_delay     – ms between walking frames (number; default derived)
+    //   standing_delays   – optional per-frame ms array (overrides standing_delay)
+    //   walking_delays    – optional per-frame ms array (overrides walking_delay)
+    //   colourisable      – true if sprite has colour-mask columns (default false)
+    //   addon1 / addon2   – true if that addon layer exists in the sheet (default false)
+    //   exclusive_addons  – true if addon1 and addon2 cannot both be on (default false)
+    //
+    // Sprite sheet layout (256px wide, height = rows * 64):
+    //   columns per direction = colourisable ? 2 : 1  (base [+ mask])
+    //   rows per frame        = 1 + (addon1 ? 1 : 0) + (addon2 ? 1 : 0)
+    //                           (base row, then addon1 row, then addon2 row)
+    //   total rows            = (standing_frames + walking_frames) * rows_per_frame
+    // Height is taken from the loaded image (canvas is resized on load).
+    // ---------------------------------------------------------------------------
+    outfiter_creature_props: {
+        // Examples (uncomment / extend as creatures are added):
+        // Massive_Water_Elemental: { walking: 2, walking_delay: 250 },
+        // SomeCreature: {
+        //   standing: 4, walking: 6,
+        //   standing_delay: 500, walking_delay: 120,
+        //   colourisable: true, addon1: true, addon2: true, exclusive_addons: true
+        // },
+        Rafzan: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Hellfire_Fighter: {
+            standing: 0, walking: 2,
+            walking_delay: 300,
+            addon1: false, addon2: false,
+        },
+        // Sheets that only contain walking frames (no separate standing row):
+        Massive_Fire_Elemental: { standing: 0, walking: 2 },
+        Massive_Energy_Elemental: { standing: 0, walking: 4 },
+        The_Mutated_Pumpkin: { standing: 0, walking: 4 },
+        Green_Shade: { standing: 0, walking: 4 },
+        Glooth_Blob: { standing: 0, walking: 6 },
+        Emerald_Damselfly: { standing: 0, walking: 8 },
+        Lord_Retro: { standing: 0, walking: 1 },
+        // Sheet has one standing row and one walking row:
+        Uninvited: { standing: 1, walking: 1 },
+        Cave_Chimera: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            colourisable: true, addon1: true, addon2: true,
+        },
+        Tremendous_Tyrant: {
+            standing: 8, walking: 8,
+            standing_delay: 100, walking_delay: 300,
+            colourisable: true, addon1: true, addon2: true,
+        },
+        'Naga_Boss_(A)': {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        'Naga_Boss_(B)': {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        'Timira_the_Many-headed': {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        'Sugar_Daddy_-_Mommy': {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Spellreaper_Inferniarch: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Hellhunter_Inferniarch: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Brinebrute_Inferniarch: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Merudri: {
+            standing: 8, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Spirit_Elemental: {
+            standing: 8, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Lizard_Henchman: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            colourisable: true, addon1: false, addon2: false,
+        },
+        Lizard_Magician: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            colourisable: true, addon1: false, addon2: false,
+        },
+        Lizard_Swordmaster: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            colourisable: true, addon1: false, addon2: false,
+        },
+        Lizard_Commander: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            colourisable: true, addon1: false, addon2: false,
+        },
+        Moonstone_Excavator: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Mimar_Haffar: {
+            standing: 8, walking: 8,
+            standing_delay: 100, walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Moonstone_Overseer: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Radiant_Warden: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Radiant_Templar: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Radiant_Paragon: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Radiant_Inquisitor: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+        Radiant_Zealot: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: false,
+        },
+        Radiant_Acolyte: {
+            standing: 1, walking: 8,
+            walking_delay: 100,
+            addon1: true, addon2: true,
+        },
+    },
+
+    // ===========================================================================
+    // ANIMATION TIMING (milliseconds per frame) - only for special cases.
+    // ===========================================================================
+
+    // Outfits whose standing frames have individual delays (one number per frame).
+    outfiter_special_delays_standing: {
+        //First frame of Special Delays must be adjusted so that all delays sum to 4000ms
+        Lion_of_War: [3100, 100, 300, 100, 100, 100, 100, 100],
+        Veteran_Paladin: [3100, 100, 300, 100, 100, 100, 100, 100],
+        Hireling_Banker: [2000, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+        Hireling_Trader: [1000, 100, 300, 100, 100, 100, 100, 100, 1000, 100, 100],
+        Hireling_Cook: [2000, 100, 300, 100, 100, 100, 100, 100, 100, 200, 100],
+        Hireling_Steward: [1000, 100, 100, 100, 200, 100, 100, 100, 1000, 100, 300, 100],
+        Hireling_Servant: [2000, 100, 100, 100, 2000, 100, 100, 100], //pingpong
+        Aerial_Disciple: [500, 200, 200, 200, 200, 200, 200, 200]
+    },
+    // Walking-frame delays per outfit. NOTE: currently not used by the app; kept
+    // so the data stays in sync with the TibiaWiki version.
+    outfiter_special_delays_moving: {
+        Hireling_Banker: [2000, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+        Hireling_Trader: [1000, 100, 300, 100, 100, 100, 100, 100, 1000, 100, 100],
+        Hireling_Cook: [2000, 100, 300, 100, 100, 100, 100, 100, 100, 200, 100],
+        Hireling_Steward: [1000, 100, 100, 100, 200, 100, 100, 100, 1000, 100, 300, 100],
+        Hireling_Servant: [2000, 100, 100, 100, 2000, 100, 100, 100] //pingpong
+    },
+    // Mounts whose standing frames have individual delays (one number per frame).
+    outfiter_special_delays_mount_standing: {
+        Copper_Fly: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
+        Glooth_Glider: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
+        Golden_Dragonfly: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
+        Steel_Bee: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
+        Jousting_Eagle: [3100, 100, 100, 200, 200, 100, 100, 100],
+        Cerberus_Champion: [2900, 100, 100, 100, 500, 100, 100, 100],
+        Dawnbringer_Pegasus: [3300, 100, 100, 100, 100, 100, 100, 100],
+        Wrathfire_Pegasus: [3300, 100, 100, 100, 100, 100, 100, 100],
+        Skybreaker_Pegasus: [3300, 100, 100, 100, 100, 100, 100, 100],
+        Night_Locust: [325, 100, 100, 100, 100, 325, 100, 100],
+        Leaf_Locust: [325, 100, 100, 100, 100, 325, 100, 100],
+        Pearl_Locust: [325, 100, 100, 100, 100, 325, 100, 100],
+        Pegasus: [3300, 100, 100, 100, 100, 100, 100, 100],
+        Battle_Werewolf: [1200, 100, 100, 100, 100, 2200, 100, 100]
+    },
+    // Outfits that use ping-pong animation: 5 unique frames played forwards then
+    // backwards (1-2-3-4-5-4-3-2).
+    outfiter_pingpong_animation: {
+        Hireling_Servant: true
+    },
+    // Outfits whose sheet is too tall for one column of rows: rows 64 and up are
+    // stored in a second block to the right (sheet is 1024px wide, 4096px tall).
+    outfiter_4096h: {
+        Chaos_Acolyte: true,
+        Evoker: true
+    },
+    // ===========================================================================
+    // MOUNT RULES - a normal mount sheet is 256px wide (4 directions),
+    // 1 standing frame + 8 walking frames, one 64px row per frame.
+    // ===========================================================================
+
+    // Mounts with more than 1 STANDING frame. Name: number of frames.
+    outfiter_sprites_mount_standing: {
+        Flying_Divan: 8,
+        Magic_Carpet: 8,
+        Floating_Kashmir: 8,
+        Copper_Fly: 10,
+        Flamesteed: 8,
+        Glooth_Glider: 10,
+        Golden_Dragonfly: 10,
+        Nethersteed: 8,
+        Steel_Bee: 10,
+        Tempest: 8,
+        Flitterkatzen: 8,
+        Venompaw: 8,
+        Batcat: 8,
+        Sea_Devil: 8,
+        Coralripper: 8,
+        Plumfish: 8,
+        Nightdweller: 8,
+        Frostflare: 8,
+        Cinderhoof: 8,
+        Fleeting_Knowledge: 8,
+        Cerberus_Champion: 8,
+        Jousting_Eagle: 8,
+        Haze: 8,
+        Snow_Strider: 8,
+        Dusk_Pryer: 8,
+        Dawn_Strayer: 8,
+        Phantasmal_Jade: 8,
+        Void_Watcher: 8,
+        Rune_Watcher: 8,
+        Rift_Watcher: 8,
+        Singeing_Steed: 8,
+        Emerald_Raven: 8,
+        Mystic_Raven: 8,
+        Radiant_Raven: 8,
+        Gloothomotive: 8,
+        Floating_Augur: 8,
+        Floating_Sage: 8,
+        Floating_Scholar: 8,
+        Brass_Speckled_Koi: 8,
+        Ink_Spotted_Koi: 8,
+        Tangerine_Flecked_Koi: 8,
+        Spirit_of_Purity: 8,
+        Darkfire_Devourer: 8,
+        Corpsefire_Skull: 8,
+        Magma_Skull: 8,
+        Doom_Skull: 8,
+        Gorgon_Hydra: 8,
+        Dawnbringer_Pegasus: 8,
+        Wrathfire_Pegasus: 8,
+        Skybreaker_Pegasus: 8,
+        Pegasus: 8,
+        Night_Locust: 8,
+        Leaf_Locust: 8,
+        Pearl_Locust: 8,
+        Corpse_Phoenix: 8,
+        Death_Phoenix: 8,
+        Soul_Phoenix: 8,
+        Battle_Werewolf: 8,
+        Flame_Bear: 8,
+        'Radiant_Nimbus_(Mount)': 8,
+        Djinntaur: 8
+    },
+    // Mounts with a number of WALKING frames other than 8. Name: number of frames.
+    outfiter_sprites_mount_walking: {
+    },
+    // Mounts that can be recoloured: their sheet is 512px wide (sprite + colour
+    // mask for each direction).
+    outfiter_mount_colourisable: {
+        Krakoloss: true,
+        Shellodon: true,
+        Mutated_Abomination: true,
+        Gorgon_Hydra: true,
+        Primal_Demonosaur: true,
+        Hell_Demonosaur: true,
+        Alpha_Demonosaur: true,
+        'Gloom_Maw_(Mount)': true,
+        Guardian_Lion: true,
+        Landsailer: true
+    },
+    // ===========================================================================
+    // OUTFIT OPTIONS (Name: true)
+    // ===========================================================================
+
+    // Outfits whose female sprite file ends in _Female, e.g. base64/Other/Dreamelf_Female.txt
+    outfiter_f_suffix_inames: {
+        Dreamelf: true,
+        Hireling_Trader: true,
+        Hireling_Banker: true,
+        Hireling_Cook: true,
+        Hireling_Steward: true,
+        Hireling_Servant: true,
+        Issavi_Villager: true,
+        Merudri: true
+    },
+    // Outfits WITHOUT a female version (the Female checkbox is disabled).
+    outfiter_u_names: {
+        Archdemon: true,
+        'Barbarian_(A)': true,
+        'Barbarian_(B)': true,
+        'Barbarian_(C)': true,
+        'Barbarian_(D)': true,
+        CM: true,
+        'Corym_(A)': true,
+        'Corym_(B)': true,
+        'Corym_(C)': true,
+        Cultist: true,
+        Dwarf: true,
+        Elf: true,
+        Frog: true,
+        Demon_Hellfire: true,
+        'Demon_Ram_(A)': true,
+        Destroyer_from_Beyond: true,
+        Galvanic_Terror: true,
+        Pit_Demon: true,
+        Faun: true,
+        Orclops_Ravager: true,
+        Shaper: true,
+        The_First_Dragon: true,
+        'Falcon_(A)': true,
+        'Falcon_(B)': true,
+        True_Asura: true,
+        Squid: true,
+        Book: true,
+        Guardian_of_Tales: true,
+        'Demon_Ram_(B)': true,
+        'Spectre_(A)': true,
+        'Spectre_(B)': true,
+        Carnivora: true,
+        Cobra_Mercenary: true,
+        Lamassu: true,
+        Sphinx: true,
+        Manticore: true,
+        'Lich_Knight_(A)': true,
+        'Lich_Knight_(B)': true,
+        'Lich_Knight_(C)': true,
+        Energy_Wisp: true,
+        Orger: true,
+        Lost_Soul: true,
+        Phantom: true,
+        'Lion_(A)': true,
+        'Lion_(B)': true,
+        Werehyaena: true,
+        Werelion: true,
+        Pirat: true,
+        Raccoon: true,
+        Tyrant: true,
+        Bashmu: true,
+        Girtablilu: true,
+        Carnisylvan: true,
+        Chimera: true,
+        'Naga_(A)': true,
+        'Naga_(B)': true,
+        'Naga_(C)': true,
+        'Naga_(D)': true,
+        Gnome: true,
+        Gnome_Female: true,
+        Scientist: true,
+        Weretiger: true,
+        Werecrocodile: true,
+        Werepanther: true,
+        Crusader: true,
+        Wyrmling: true,
+        Headwalker: true,
+        'Shell_Drake': true,
+        Sugar_Fairy: true,
+        Silverfrost: true,
+        Iceplume: true,
+        None: true
+    },
+    // Outfits that cannot ride a mount.
+    outfiter_m_names: {
+        Archdemon: true,
+        'Barbarian_(A)': true,
+        'Barbarian_(B)': true,
+        'Barbarian_(C)': true,
+        'Barbarian_(D)': true,
+        'Corym_(A)': true,
+        'Corym_(B)': true,
+        'Corym_(C)': true,
+        Cultist: true,
+        Dwarf: true,
+        Elf: true,
+        Frog: true,
+        Gnome: true,
+        Gnome_Female: true,
+        Demon_Hellfire: true,
+        'Demon_Ram_(A)': true,
+        Destroyer_from_Beyond: true,
+        Galvanic_Terror: true,
+        Pit_Demon: true,
+        Faun: true,
+        Orclops_Ravager: true,
+        Shaper: true,
+        The_First_Dragon: true,
+        'Falcon_(A)': true,
+        'Falcon_(B)': true,
+        True_Asura: true,
+        Squid: true,
+        Book: true,
+        Guardian_of_Tales: true,
+        'Demon_Ram_(B)': true,
+        Dreamelf: true,
+        'Spectre_(A)': true,
+        'Spectre_(B)': true,
+        Carnivora: true,
+        Hireling_Banker: true,
+        Hireling_Trader: true,
+        Hireling_Cook: true,
+        Hireling_Steward: true,
+        Hireling_Servant: true,
+        Cobra_Mercenary: true,
+        Issavi_Villager: true,
+        Lamassu: true,
+        Sphinx: true,
+        Manticore: true,
+        'Lich_Knight_(A)': true,
+        'Lich_Knight_(B)': true,
+        'Lich_Knight_(C)': true,
+        Energy_Wisp: true,
+        Orger: true,
+        Lost_Soul: true,
+        Phantom: true,
+        'Lion_(A)': true,
+        'Lion_(B)': true,
+        Werehyaena: true,
+        Werelion: true,
+        Pirat: true,
+        Raccoon: true,
+        Tyrant: true,
+        Girtablilu: true,
+        Bashmu: true,
+        Carnisylvan: true,
+        Chimera: true,
+        'Naga_(A)': true,
+        'Naga_(B)': true,
+        'Naga_(C)': true,
+        'Naga_(D)': true,
+        Scientist: true,
+        Weretiger: true,
+        Werecrocodile: true,
+        Werepanther: true,
+        Merudri: true,
+        Crusader: true,
+        Wyrmling: true,
+        Headwalker: true,
+        'Shell_Drake': true,
+        Sugar_Fairy: true,
+        Silverfrost: true,
+        Iceplume: true
+    },
+    // Outfits WITHOUT addons (sheet has 1 row per frame instead of 3).
+    outfiter_a_names: {
+        Archdemon: true,
+        'Barbarian_(A)': true,
+        'Barbarian_(B)': true,
+        'Barbarian_(C)': true,
+        'Barbarian_(D)': true,
+        CM: true,
+        'Corym_(A)': true,
+        'Corym_(B)': true,
+        'Corym_(C)': true,
+        Cultist: true,
+        Dwarf: true,
+        Elf: true,
+        Frog: true,
+        Gnome: true,
+        Gnome_Female: true,
+        Jersey: true,
+        Newly_Wed: true,
+        None: true,
+        Retro_Warrior: true,
+        Retro_Summoner: true,
+        Retro_Nobleman: true,
+        Retro_Mage: true,
+        Retro_Knight: true,
+        Retro_Hunter: true,
+        Retro_Citizen: true,
+        Faun: true,
+        Orclops_Ravager: true,
+        Shaper: true,
+        Squid: true,
+        Book: true,
+        'Spectre_(A)': true,
+        'Spectre_(B)': true,
+        Hireling_Banker: true,
+        Hireling_Trader: true,
+        Hireling_Cook: true,
+        Hireling_Steward: true,
+        Hireling_Servant: true,
+        Lamassu: true,
+        Manticore: true,
+        Energy_Wisp: true,
+        Lost_Soul: true,
+        Phantom: true,
+        Werehyaena: true,
+        Scientist: true,
+        Werecrocodile: true,
+        Headwalker: true,
+        Silverfrost: true,
+        Iceplume: true
+    },
+    // Outfits whose sheet has NO riding rows (half the usual height).
+    outfiter_no_ride_names: {
+        Archdemon: true,
+        'Barbarian_(A)': true,
+        'Barbarian_(B)': true,
+        'Barbarian_(C)': true,
+        'Barbarian_(D)': true,
+        'Corym_(A)': true,
+        'Corym_(B)': true,
+        'Corym_(C)': true,
+        Cultist: true,
+        Dwarf: true,
+        Elf: true,
+        Frog: true,
+        Gnome: true,
+        Gnome_Female: true,
+        None: true,
+        Demon_Hellfire: true,
+        'Demon_Ram_(A)': true,
+        Destroyer_from_Beyond: true,
+        Galvanic_Terror: true,
+        Pit_Demon: true,
+        Faun: true,
+        Orclops_Ravager: true,
+        Shaper: true,
+        'Falcon_(A)': true,
+        'Falcon_(B)': true,
+        True_Asura: true,
+        Squid: true,
+        Book: true,
+        Guardian_of_Tales: true,
+        'Demon_Ram_(B)': true,
+        Dreamelf: true,
+        'Spectre_(A)': true,
+        'Spectre_(B)': true,
+        Carnivora: true,
+        Hireling_Banker: true,
+        Hireling_Trader: true,
+        Hireling_Cook: true,
+        Hireling_Steward: true,
+        Hireling_Servant: true,
+        Cobra_Mercenary: true,
+        Issavi_Villager: true,
+        Lamassu: true,
+        Sphinx: true,
+        Manticore: true,
+        'Lich_Knight_(A)': true,
+        'Lich_Knight_(B)': true,
+        'Lich_Knight_(C)': true,
+        Energy_Wisp: true,
+        Orger: true,
+        Lost_Soul: true,
+        Phantom: true,
+        'Lion_(A)': true,
+        'Lion_(B)': true,
+        Werehyaena: true,
+        Werelion: true,
+        Pirat: true,
+        Raccoon: true,
+        Tyrant: true,
+        Girtablilu: true,
+        Bashmu: true,
+        Carnisylvan: true,
+        Chimera: true,
+        'Naga_(A)': true,
+        'Naga_(B)': true,
+        'Naga_(C)': true,
+        'Naga_(D)': true,
+        Scientist: true,
+        Weretiger: true,
+        Werecrocodile: true,
+        Werepanther: true,
+        Merudri: true,
+        Crusader: true,
+        Wyrmling: true,
+        Headwalker: true,
+        'Shell_Drake': true,
+        Sugar_Fairy: true,
+        Silverfrost: true,
+        Iceplume: true
+    },
+    // Outfits that stand still on the floor while 'walking' (Show Floor does not scroll).
+    outfiter_no_floor_move_names: {
+        Hireling_Banker: true,
+        Hireling_Cook: true,
+        Hireling_Servant: true,
+        Hireling_Steward: true,
+        Hireling_Trader: true
+    },
+
+    // Outfits where only ONE addon can be worn at a time.
+    outfiter_o_names: {
+        Yalaharian: true
+    },
+    // Draw a separator line above these entries in the lists.
+    // (The 'Others' section, IDs 100-199, is placed at the end of the outfit list automatically.)
+    outfiter_separator: { None: true },
+    outfiter_mount_separator: {},
+    outfiter_creature_separator: {},
+    // Display names for the female version of an outfit.
+    outfiter_f_names: {
+        Nobleman: 'Noblewoman',
+        Retro_Nobleman: 'Retro_Noblewoman',
+        Norseman: 'Norsewoman'
+    }
+};

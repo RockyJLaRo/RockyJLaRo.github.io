@@ -1,0 +1,88 @@
+/*
+ * Page frame around the Outfitter: background, header and footer.
+ * (The Outfitter itself is styled in outfitter.css.)
+ */
+body {
+    background-color: #1a1a1a;
+    color: #c0c0c0;
+    font-family: Verdana, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #2a2a2a;
+    padding: 15px 20px;
+    text-align: center;
+    border-bottom: 2px solid #111;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+header h1 {
+    margin: 0 0 5px 0;
+    color: #e0e0e0;
+    font-size: 26px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+header p {
+    margin: 0;
+    font-size: 12px;
+    color: #909090;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 25px 15px;
+}
+
+#outfiter_container {
+    background-color: #383839;
+    padding: 6px;
+    border: 2px solid #757575;
+    border-bottom-color: #2a2a2a;
+    border-right-color: #2a2a2a;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+footer {
+    background-color: #2a2a2a;
+    padding: 15px 20px;
+    text-align: center;
+    border-top: 2px solid #111;
+    font-size: 11px;
+    color: #8F8F8F;
+    margin-top: auto;
+    /* Pushes footer to the absolute bottom */
+}
+
+footer p {
+    margin: 4px 0;
+}
+
+footer a {
+    color: #c0c0c0;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+footer a:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+/* Shown instead of the Outfitter when it cannot start (see outfitter.js) */
+.outfiter_fatal {
+    max-width: 480px;
+    margin: 20px;
+    color: #ffb4a8;
+    font-size: 13px;
+    line-height: 1.5;
+}

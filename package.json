@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node tools/serve.js",
     "validate": "node tools/validate-assets.js",
-    "test:unit": "node --test tests/unit/",
+    "test:unit": "node --test tests/unit/validate-assets.test.js",
     "test:e2e": "playwright test",
     "test": "npm run validate && npm run test:unit && npm run test:e2e"
   },

@@ -73,7 +73,7 @@ test.describe('unreadable sprite files show an error instead of loading forever'
             await page.route('**/base64/Male/Hunter.txt', handler);
             await pickFromList(page, 'outfits', 'Hunter');
             await expect(page.locator('.outfiter_status')).toContainText('could not be loaded');
-            await expect(page.locator('.body_main')).toHaveAttribute('src', /Outfiter_Error/);
+            await expect(page.locator('.body_main')).toHaveAttribute('src', /outfitter-error\.png$/);
             // the user can recover by picking something else
             await pickFromList(page, 'outfits', 'Mage');
             await waitForRender(page);
@@ -140,4 +140,24 @@ test.describe('search', () => {
         // Nobleman and Retro Nobleman
         await expect(visibleRows(page, 'outfits')).toHaveCount(2);
     });
+});
+
+test('the page only loads files from this site (no third-party CDNs)', async ({ page, baseURL }) => {
+    const external = [];
+    page.on('request', (req) => {
+        const url = req.url();
+        if (!url.startsWith(baseURL) && !url.startsWith('data:') && !url.startsWith('blob:')) { external.push(url); }
+    });
+    await openOutfitter(page, '?o=3&fl&h&n=Test&a');
+    expect(external).toEqual([]);
+});
+
+test('a typo in js/outfitter-assets.js shows a clear message instead of a blank page', async ({ page }) => {
+    await page.route('**/js/outfitter-assets.js', (route) => route.fulfill({
+        status: 200,
+        contentType: 'text/javascript',
+        body: "window.OutfiterAssets = { outfiter_mount_names: ['None' 'Widow_Queen'] };" // missing comma
+    }));
+    await page.goto('/');
+    await expect(page.locator('.outfiter_fatal')).toContainText('js/outfitter-assets.js did not load');
 });

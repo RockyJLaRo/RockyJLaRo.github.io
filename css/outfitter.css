@@ -1042,3 +1042,70 @@
     color: #a0a0a0;
     text-align: center;
 }
+
+/* ---------------------------------------------------------------------------
+ * Interface images (images/ui/). These rules used to be injected by
+ * outfitter.js after this stylesheet, so they stay at the end of the file to
+ * keep the same priority over the rules above.
+ * ------------------------------------------------------------------------- */
+.outfiter .leftb,
+.outfiter .rightb {
+    background-image: url('../images/ui/arrow-buttons.png');
+}
+
+.outfiter .darkchk_in,
+.outfiter .darkrad_in {
+    background-image: url('../images/ui/checkbox-radio.png');
+}
+
+.outfiter .dark_input,
+.outfiter .div2,
+.outfiter .div2_no_padding {
+    background: #383839 url('../images/ui/panel-dark.png') repeat;
+}
+
+.outfiter .template_code_code,
+.outfiter .template_code_code[disabled]:active,
+.outfiter .anistep_step,
+.outfiter .color_tab,
+.outfiter .color_tab[disabled]:active,
+.outfiter .nbutton,
+.outfiter .radio_list_out,
+.outfiter .omain_wrap {
+    background: #464747 url('../images/ui/panel-light.png') repeat;
+}
+
+.outfiter .body_main_div .zoomin,
+.outfiter .body_main_div .zoomout,
+.outfiter .body_main_div .zoomreset {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 20px 20px;
+}
+
+.outfiter .body_main_div .zoomin {
+    background-image: url('../images/ui/zoom-in.png');
+}
+
+.outfiter .body_main_div .zoomout {
+    background-image: url('../images/ui/zoom-out.png');
+}
+
+.outfiter .body_main_div .zoomreset {
+    background-image: url('../images/ui/zoom-reset.png');
+}
+
+.outfiter .help_q,
+.outfiter .copy_btn {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 12px 12px;
+}
+
+.outfiter .help_q {
+    background-image: url('../images/ui/help.png');
+}
+
+.outfiter .copy_btn {
+    background-image: url('../images/ui/copy.png');
+}
