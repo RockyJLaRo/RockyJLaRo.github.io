@@ -62,6 +62,16 @@ const server = http.createServer((req, res) => {
     });
 });
 
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error('Port ' + PORT + ' is already used by another program.');
+        console.error('Start on a different port instead, e.g.:  npm start -- 8081   (or: node tools/serve.js 8081)');
+    } else {
+        console.error('Could not start the server: ' + err.message);
+    }
+    process.exit(1);
+});
+
 server.listen(PORT, () => {
     console.log('Outfitter running at http://localhost:' + PORT + '/  (press Ctrl+C to stop)');
 });

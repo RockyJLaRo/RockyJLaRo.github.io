@@ -37,7 +37,6 @@ $(function () {
         outfiter_sprites_creature_walking = outfiter_assets.outfiter_sprites_creature_walking,
         outfiter_creature_props = outfiter_assets.outfiter_creature_props,
         outfiter_special_delays_standing = outfiter_assets.outfiter_special_delays_standing,
-        outfiter_special_delays_moving = outfiter_assets.outfiter_special_delays_moving,
         outfiter_special_delays_mount_standing = outfiter_assets.outfiter_special_delays_mount_standing,
         outfiter_pingpong_animation = outfiter_assets.outfiter_pingpong_animation,
         outfiter_4096h = outfiter_assets.outfiter_4096h,
@@ -322,7 +321,6 @@ $(function () {
         var
             $this_main = $(this),
             browsers_base = 'Firefox/Chrome/Opera/Safari/Edge',
-            browsers_apng = 'Firefox/Chrome/Opera/Safari/Edge',
             outfiter_mount_names_extra = [],
             outfiter_mount_names_sorted = [],
             outfiter_creature_names_extra = [],
@@ -612,10 +610,6 @@ $(function () {
                     }
                 }
                 return props;
-            },
-            // True when the active selection is a creature (not outfit/mount)
-            outfiter_is_creature_mode = function () {
-                return !!(outfiter_GET && outfiter_GET.creature > 0);
             },
             outfiter_pixels_get_sub = function (par) {
 
@@ -1267,7 +1261,6 @@ $(function () {
             },
             outfiter_do_display2 = function () {
                 var
-                    outfiter_readCookie = function (cname) { var i, c, cl = document.cookie.split(';'); for (i = 0; i < cl.length; i++) { c = $.trim(cl[i]); if (c.indexOf(cname + '=') === 0) { return c.substring(cname.length + 1); } } return null; },
                     // Format: [column, row, width, leftOffset, rightOffset]
                     outfiter_letters = {
                         'À': [0, 5, 9, 0, 0], 'Á': [1, 5, 9, 0, 0], 'Â': [2, 5, 9, 0, 0], 'Ã': [3, 5, 9, 0, 0], 'Ä': [4, 5, 9, 0, 0], 'Å': [5, 5, 9, 0, 0], 'Æ': [6, 5, 12, 0, 0], 'Ç': [7, 5, 8, 0, 0],
@@ -1363,7 +1356,6 @@ $(function () {
                     //
                     has_standing_animation_o = outfiter_GET.animate && outfiter_sprites_standing.hasOwnProperty(outfit_n),
                     has_standing_animation_m = outfiter_GET.animate && outfiter_sprites_mount_standing.hasOwnProperty(mount_n),
-                    has_standing_animation_c = outfiter_GET.animate && outfiter_creature_get_props(creature_n).standing > 1,
                     has_standing_animation_any = outfiter_sprites_standing.hasOwnProperty(outfit_n) || outfiter_sprites_mount_standing.hasOwnProperty(mount_n) || (outfiter_GET.creature > 0 && outfiter_creature_get_props(creature_n).standing > 1) || outfiter_sprites_creature_standing.hasOwnProperty(creature_n),
                     has_outfit = outfiter_GET.outfit !== outfiter_outfit_none_id,
                     can_have_mount = outfiter_m_names[outfit_n] !== true && has_outfit,
@@ -2415,8 +2407,7 @@ $(function () {
                     a2 = opts && opts.hasOwnProperty('forceAddon2') ? opts.forceAddon2 : outfiter_GET.addon2,
                     outfit_n = outfiter_names[outfiter_GET.outfit],
                     display_n,
-                    gender,
-                    addonNum;
+                    gender;
                 if (outfiter_GET.creature > 0) {
                     parts.push('Creature');
                     parts.push(clean(outfiter_creature_names[outfiter_GET.creature] || 'Unknown'));
