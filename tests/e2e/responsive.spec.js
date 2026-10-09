@@ -85,6 +85,33 @@ test.describe('phone layout @mobile', () => {
         expect(optionHeight).toBeGreaterThanOrEqual(40);
     });
 
+    test('the preview stays on screen while scrolling through a list or the colours', async ({ page }) => {
+        await openOutfitter(page);
+        const previewVisible = () => page.evaluate(() => {
+            const r = document.querySelector('.body_main_div').getBoundingClientRect();
+            return Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+        });
+        const row = page.locator('.radio_outfits .list_el').nth(6);
+        await row.scrollIntoViewIfNeeded();
+        await row.click();
+        await waitForRender(page);
+        expect(await previewVisible()).toBeGreaterThan(200);
+        await page.locator('.dcolor_table').scrollIntoViewIfNeeded();
+        expect(await previewVisible()).toBeGreaterThan(200);
+        // scrolling a row into view does not hide it behind the sticky preview
+        await row.evaluate((el) => el.scrollIntoView());
+        const previewBottom = await page.locator('.body_main_div').evaluate((el) => el.getBoundingClientRect().bottom);
+        expect((await row.boundingBox()).y).toBeGreaterThanOrEqual(previewBottom - 1);
+    });
+
+    test('a creature link opens with the creature list', async ({ page }) => {
+        await openOutfitter(page, '?o=105&cr=5');
+        await expect(page.locator('.cselector')).toBeVisible();
+        await expect(page.locator('.oselector')).toBeHidden();
+        await expect(page.locator('.list_tab[data-list="cselector"]')).toHaveAttribute('aria-pressed', 'true');
+        await expect(page.locator('.radio_creatures input:checked')).toHaveCount(1);
+    });
+
     test('the sprite fits the preview and swiping over it can scroll the page', async ({ page }) => {
         await openOutfitter(page, '?o=3&fl');
         const box = await page.locator('.body_main_div').boundingBox();

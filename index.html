@@ -36,10 +36,13 @@
         document.getElementById('copyright-year').textContent = new Date().getFullYear();
     </script>
 
-    <!-- Load order matters: jQuery, then settings and asset lists, then the app. -->
+    <!-- Load order matters: jQuery, settings, the asset lists (existing + new items),
+         the shared asset rules, then the app. -->
     <script src="js/vendor/jquery-3.7.0.min.js"></script>
     <script src="js/outfitter-settings.js"></script>
     <script src="js/outfitter-assets.js"></script>
+    <script src="js/outfitter-new-assets.js"></script>
+    <script src="js/outfitter-asset-rules.js"></script>
     <script src="js/outfitter.js"></script>
 
 </body>

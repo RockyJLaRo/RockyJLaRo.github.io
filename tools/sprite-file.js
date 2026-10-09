@@ -5,9 +5,11 @@
  *
  * IMPORT a PNG sprite sheet as a new (or replacement) sprite file:
  *     node tools/sprite-file.js import <Folder> <Name> <image.png>
- *     node tools/sprite-file.js import Creature Rotworm_King ~/Downloads/Rotworm_King.png
- *   -> writes base64/Creature/Rotworm_King.txt and tells you how many frames the
+ *     node tools/sprite-file.js import Creature Example_Creature ~/Downloads/Example_Creature.png
+ *   -> writes base64/Creature/Example_Creature.txt and tells you how many frames the
  *      sheet holds. Asks for --force before replacing an existing file.
+ *   To add a NEW item, tools/add-asset.js (or the Asset Helper page) is easier: it
+ *   also writes the block for js/outfitter-new-assets.js and checks everything.
  *
  * EXPORT a sprite file back to a PNG (to look at it or edit it):
  *     node tools/sprite-file.js export <Folder> <Name> [output.png]
@@ -60,10 +62,10 @@ function importSprite(folder, name, pngFile, force) {
         if (folder === 'Creature' || folder === 'Mount') {
             console.log(rows === 9
                 ? 'That is the normal layout (1 standing + 8 walking frames) - no extra rules needed.'
-                : `Not the normal 9 rows: add the frame counts to js/outfitter-assets.js (see docs/MAINTAINING.md, "Frame counts").`);
+                : 'Not the normal 9 rows: set standing_frames / walking_frames in its block (see docs/MAINTAINING.md, section 6).');
         }
     }
-    console.log('Next: add the name to js/outfitter-assets.js (if it is new), then run:  npm run validate');
+    console.log('Next: for a new item add its block to js/outfitter-new-assets.js, then run:  npm run validate');
 }
 
 function exportSprite(folder, name, outFile) {

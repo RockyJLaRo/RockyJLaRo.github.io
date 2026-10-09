@@ -38,6 +38,9 @@ main {
     flex: 1;
     display: flex;
     justify-content: center;
+    /* "safe": if the Outfitter is ever wider than the window, it starts at the left
+     * edge (and can be scrolled) instead of being cut off on both sides */
+    justify-content: safe center;
     align-items: flex-start;
     padding: 25px 15px;
 }
@@ -125,4 +128,17 @@ footer {
     footer a {
         transition: none;
     }
+}
+
+/* Shown above the Outfitter when an entry in js/outfitter-new-assets.js could not be
+ * added (see outfitter.js). Everything else keeps working. */
+.outfiter_notice {
+    max-width: 1135px;
+    margin: 0 0 6px 0;
+    padding: 6px 10px;
+    border: 1px solid #7a4a40;
+    background: #3a2a28;
+    color: #ffd0c8;
+    font-size: 12px;
+    line-height: 1.4;
 }
