@@ -1,8 +1,8 @@
 /* general
- * Layout: 3 left selector panels (Mounts / Creatures / Outfits) + one viewer column.
- * Left column is 240px so the longest mount/outfit names fit without a horizontal
- * scrollbar. Each left row is 238px; viewer spans all three rows. Backgrounds rely
- * on height:100% and flex so the dark panel texture fills the full viewer height.
+ * Layout: 3 left selector panels (Mounts / Creatures / Outfits) + one viewer column
+ * spanning all three rows. Backgrounds rely on height:100% and flex so the dark
+ * panel texture fills the full viewer height.
+ * Screen sizes: see "WIDE SCREENS" (1181px and wider) and "NARROW SCREENS" below.
  */
 .outfiter {
     color: #c0c0c0;
@@ -10,8 +10,7 @@
     line-height: 13px;
     text-align: left;
     display: grid;
-    grid-template-columns: 242px 888px;
-    grid-template-rows: 255px 255px 255px auto;
+    /* column / row sizes: see "WIDE SCREENS" below */
     grid-template-areas:
         "mount viewer"
         "creature viewer"
@@ -657,15 +656,6 @@
     margin: 0 auto 5px auto;
     width: 254px;
     position: relative;
-    top: -50px;
-}
-
-.outfiter .colors_cont,
-.outfiter .charn_cont,
-.outfiter .url_input_cont,
-.outfiter .template_code_code_cont {
-    position: relative;
-    top: -50px;
 }
 
 .outfiter .color_tab {
@@ -1188,10 +1178,338 @@
 }
 
 /* ===========================================================================
+ * WIDE SCREENS (1181px and wider)
+ * ---------------------------------------------------------------------------
+ * The Outfitter grows with the window (css/page.css sets the maximum width)
+ * and fills the window height:
+ *
+ *   lists      | side column        | main column
+ *   (stacked,  | options            | preview (takes all the room that is left)
+ *   sharing    | colours            | outfit / mount / creature
+ *   the height)|                    | name
+ *              | link and template code across the bottom
+ *
+ * Several rules above still carry the sizes of the original fixed 1135px
+ * layout (e.g. the 656 x 400 preview); the ones here replace them on wide
+ * screens. Nothing here applies to narrow screens.
+ * ========================================================================= */
+@media (min-width: 1181px) {
+    .outfiter {
+        grid-template-columns: clamp(250px, 17vw, 320px) minmax(0, 1fr);
+        grid-template-rows: repeat(3, minmax(200px, 1fr)) auto;
+        /* fill the window: its height minus header, footer and the page padding
+           (2 x 25px), in the Outfitter's own (possibly scaled) pixels, minus the
+           container's padding and border (2 x 8px). A min-height, not a stretching
+           flex box: that made the browser lay out all list rows twice per redraw. */
+        min-height: calc((100vh - var(--page-header-h, 82px) - var(--page-footer-h, 68px) - 50px) / var(--outfiter-zoom, 1) - 16px);
+    }
+
+    /* --- lists: fill their share of the height -------------------------- */
+    .outfiter .radio_list_wrap {
+        width: 100%;
+    }
+
+    .outfiter .radio_list_out {
+        height: 0;
+        min-height: 0;
+        flex: 1 1 0;
+        font-size: 11px;
+        line-height: 13px;
+    }
+
+    .outfiter .list_el {
+        padding: 4px 4px 3px 4px;
+    }
+
+    .outfiter input[type="text"].omsearch {
+        font-size: 11px;
+        line-height: 14px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
+    /* --- viewer: side column + main column ------------------------------ */
+    .outfiter .omain_wrap {
+        width: auto;
+        box-sizing: border-box;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: clamp(300px, 20vw, 360px) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto auto;
+        gap: 8px 12px;
+    }
+
+    .outfiter .omain_wrap > .clear {
+        display: none;
+    }
+
+    .outfiter .omain_wrap_left,
+    .outfiter .omain_wrap_right,
+    .outfiter .omain_cont_right {
+        float: none;
+        width: auto;
+        min-width: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .outfiter .omain_wrap_left {
+        grid-area: 1 / 1;
+        gap: 10px;
+    }
+
+    .outfiter .omain_wrap_right {
+        grid-area: 1 / 2;
+    }
+
+    .outfiter .omain_cont_right {
+        flex: 1 1 auto;
+    }
+
+    .outfiter .url_input_cont,
+    .outfiter .template_code_code_cont {
+        grid-column: 1 / -1;
+        margin: 0;
+    }
+
+    /* --- options: Configure next to Preview, Extra underneath ------------- */
+    .outfiter .omain_opts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 8px;
+        align-items: start;
+    }
+
+    .outfiter .omain_cont_left:nth-child(3) {
+        order: -1;
+    }
+
+    .outfiter .omain_cont_left + .omain_cont_left {
+        padding: 0;
+    }
+
+    .outfiter .omain_cont_left:nth-child(2) {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 8px;
+    }
+
+    .outfiter .omain_cont_left:nth-child(2) > .divtitle,
+    .outfiter .omain_cont_left:nth-child(2) > label:has(.show_advanced),
+    .outfiter .omain_cont_left:nth-child(2) > .save_advanced_opts,
+    .outfiter .omain_cont_left:nth-child(2) > .download_image {
+        grid-column: 1 / -1;
+    }
+
+    .outfiter .save_advanced_opts.is-visible {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 8px;
+    }
+
+    .outfiter .save_advanced_opts > .divtitle,
+    .outfiter .save_advanced_opts > .rotate4x_wrap {
+        grid-column: 1 / -1;
+    }
+
+    .outfiter .rotate4x_wrap {
+        max-width: none;
+        margin: 0 0 5px 0;
+    }
+
+    .outfiter .divcheck {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .outfiter .nbutton {
+        font-size: 10px;
+        padding: 6px 10px;
+    }
+
+    .outfiter .download_image {
+        width: 100%;
+        max-width: none;
+        margin: 2px 0 0 0;
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+
+    /* --- colours ---------------------------------------------------------- */
+    .outfiter .colourise_cont {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+        margin: 0;
+        text-align: left;
+    }
+
+    .outfiter .colourise_cont > .clear {
+        display: none;
+    }
+
+    .outfiter .colourise_title {
+        float: none;
+        padding: 0;
+    }
+
+    .outfiter .colourise_btns {
+        float: none;
+        order: 5;
+        flex: 1 1 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 0;
+    }
+
+    .outfiter .colourise_btns .nbutton {
+        flex: 1 1 30%;
+        width: auto;
+        min-width: 0;
+        padding: 6px 4px;
+    }
+
+    .outfiter .colors_cont {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        margin: 0;
+    }
+
+    .outfiter .color_tab {
+        float: none;
+        flex: 1 1 20%;
+        width: auto;
+        min-width: 0;
+        font-size: 10px;
+        line-height: 12px;
+    }
+
+    .outfiter .color_tab_in {
+        padding: 4px 0 5px 0;
+    }
+
+    .outfiter .dcolor_table_out {
+        flex: 1 1 100%;
+        width: auto;
+        height: auto;
+        box-sizing: border-box;
+    }
+
+    .outfiter .dcolor_table {
+        width: 100%;
+        grid-template-columns: repeat(19, 1fr);
+        line-height: 0;
+    }
+
+    .outfiter .dcolor_table * {
+        width: auto;
+        height: auto;
+        aspect-ratio: 1;
+        padding: 0;
+        border-width: 1px;
+    }
+
+    .outfiter .color_table_d_sel::after {
+        width: auto;
+        height: auto;
+        inset: -3px;
+        border-width: 2px;
+    }
+
+    /* --- preview: takes the room that is left ------------------------------ */
+    .outfiter .body_main_div {
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        min-height: 380px;
+    }
+
+    /* centre the sprite (its height is set by outfitter.js) */
+    .outfiter .body_main,
+    .outfiter .body_main.body_main_with_floor {
+        top: max(0px, calc(50% - var(--outfiter-img-h, 128px) / 2));
+    }
+
+    .outfiter .body_main_div .zoom_btn {
+        width: 30px;
+        height: 30px;
+        top: 4px;
+    }
+
+    .outfiter .body_main_div .zoomout {
+        left: 4px;
+    }
+
+    .outfiter .body_main_div .zoomin {
+        right: 4px;
+    }
+
+    .outfiter .tleftb {
+        left: 4px;
+        bottom: 4px;
+    }
+
+    .outfiter .trightb {
+        right: 4px;
+        bottom: 4px;
+    }
+
+    .outfiter .oitem_select_name {
+        font-size: 12px;
+        line-height: 14px;
+    }
+
+    /* --- name and link ------------------------------------------------------ */
+    .outfiter .charn_cont {
+        margin: 0;
+    }
+
+    .outfiter .charn {
+        width: 240px;
+    }
+
+    .outfiter input[type="text"].charn,
+    .outfiter input[type="text"].url_input {
+        font-size: 11px;
+        line-height: 14px;
+    }
+}
+
+/* Wide and tall screens (e.g. 1920 x 1080): there is room to show the options in
+ * one column, in their original order, so the side column is filled as well. */
+@media (min-width: 1181px) and (min-height: 1000px) {
+    .outfiter .omain_opts {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .outfiter .omain_cont_left:nth-child(3) {
+        order: 0;
+    }
+
+    .outfiter .omain_cont_left:nth-child(2),
+    .outfiter .save_advanced_opts.is-visible {
+        grid-template-columns: 1fr;
+    }
+
+    .outfiter .divcheck {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}
+
+/* ===========================================================================
  * NARROW SCREENS (phones, tablets, small or zoomed-in windows)
  * ---------------------------------------------------------------------------
- * Below 1181px the desktop layout (lists on the left, 888px viewer on the
- * right) no longer fits. The same elements are then shown in one column:
+ * Below 1181px the desktop layout (lists, options and preview side by side)
+ * no longer fits. The same elements are then shown in one column:
  *
  *     preview -> outfit/mount/creature arrows -> list (one at a time, with
  *     tabs) -> options -> colours -> name -> link -> animation steps
@@ -1213,6 +1531,7 @@
     .outfiter .viewer,
     .outfiter .viewer > .div2,
     .outfiter .omain_wrap,
+    .outfiter .omain_wrap_left,
     .outfiter .omain_wrap_right,
     .outfiter .omain_cont_right {
         display: contents;
@@ -1228,7 +1547,7 @@
     .outfiter .oitem_select_cont { order: 12; }
     .outfiter .list_tabs { order: 20; }
     .outfiter .radio_list_wrap { order: 21; }
-    .outfiter .omain_wrap_left { order: 30; }
+    .outfiter .omain_opts { order: 30; }
     .outfiter .colourise_cont { order: 40; }
     .outfiter .colors_cont { order: 41; }
     .outfiter .charn_cont { order: 50; }
@@ -1236,14 +1555,6 @@
     .outfiter .template_code_code_cont { order: 61; }
     .outfiter .anistep_panel { order: 70; }
     .outfiter .hide_canvas { order: 99; position: absolute; width: 0; overflow: hidden; }
-
-    /* the desktop layout shifted these up by 50px; not needed here */
-    .outfiter .colors_cont,
-    .outfiter .charn_cont,
-    .outfiter .url_input_cont,
-    .outfiter .template_code_code_cont {
-        top: 0;
-    }
 
     /* --- preview ------------------------------------------------------- */
     .outfiter .body_main_div {
@@ -1379,6 +1690,11 @@
         height: auto;
     }
 
+    /* the tab above already names the list */
+    .outfiter .radio_list_wrap .div2_title {
+        display: none;
+    }
+
     .outfiter.show-list-oselector .oselector,
     .outfiter.show-list-mselector .mselector,
     .outfiter.show-list-cselector .cselector {
@@ -1412,9 +1728,7 @@
     }
 
     /* --- options (Preview / Extra / Configure) ------------------------ */
-    .outfiter .omain_wrap_left {
-        float: none;
-        width: auto;
+    .outfiter .omain_opts {
         padding: 8px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1607,7 +1921,7 @@
 /* Phones: two option columns - Configure (most used) next to Preview, and the
  * Extra group (with Download) across the full width underneath. */
 @media (max-width: 600px) {
-    .outfiter .omain_wrap_left {
+    .outfiter .omain_opts {
         grid-template-columns: 1fr 1fr;
     }
 
@@ -1647,7 +1961,7 @@
         gap: 6px;
     }
 
-    .outfiter .omain_wrap_left {
+    .outfiter .omain_opts {
         gap: 4px 6px;
         padding: 6px;
     }

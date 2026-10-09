@@ -28,15 +28,69 @@ test.describe('no sideways scrolling at common sizes', () => {
     }
 });
 
-test('desktop keeps the side-by-side layout', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await openOutfitter(page);
-    await expect(page.locator('.list_tabs')).toBeHidden();
-    for (const list of ['.mselector', '.cselector', '.oselector']) { await expect(page.locator(list)).toBeVisible(); }
-    const lists = await page.locator('.mselector').boundingBox();
-    const viewer = await page.locator('.viewer').boundingBox();
-    expect(lists.x + lists.width).toBeLessThanOrEqual(viewer.x); // lists left of the viewer
-    expect(Math.round(viewer.width)).toBe(888);
+test.describe('wide screens use the space', () => {
+    test('lists on the left, options and colours beside the preview', async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 900 });
+        await openOutfitter(page);
+        await expect(page.locator('.list_tabs')).toBeHidden();
+        for (const list of ['.mselector', '.cselector', '.oselector']) { await expect(page.locator(list)).toBeVisible(); }
+        const lists = await page.locator('.mselector').boundingBox();
+        const viewer = await page.locator('.viewer').boundingBox();
+        const options = await page.locator('.omain_opts').boundingBox();
+        const colours = await page.locator('.colors_cont').boundingBox();
+        const preview = await page.locator('.body_main_div').boundingBox();
+        expect(lists.x + lists.width).toBeLessThanOrEqual(viewer.x); // lists left of the viewer
+        expect(colours.y).toBeGreaterThan(options.y); // colours under the options ...
+        expect(colours.x + colours.width).toBeLessThanOrEqual(preview.x); // ... left of the preview
+    });
+
+    for (const [width, height] of [[1280, 800], [1920, 1080]]) {
+        test(`${width}x${height}: fills the window, everything visible without scrolling`, async ({ page }) => {
+            await page.setViewportSize({ width, height });
+            await openOutfitter(page, '?o=3&m=5');
+            const box = await page.locator('#outfiter_container').boundingBox();
+            expect(width - box.width).toBeLessThanOrEqual(width >= 1800 ? 260 : 40); // at most 1680px wide
+            expect((await page.locator('.url_input').boundingBox()).y).toBeLessThan(height); // link on screen
+            if (height >= 1000) {
+                // no empty band under the Outfitter: the footer ends at the bottom of the window
+                const footer = await page.locator('footer').boundingBox();
+                expect(Math.abs(footer.y + footer.height - height)).toBeLessThanOrEqual(1);
+            }
+            expect(await horizontalOverflow(page)).toEqual([]);
+        });
+    }
+
+    test('the preview opens bigger when there is room (zoom 3 instead of 2)', async ({ page }) => {
+        await page.setViewportSize({ width: 1920, height: 1080 });
+        await openOutfitter(page, '?o=3');
+        const big = await page.locator('.body_main').evaluate((img) => img.width);
+        await page.locator('.zoomout').click();
+        const normal = await page.locator('.body_main').evaluate((img) => img.width);
+        expect(big / normal).toBeCloseTo(1.5, 2);
+    });
+
+    test('very large screens show the Outfitter bigger; lists and dragging still line up', async ({ page }) => {
+        await page.setViewportSize({ width: 2560, height: 1440 });
+        await openOutfitter(page, '?o=3&m=239');
+        expect(await page.locator('#outfiter_container').evaluate((el) => getComputedStyle(el).zoom)).toBe('1.25');
+        // the selected rows are scrolled into view
+        await expect.poll(() => page.evaluate(() => ['outfits', 'mounts'].every((k) => {
+            const row = document.querySelector('.radio_' + k + ' input:checked').closest('label');
+            const box = row.parentElement.getBoundingClientRect(), r = row.getBoundingClientRect();
+            return r.top >= box.top && r.bottom <= box.bottom;
+        }))).toBe(true);
+        // dragging the zoomed-in sprite moves it as far as the mouse moves
+        await page.locator('.zoomin').click();
+        const img = page.locator('.body_main');
+        const before = await img.boundingBox();
+        await page.mouse.move(before.x + before.width / 2, before.y + before.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(before.x + before.width / 2 + 100, before.y + before.height / 2 + 50, { steps: 5 });
+        await page.mouse.up();
+        const after = await img.boundingBox();
+        expect(after.x - before.x).toBeCloseTo(100, 0);
+        expect(after.y - before.y).toBeCloseTo(50, 0);
+    });
 });
 
 test.describe('phone layout @mobile', () => {

@@ -22,6 +22,9 @@ window.OutfiterSettings = {
     default_zoom: 2,                               // default 2
     min_zoom: 1,                                   // default 1
     max_zoom: 4,                                   // default 4
+    // Wide screens: the preview opens bigger, up to this zoom, when the sprite fits.
+    // Set it to the same number as default_zoom to always open at default_zoom.
+    auto_zoom_max: 3,                              // default 3
 
     // How often a failed sprite download is retried before showing the error image.
     download_retries: 1,                           // default 1

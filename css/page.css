@@ -81,6 +81,51 @@ footer a:hover {
     color: #ffffff;
 }
 
+/* Wide screens: the Outfitter uses the window width (up to 1680px) and fills the
+ * height between header and footer. Header and footer get fixed heights so that
+ * css/outfitter.css ("WIDE SCREENS") can work out the room that is left. */
+@media (min-width: 1181px) {
+    :root {
+        --page-header-h: 82px;
+        --page-footer-h: 68px;
+        --outfiter-zoom: 1;
+    }
+
+    header {
+        height: var(--page-header-h);
+        box-sizing: border-box;
+    }
+
+    footer {
+        height: var(--page-footer-h);
+        box-sizing: border-box;
+    }
+
+    #outfiter_container {
+        width: 100%;
+        max-width: 1680px;
+        box-sizing: border-box;
+    }
+}
+
+/* Very large screens (e.g. 2560 x 1440 at 100% scaling): show the Outfitter
+ * bigger, so it fills the screen the way it does at 1920 x 1080. */
+@media (min-width: 2200px) and (min-height: 1250px) {
+    :root {
+        --outfiter-zoom: 1.25;
+    }
+
+    #outfiter_container {
+        zoom: var(--outfiter-zoom);
+    }
+}
+
+@media (min-width: 2900px) and (min-height: 1600px) {
+    :root {
+        --outfiter-zoom: 1.5;
+    }
+}
+
 /* Shown instead of the Outfitter when it cannot start (see outfitter.js) */
 .outfiter_fatal {
     max-width: 480px;
@@ -133,7 +178,6 @@ footer {
 /* Shown above the Outfitter when an entry in js/outfitter-new-assets.js could not be
  * added (see outfitter.js). Everything else keeps working. */
 .outfiter_notice {
-    max-width: 1135px;
     margin: 0 0 6px 0;
     padding: 6px 10px;
     border: 1px solid #7a4a40;
