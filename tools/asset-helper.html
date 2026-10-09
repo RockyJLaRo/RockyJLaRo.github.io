@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outfitter Asset Helper</title>
+    <meta name="description" content="Prepare, check and preview a new creature, mount or outfit for the TibiaWiki Outfitter.">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="asset-helper.css">
+</head>
+
+<body>
+    <header>
+        <h1>Outfitter Asset Helper</h1>
+        <p>Add a creature, mount or outfit: check the sprite and preview it before you publish it.</p>
+    </header>
+
+    <main>
+        <p class="banner">
+            <strong>This page does not change the Outfitter by itself.</strong>
+            It checks your sprite and prepares the files. Nothing is saved or published until you
+            upload them to GitHub (step 6). Reloading this page clears everything.
+            <a id="guide-link" href="https://github.com/RockyJLaRo/RockyJLaRo.github.io/blob/main/docs/MAINTAINING.md">Full guide</a>
+        </p>
+        <div id="page-problems" class="problems" role="alert" hidden></div>
+
+        <section aria-labelledby="h-type">
+            <h2 id="h-type">1. What are you adding?</h2>
+            <div class="choices" role="radiogroup" aria-labelledby="h-type">
+                <label><input type="radio" name="type" value="creature" checked> Creature</label>
+                <label><input type="radio" name="type" value="mount"> Mount</label>
+                <label><input type="radio" name="type" value="outfit"> Player outfit</label>
+                <label><input type="radio" name="type" value="other_outfit"> Other outfit <span class="hint">(NPC / monster outfit)</span></label>
+            </div>
+        </section>
+
+        <section aria-labelledby="h-name">
+            <h2 id="h-name">2. Name</h2>
+            <label for="name">Name as on TibiaWiki</label>
+            <input type="text" id="name" autocomplete="off" spellcheck="false" placeholder="e.g. Example Creature">
+            <p class="hint">Spaces become underscores. Capital letters matter: the sprite file gets exactly this name.</p>
+            <p id="name-result" class="field-result" aria-live="polite"></p>
+        </section>
+
+        <section aria-labelledby="h-sprite">
+            <h2 id="h-sprite">3. Sprite sheet</h2>
+            <p class="hint">A PNG image of the whole sprite sheet (frames of 64 x 64 pixels; pure magenta #FF00FF is
+                transparent). An existing <code>.txt</code> sprite file works too.</p>
+            <div class="file-row">
+                <label for="file-main" id="file-main-label">Sprite sheet</label>
+                <input type="file" id="file-main" accept=".png,.txt,image/png,text/plain">
+            </div>
+            <div class="file-row" id="female-file-row" hidden>
+                <label for="file-female">Female sprite sheet</label>
+                <input type="file" id="file-female" accept=".png,.txt,image/png,text/plain">
+            </div>
+            <div id="sheets"></div>
+        </section>
+
+        <section aria-labelledby="h-settings">
+            <h2 id="h-settings">4. Settings</h2>
+            <p id="guess-result" class="hint" aria-live="polite">Choose a sprite sheet and the settings are filled in from its size. Check them in the preview.</p>
+            <div class="settings">
+                <label class="number">Standing frames <input type="number" id="standing" min="0" max="64" value="1"></label>
+                <label class="number">Walking frames <input type="number" id="walking" min="0" max="64" value="8"></label>
+                <label class="for-creature for-mount"><input type="checkbox" id="colourisable"> Has colour masks (sheet is 512px wide)</label>
+                <label class="for-creature for-outfit for-other_outfit select">Addons
+                    <select id="addons">
+                        <option value="none">No addons</option>
+                        <option value="addon_1" class="for-creature">Addon 1 only</option>
+                        <option value="both">Addon 1 and addon 2</option>
+                        <option value="one_at_a_time">Two addons, but only one at a time</option>
+                    </select>
+                </label>
+                <label class="for-outfit for-other_outfit"><input type="checkbox" id="female"> Has a female version</label>
+                <label class="for-other_outfit female-only"><input type="checkbox" id="separate-female"> Female sprite is a separate file (<em>Name</em>_Female.txt)</label>
+                <label class="for-outfit for-other_outfit"><input type="checkbox" id="can-ride"> Can ride a mount (sheet has riding rows)</label>
+                <label class="for-outfit for-other_outfit female-only text">Female name (optional)
+                    <input type="text" id="female-name" autocomplete="off" placeholder="only if the female version is called differently">
+                </label>
+            </div>
+        </section>
+
+        <section aria-labelledby="h-check">
+            <h2 id="h-check">5. Check and preview</h2>
+            <ul id="check-results" class="results" aria-live="polite"></ul>
+            <button type="button" id="preview-button" disabled>Show preview</button>
+            <p id="preview-note" class="hint" hidden>Preview only - this copy of the Outfitter shows your item, nobody else
+                sees it. Change settings above and press "Show preview" again to update it.</p>
+            <div id="preview-box" hidden>
+                <iframe id="preview-frame" title="Preview of the new item in the Outfitter"></iframe>
+            </div>
+        </section>
+
+        <section aria-labelledby="h-save">
+            <h2 id="h-save">6. Save it to the project</h2>
+            <p id="save-blocked" class="hint">Fix the problems in step 5 first.</p>
+            <div id="save-steps" hidden>
+                <h3>a) Download the sprite file<span class="plural">s</span></h3>
+                <div id="downloads"></div>
+                <h3>b) Copy this block</h3>
+                <textarea id="entry-text" rows="8" readonly aria-label="Block for js/outfitter-new-assets.js"></textarea>
+                <button type="button" id="copy-entry">Copy block</button>
+                <span id="copy-result" class="hint" aria-live="polite"></span>
+
+                <h3>c) Add both to the project and publish</h3>
+                <div class="howto">
+                    <details open>
+                        <summary>On the GitHub website (nothing to install)</summary>
+                        <ol id="steps-web"></ol>
+                    </details>
+                    <details>
+                        <summary>On your computer (GitHub Desktop / Git)</summary>
+                        <ol id="steps-local"></ol>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <section aria-labelledby="h-collection">
+            <h2 id="h-collection">Check the collection</h2>
+            <p class="hint">Checks the lists and the items in <code>js/outfitter-new-assets.js</code> as this copy of the site
+                has them. After publishing, run it on the live site to make sure everything arrived.</p>
+            <button type="button" id="check-new">Check new items</button>
+            <button type="button" id="check-all">Check every sprite file (downloads about 120 MB)</button>
+            <p id="collection-progress" class="hint" aria-live="polite"></p>
+            <ul id="collection-results" class="results"></ul>
+        </section>
+    </main>
+
+    <!-- the same data and rules the Outfitter uses -->
+    <script src="../js/outfitter-assets.js"></script>
+    <script src="../js/outfitter-new-assets.js"></script>
+    <script src="../js/outfitter-asset-rules.js"></script>
+    <script src="asset-helper.js"></script>
+</body>
+
+</html>

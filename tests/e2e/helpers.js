@@ -38,6 +38,11 @@ function readState(page) {
     }));
 }
 
+/** Wait until the address bar shows the current share link (it is updated a moment after a change). */
+async function waitForAddressBar(page) {
+    await page.waitForFunction(() => location.href === document.querySelector('.url_input').value);
+}
+
 /** Click a row in one of the lists ("outfits", "mounts" or "creatures") by its visible name. */
 async function pickFromList(page, list, name) {
     await page.locator(`.radio_${list} .list_el`, { has: page.locator('.t', { hasText: new RegExp('^' + name + '$') }) }).click();
@@ -70,4 +75,4 @@ async function animationFramePixelCounts(page) {
     });
 }
 
-module.exports = { waitForRender, openOutfitter, readState, pickFromList, animationFramePixelCounts };
+module.exports = { waitForRender, waitForAddressBar, openOutfitter, readState, pickFromList, animationFramePixelCounts };

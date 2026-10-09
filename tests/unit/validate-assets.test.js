@@ -5,77 +5,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const zlib = require('zlib');
-const { validate, crc32 } = require('../../tools/validate-assets');
-
-/** Build a valid, fully transparent RGBA PNG of the given size. */
-function makePng(width, height) {
-    const chunk = (type, data) => {
-        const len = Buffer.alloc(4); len.writeUInt32BE(data.length);
-        const body = Buffer.concat([Buffer.from(type, 'latin1'), data]);
-        const crc = Buffer.alloc(4); crc.writeUInt32BE(crc32(body));
-        return Buffer.concat([len, body, crc]);
-    };
-    const ihdr = Buffer.alloc(13);
-    ihdr.writeUInt32BE(width, 0); ihdr.writeUInt32BE(height, 4);
-    ihdr[8] = 8; ihdr[9] = 6; // 8-bit RGBA
-    const raw = Buffer.alloc(height * (width * 4 + 1)); // filter byte 0 + zero pixels per row
-    return Buffer.concat([
-        Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-        chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw)), chunk('IEND', Buffer.alloc(0))
-    ]);
-}
-
-const spriteFile = (name, width, height) =>
-    `<pre id="${name}">data:image/png;base64,${makePng(width, height).toString('base64')}</pre>\n[[Category:Outfiter]]`;
-
-const EMPTY_RULES = [
-    'outfiter_sprites_standing', 'outfiter_sprites_walking', 'outfiter_sprites_creature_standing',
-    'outfiter_sprites_creature_walking', 'outfiter_creature_props', 'outfiter_special_delays_standing',
-    'outfiter_special_delays_moving', 'outfiter_special_delays_mount_standing', 'outfiter_pingpong_animation',
-    'outfiter_4096h', 'outfiter_sprites_mount_standing', 'outfiter_sprites_mount_walking',
-    'outfiter_mount_colourisable', 'outfiter_f_suffix_inames', 'outfiter_m_names', 'outfiter_a_names',
-    'outfiter_no_ride_names', 'outfiter_no_floor_move_names', 'outfiter_o_names', 'outfiter_separator',
-    'outfiter_mount_separator', 'outfiter_creature_separator', 'outfiter_f_names'
-];
-
-/**
- * Create a small valid project:
- *   mount 'War_Bear', creatures 'Rat' and 'Ghost' (addon 1 only),
- *   outfit 'Citizen' (male + female) and the six "Other" outfits incl. None.
- * `change(assets, files)` may modify the data / files before they are written.
- */
-function makeProject(change) {
-    const assets = {
-        outfiter_mount_names: ['None', 'War_Bear'],
-        outfiter_creature_names: ['None', 'Rat', 'Ghost'],
-        outfiter_names0: ['Citizen'],
-        outfiter_names100: ['Frog', 'Elf', 'Dwarf', 'Archdemon', 'CM', 'None'],
-        outfiter_names200: [],
-        outfiter_u_names: { Frog: true, Elf: true, Dwarf: true, Archdemon: true, CM: true, None: true }
-    };
-    for (const rule of EMPTY_RULES) { assets[rule] = {}; }
-    assets.outfiter_creature_props = { Ghost: { addon1: true } };
-    const files = {
-        'Mount/War_Bear.txt': spriteFile('War_Bear', 256, 9 * 64),
-        'Creature/Rat.txt': spriteFile('Rat', 256, 9 * 64),
-        'Creature/Ghost.txt': spriteFile('Ghost', 256, 9 * 2 * 64), // base + addon 1 per frame
-        'Male/Citizen.txt': spriteFile('Citizen', 512, 9 * 6 * 64),
-        'Female/Citizen.txt': spriteFile('Citizen', 512, 9 * 6 * 64)
-    };
-    for (const n of assets.outfiter_names100) { files[`Other/${n}.txt`] = spriteFile(n, 512, 9 * 6 * 64); }
-    let assetsSource = null;
-    if (change) { assetsSource = change(assets, files) || null; }
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'outfitter-test-'));
-    fs.mkdirSync(path.join(root, 'js'));
-    fs.writeFileSync(path.join(root, 'js', 'outfitter-assets.js'), assetsSource || 'window.OutfiterAssets = ' + JSON.stringify(assets, null, 1) + ';');
-    for (const folder of ['Creature', 'Female', 'Male', 'Mount', 'Other']) { fs.mkdirSync(path.join(root, 'base64', folder), { recursive: true }); }
-    for (const [rel, content] of Object.entries(files)) { fs.writeFileSync(path.join(root, 'base64', rel), content); }
-    return root;
-}
+const { validate } = require('../../tools/validate-assets');
+const { makePng, spriteFile, makeProject } = require('../fixtures');
 
 const errorsOf = (change) => validate(makeProject(change)).errors.join('\n');
 
@@ -95,7 +26,7 @@ test('reports file names that only differ in capital letters', () => {
 
 test('reports a wrong file wrapper and a wrong <pre id>', () => {
     assert.match(errorsOf((a, f) => { f['Creature/Rat.txt'] = 'data:image/png;base64,AAAA'; }), /must look like <pre id="Rat">/);
-    assert.match(errorsOf((a, f) => { f['Creature/Rat.txt'] = f['Creature/Rat.txt'].replace('id="Rat"', 'id="Bat"'); }), /should be <pre id="Rat">/);
+    assert.match(errorsOf((a, f) => { f['Creature/Rat.txt'] = f['Creature/Rat.txt'].replace('id="Rat"', 'id="Bat"'); }), /must be <pre id="Rat">/);
 });
 
 test('accepts the id variations the app accepts (space instead of underscore)', () => {
@@ -112,20 +43,20 @@ test('reports invalid base64 and corrupted PNG data', () => {
 });
 
 test('reports a sheet that is too short for its frame counts', () => {
-    assert.match(errorsOf((a, f) => { f['Creature/Rat.txt'] = spriteFile('Rat', 256, 2 * 64); }), /Rat\.txt: sheet has 2 rows .* need 9/);
+    assert.match(errorsOf((a, f) => { f['Creature/Rat.txt'] = spriteFile('Rat', 256, 2 * 64); }), /Rat\.txt: the sheet has 2 rows .* need 9/);
 });
 
 test('warns about a sheet with unused rows', () => {
     const result = validate(makeProject((a, f) => { f['Creature/Rat.txt'] = spriteFile('Rat', 256, 16 * 64); }));
     assert.deepStrictEqual(result.errors, []);
-    assert.match(result.warnings.join('\n'), /Rat\.txt: sheet has 16 rows but the rules only use 9/);
+    assert.match(result.warnings.join('\n'), /Rat\.txt: the sheet has 16 rows but the rules only use 9/);
 });
 
 test('uses 2 rows per frame for creatures with only addon 1 (matches the app)', () => {
     // 9 frames x 3 rows is more than the 9 x 2 rows the app reads: a warning, not an error
     const result = validate(makeProject((a, f) => { f['Creature/Ghost.txt'] = spriteFile('Ghost', 256, 9 * 3 * 64); }));
     assert.deepStrictEqual(result.errors, []);
-    assert.match(result.warnings.join('\n'), /Ghost\.txt: sheet has 27 rows but the rules only use 18/);
+    assert.match(result.warnings.join('\n'), /Ghost\.txt: the sheet has 27 rows but the rules only use 18/);
 });
 
 test('reports duplicates, spaces in names and misspelled rule names', () => {
@@ -139,4 +70,67 @@ test('reports a syntax error in the asset list with its line number', () => {
     const errors = errorsOf(() => "window.OutfiterAssets = {\n  outfiter_mount_names: ['None' 'War_Bear']\n};");
     assert.match(errors, /could not be read/);
     assert.match(errors, /outfitter-assets\.js:2/);
+});
+
+/* --------------------------------------------------------------------- */
+/* New items (js/outfitter-new-assets.js)                                 */
+/* --------------------------------------------------------------------- */
+
+test('accepts a new creature, mount and outfit with their sprite files', () => {
+    const result = validate(makeProject((a, f, n) => {
+        n.push({ type: 'creature', id: 3, name: 'New_Creature' });
+        n.push({ type: 'mount', id: 2, name: 'New_Mount', colourisable: true });
+        n.push({ type: 'outfit', id: 200, name: 'New_Outfit', female: true, addons: 'both', can_ride_mount: true });
+        f['Creature/New_Creature.txt'] = spriteFile('New_Creature', 256, 9 * 64);
+        f['Mount/New_Mount.txt'] = spriteFile('New_Mount', 512, 9 * 64);
+        f['Male/New_Outfit.txt'] = spriteFile('New_Outfit', 512, 9 * 6 * 64);
+        f['Female/New_Outfit.txt'] = spriteFile('New_Outfit', 512, 9 * 6 * 64);
+    }));
+    assert.deepStrictEqual(result.errors, []);
+    assert.strictEqual(result.stats.newItems, 3);
+});
+
+test('new item: missing sprite file, wrong size and missing female file are reported', () => {
+    const errors = errorsOf((a, f, n) => {
+        n.push({ type: 'creature', id: 3, name: 'New_Creature' });
+        n.push({ type: 'outfit', id: 200, name: 'New_Outfit', female: true, addons: 'none', can_ride_mount: false });
+        f['Male/New_Outfit.txt'] = spriteFile('New_Outfit', 512, 2 * 64);
+    });
+    assert.match(errors, /base64\/Creature\/New_Creature\.txt is missing .*new item.*upload the sprite file/);
+    assert.match(errors, /base64\/Male\/New_Outfit\.txt: the sheet has 2 rows .* need 9/);
+    assert.match(errors, /base64\/Female\/New_Outfit\.txt is missing/);
+});
+
+test('new item: ID conflicts, gaps and duplicate names are reported', () => {
+    assert.match(errorsOf((a, f, n) => { n.push({ type: 'creature', id: 2, name: 'Bat' }); }), /uses ID 2, which already belongs to creature 'Ghost'\. The next free ID is 3/);
+    assert.match(errorsOf((a, f, n) => { n.push({ type: 'creature', id: 9, name: 'Bat' }); }), /uses ID 9 but the next free ID is 3/);
+    assert.match(errorsOf((a, f, n) => { n.push({ type: 'creature', id: 3, name: 'rat' }); }), /same name as existing creature 'Rat'/);
+    assert.match(errorsOf((a, f, n) => {
+        n.push({ type: 'creature', id: 3, name: 'Bat' });
+        n.push({ type: 'creature', id: 3, name: 'Wolf' });
+    }), /creature 'Wolf' \(ID 3\).*already belongs to creature 'Bat'/);
+});
+
+test('new item: wrong fields are explained', () => {
+    const errors = errorsOf((a, f, n) => {
+        n.push({ type: 'monster', id: 3, name: 'X' });
+        n.push({ type: 'creature', id: 3, name: 'Bad Name' });
+        n.push({ type: 'mount', id: 2, name: 'M', walking_frame: 8 });
+        n.push({ type: 'outfit', id: 200, name: 'O', female: 'yes', addons: 'both' });
+        n.push({ type: 'outfit', id: 50, name: 'P', female: true, addons: 'both', can_ride_mount: true });
+    });
+    assert.match(errors, /type must be 'creature', 'mount', 'outfit' or 'other_outfit'/);
+    assert.match(errors, /name contains a space - use underscores, e.g\. 'Bad_Name'/);
+    assert.match(errors, /has the field 'walking_frame', which is not used for a mount/);
+    assert.match(errors, /is missing the required field 'can_ride_mount'/);
+    assert.match(errors, /female must be true or false/);
+    assert.match(errors, /player outfits use IDs from 200/);
+});
+
+test('a syntax error in js/outfitter-new-assets.js is reported with its line, the rest is still checked', () => {
+    const result = validate(makeProject(null, "window.OutfiterNewAssets = [\n  { type: 'creature' id: 3 }\n];"));
+    const errors = result.errors.join('\n');
+    assert.match(errors, /js\/outfitter-new-assets\.js could not be read/);
+    assert.match(errors, /outfitter-new-assets\.js:2/);
+    assert.ok(result.stats.filesChecked > 0, 'existing items are still checked');
 });

@@ -581,9 +581,15 @@ $(function () {
                 url = encodeURI(base + (params.length > 1 ? params : ''));
                 ogebi('url_input').val(url);
                 // Also show it in the address bar (without adding history entries), so
-                // reloading or bookmarking the page keeps the current view.
-                if (!outfiter_preview_mode && window.history && history.replaceState && url !== location.href) {
-                    try { history.replaceState(history.state, '', url); } catch (ignore) { }
+                // reloading or bookmarking the page keeps the current view. Done a moment
+                // later: it is slow in some browsers and must not delay the picture.
+                if (!outfiter_preview_mode && window.history && history.replaceState) {
+                    clearTimeout(outfiter_url_timer);
+                    outfiter_url_timer = setTimeout(function () {
+                        if (url !== location.href) {
+                            try { history.replaceState(history.state, '', url); } catch (ignore) { }
+                        }
+                    }, 200);
                 }
             },
             //generate template code for current options
@@ -1931,7 +1937,8 @@ $(function () {
             outfiter_set_busy = function (busy) {
                 if (busy) {
                     if (outfiter_busy_controls) { return; }
-                    outfiter_busy_controls = ogebi('button, input[type="checkbox"], input[type="radio"]', 1).filter(':enabled');
+                    // everything that changes the picture (the colour palette checks the busy class itself)
+                    outfiter_busy_controls = ogebi('button, input[type="checkbox"], input[type="radio"], input.charn', 1).filter(':enabled');
                     outfiter_busy_controls.prop({ disabled: true });
                     $this_main.addClass('outfiter_busy');
                     outfiter_set_status('Preparing your download...');
@@ -2937,13 +2944,32 @@ $(function () {
             // used to leave the mount / creature lists showing the old row) and scroll each
             // list - not the page - so a newly selected row is visible.
             outfiter_revealed = {},
+            outfiter_reveal_pending = false,
+            outfiter_url_timer,
             outfiter_sync_lists = function () {
+                var selected = { outfits: outfiter_GET.outfit, mounts: outfiter_GET.mount, creatures: outfiter_GET.creature },
+                    after_draw = window.requestAnimationFrame || function (fn) { setTimeout(fn, 16); };
+                $.each(selected, function (kind, id) {
+                    var box = ogebi('radio_' + kind)[0],
+                        input = box && box.querySelector('.radio_' + kind + '_' + id);
+                    if (input) { input.checked = true; }
+                });
+                // Scrolling the lists needs the page layout; measure it after the picture
+                // is drawn so it does not slow the drawing down.
+                if (outfiter_reveal_pending) { return; }
+                outfiter_reveal_pending = true;
+                after_draw(function () {
+                    outfiter_reveal_pending = false;
+                    outfiter_reveal_selected();
+                });
+            },
+            // scroll each list so that its selected row is visible (once per new selection)
+            outfiter_reveal_selected = function () {
                 $.each({ outfits: outfiter_GET.outfit, mounts: outfiter_GET.mount, creatures: outfiter_GET.creature }, function (kind, id) {
                     var box = ogebi('radio_' + kind)[0],
                         input = box && box.querySelector('.radio_' + kind + '_' + id),
                         row, search, box_rect, row_rect, top_limit;
                     if (!input) { return; }
-                    input.checked = true;
                     if (outfiter_revealed[kind] === id) { return; } // don't fight the user's own scrolling
                     row = input.parentNode;
                     if (!row.offsetParent || !box.clientHeight) { return; } // list hidden or row filtered out
@@ -3033,6 +3059,12 @@ $(function () {
                     }
                 }
                 outfiter_sanitize_get();
+                // narrow screens show one list at a time: start with the creature list when
+                // the link shows a creature
+                if (outfiter_GET.creature > 0) {
+                    $this_main.removeClass('show-list-oselector').addClass('show-list-cselector');
+                    ogebi('.list_tab', 1).attr('aria-pressed', 'false').filter('[data-list="cselector"]').attr('aria-pressed', 'true');
+                }
                 for (opt in outfiter_def) {
                     if (outfiter_def.hasOwnProperty(opt)) {
                         if (typeof outfiter_def[opt] === 'boolean') { ogebi(opt).prop({ checked: outfiter_GET[opt] }); }
@@ -3076,7 +3108,7 @@ $(function () {
                 }
 
                 ogebi('.dcolor_table div', 1).on('click', function () {
-                    if ($this_main.hasClass('outfiter_loading') || ogebi('colors_cont').hasClass('is-unavailable')) { return; }
+                    if ($this_main.is('.outfiter_loading, .outfiter_busy') || ogebi('colors_cont').hasClass('is-unavailable')) { return; }
                     var
                         num = (ogebi('.cb_1, .cb_2, .cb_3, .cb_4', 1).filter('.sel').attr('class').match(/\bcb_(\d+)\b/) || [])[1],
                         i = parseInt(num, 10),
@@ -3095,7 +3127,7 @@ $(function () {
                     next = { 37: i - 1, 39: i + 1, 38: i - 19, 40: i + 19, 36: 0, 35: $all.length - 1 }[e.which];
                     if (next === undefined) { return; }
                     e.preventDefault();
-                    if (next < 0 || next >= $all.length || $this_main.hasClass('outfiter_loading')) { return; }
+                    if (next < 0 || next >= $all.length || $this_main.is('.outfiter_loading, .outfiter_busy')) { return; }
                     $all.eq(next).trigger('click').focus();
                 });
                 ogebi('[name="radio_colourise"]', 1).on('change', function (e, data) {

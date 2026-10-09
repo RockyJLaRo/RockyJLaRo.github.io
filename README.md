@@ -8,8 +8,11 @@ link / TibiaWiki `{{Outfitter}}` template code.
 It is a static website (HTML, CSS and JavaScript only) published with GitHub Pages.
 It works on desktop, tablet and phone screens.
 
-**Maintaining it?** Read [docs/MAINTAINING.md](docs/MAINTAINING.md). It explains, step
-by step, how to add creatures, mounts and outfits, check your work and publish it.
+**Adding a creature, mount or outfit?** No programming needed: open the
+[Asset Helper](https://rockyjlaro.github.io/tools/asset-helper.html), choose your sprite
+sheet, check the preview, and upload the two things it gives you (the sprite file and a
+small block for `js/outfitter-new-assets.js`). Step-by-step guide:
+[docs/MAINTAINING.md](docs/MAINTAINING.md).
 
 ---
 
@@ -33,10 +36,10 @@ for the browser tests). Then:
 
 | Command | What it does | Time |
 | --- | --- | --- |
-| `npm run validate` | Checks every name, rule and sprite file (missing files, typos, broken images, wrong sheet sizes). Changes nothing. | ~5 s |
-| `npm run test:unit` | Tests the checker itself. | ~1 s |
-| `npm run test:e2e` | Opens the Outfitter in a real (headless) browser on desktop and phone sizes and tries every feature. | ~1 min |
-| `npm test` | All of the above. | ~1 min |
+| `npm run validate` | Checks every name, rule, new-item block and sprite file (missing files, typos, broken images, wrong sheet sizes). Changes nothing. | ~5 s |
+| `npm run test:unit` | Tests the checker, the shared asset rules and `tools/add-asset.js`. | ~10 s |
+| `npm run test:e2e` | Opens the Outfitter and the Asset Helper in a real (headless) browser on desktop and phone sizes and tries every feature. | ~1.5 min |
+| `npm test` | All of the above. | ~2 min |
 
 The same checks are set up to run on GitHub for every push (`.github/workflows/checks.yml`).
 
@@ -46,15 +49,19 @@ The same checks are set up to run on GitHub for every push (`.github/workflows/c
 index.html                 the page
 css/page.css               page frame (header, footer)
 css/outfitter.css          the Outfitter's look, including the phone/tablet layout
-js/outfitter-assets.js     <- creature / mount / outfit lists and sprite rules (edit this)
+js/outfitter-new-assets.js <- NEW creatures / mounts / outfits, one block each (add here)
+js/outfitter-assets.js     all published items and their sprite rules (fixes only)
 js/outfitter-settings.js   <- small adjustable settings (safe to edit)
+js/outfitter-asset-rules.js  rules shared by the Outfitter, Asset Helper and checker
 js/outfitter.js            program logic
 js/vendor/                 jQuery 3.7.0 (third-party, do not edit)
 base64/Creature|Female|Male|Mount|Other/   one sprite sheet per .txt file
 images/                    loading / error images and interface images (images/ui/)
-tools/serve.js             local web server (npm start)
+tools/asset-helper.html    Asset Helper page: check, preview and prepare a new item
+tools/add-asset.js         add a new item in one command (node tools/add-asset.js --help)
 tools/validate-assets.js   asset checker (npm run validate)
 tools/sprite-file.js       convert PNG <-> sprite .txt file
+tools/serve.js             local web server (npm start)
 tests/                     automated tests (unit + browser)
 docs/MAINTAINING.md        maintenance guide
 ```

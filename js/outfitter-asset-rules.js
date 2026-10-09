@@ -66,12 +66,12 @@
     // Letters, digits and _ ( ) ' - only: these names become file names and links.
     var NAME_PATTERN = /^[A-Za-z0-9_()'\-]+$/;
 
-    /** "Rotworm King " -> "Rotworm_King" (what the Asset Helper does with typed names) */
+    /** "Example Creature " -> "Example_Creature" (what the Asset Helper does with typed names) */
     function toAssetName(text) {
         return String(text || '').replace(/^\s+|\s+$/g, '').replace(/\s+/g, '_');
     }
 
-    /** Readable label for messages, e.g. "creature 'Rotworm_King' (ID 788)" */
+    /** Readable label for messages, e.g. "creature 'Example_Creature' (ID 788)" */
     function describeEntry(entry, index) {
         var type = entry && TYPES[entry.type] ? TYPES[entry.type].label : 'entry';
         var parts = [type];
@@ -363,10 +363,15 @@
      * Add the entries of js/outfitter-new-assets.js to A (modifies A).
      * Entries are added per type in ID order. A broken entry is skipped and reported;
      * everything else keeps working.
+     * options.inFile === false: the entries are not in the file yet (Asset Helper), so
+     * messages do not mention their block number.
      * Returns { added: [{ type, id, name }], problems: [{ level, index, entry, message }] }.
      */
-    function mergeNewAssets(A, entries) {
-        var added = [], problems = [], byType = {}, type;
+    function mergeNewAssets(A, entries, options) {
+        var added = [], problems = [], byType = {}, type,
+            inFile = !(options && options.inFile === false),
+            skipped = inFile ? ' This entry was skipped.' : '',
+            label = function (entry, index) { return describeEntry(entry, inFile ? index : undefined); };
         if (entries === null || entries === undefined) { return { added: added, problems: problems }; }
         if (Object.prototype.toString.call(entries) !== '[object Array]') {
             problems.push({ level: 'error', index: null, entry: null, message: 'window.OutfiterNewAssets must be a list: [ ... ]' });
@@ -376,7 +381,7 @@
             var fieldProblems = checkEntryFields(entry);
             if (fieldProblems.length) {
                 fieldProblems.forEach(function (p) {
-                    problems.push({ level: 'error', index: index, entry: entry, message: describeEntry(entry, index) + ' ' + p + '. This entry was skipped.' });
+                    problems.push({ level: 'error', index: index, entry: entry, message: label(entry, index) + ' ' + p + '.' + skipped });
                 });
                 return;
             }
@@ -388,7 +393,7 @@
                 byType[type].forEach(function (item) {
                     var entry = item.entry, t = TYPES[type], expected = nextFreeId(A, type),
                         existing = namesById(A, t.kind)[entry.name.toLowerCase()],
-                        label = describeEntry(entry, item.index), reason = null;
+                        text = label(entry, item.index), reason = null;
                     if (entry.id < expected) {
                         reason = 'uses ID ' + entry.id + ', which already belongs to ' + t.label + " '" +
                             (t.kind === 'outfit' ? allOutfits(A)[entry.id] : A[t.list][entry.id]) + "'. The next free ID is " + expected + '.';
@@ -402,7 +407,7 @@
                         reason = "has the same name as existing " + t.label + " '" + existing.name + "' (ID " + existing.id + '). Names must be unique within a category.';
                     }
                     if (reason) {
-                        problems.push({ level: 'error', index: item.index, entry: entry, message: label + ' ' + reason + ' This entry was skipped.' });
+                        problems.push({ level: 'error', index: item.index, entry: entry, message: text + ' ' + reason + skipped });
                         return;
                     }
                     applyEntry(A, entry);
@@ -422,6 +427,68 @@
         }
         files.forEach(function (f) { f.path = 'base64/' + f.folder + '/' + f.name + '.txt'; });
         return files;
+    }
+
+    // rows per frame of a creature sheet for each addons choice
+    var ADDON_ROWS = { none: 1, addon_1: 2, both: 3, one_at_a_time: 3 };
+
+    /**
+     * Suggest a layout from the sheet size (used by the Asset Helper and tools/add-asset.js).
+     * For a creature, `addons` (if known) says how many rows each frame has.
+     * Returns { fields: { standing_frames, walking_frames, colourisable?, addons?, can_ride_mount? },
+     *           found: true|false, message }. The user should confirm it in the preview.
+     */
+    function guessLayout(type, width, height, addons) {
+        var rows = height / FRAME, fields = {}, combos = [], found = null, i, perFrame, frames;
+        if (width % FRAME || height % FRAME || !rows) {
+            return { fields: fields, found: false, message: 'the sheet is ' + width + ' x ' + height + 'px, which is not made of 64 x 64 frames' };
+        }
+        if (type === 'creature' || type === 'mount') {
+            fields.colourisable = width === FRAME * 8;
+            addons = type === 'creature' && has(ADDON_ROWS, addons) ? addons : 'none';
+            perFrame = ADDON_ROWS[addons];
+            frames = rows / perFrame;
+            if (frames % 1) {
+                return {
+                    fields: fields,
+                    found: false,
+                    message: 'the sheet has ' + rows + ' rows, which cannot be split into frames of ' + perFrame + ' rows (base + addons)'
+                };
+            }
+            if (frames === 9) { fields.standing_frames = 1; fields.walking_frames = 8; }
+            else if (frames === 16) { fields.standing_frames = 8; fields.walking_frames = 8; }
+            else if (frames < 9) { fields.standing_frames = 0; fields.walking_frames = frames; }
+            else { fields.standing_frames = frames - 8; fields.walking_frames = 8; }
+            if (type === 'creature') { fields.addons = addons; }
+            return {
+                fields: fields,
+                found: true,
+                message: rows + ' rows = ' + fields.standing_frames + ' standing + ' + fields.walking_frames + ' walking frames' +
+                    (perFrame > 1 ? ' of ' + perFrame + ' rows each (base + addons)' : '') +
+                    (fields.colourisable ? ', with colour masks' : '') + (type === 'creature' && perFrame === 1 ? ', no addons' : '')
+            };
+        }
+        [[1, 8], [8, 8]].forEach(function (frames) {
+            [['both', true], ['both', false], ['none', true], ['none', false]].forEach(function (c) {
+                combos.push({ standing: frames[0], walking: frames[1], addons: c[0], ride: c[1] });
+            });
+        });
+        for (i = 0; i < combos.length && !found; i++) {
+            if ((combos[i].standing + combos[i].walking) * (combos[i].addons === 'none' ? 1 : 3) * (combos[i].ride ? 2 : 1) === rows) { found = combos[i]; }
+        }
+        if (!found) {
+            return { fields: fields, found: false, message: 'the sheet has ' + rows + ' rows, which is not a usual outfit layout' };
+        }
+        fields.standing_frames = found.standing;
+        fields.walking_frames = found.walking;
+        fields.addons = found.addons;
+        fields.can_ride_mount = found.ride;
+        return {
+            fields: fields,
+            found: true,
+            message: rows + ' rows = ' + found.standing + ' standing + ' + found.walking + ' walking frames, ' +
+                (found.addons === 'none' ? 'no addons' : 'base + 2 addon rows') + (found.ride ? ', with riding rows' : ', without riding rows')
+        };
     }
 
     /** The entry as text, ready to paste into js/outfitter-new-assets.js */
@@ -556,6 +623,7 @@
         checkEntryFields: checkEntryFields,
         mergeNewAssets: mergeNewAssets,
         filesForEntry: filesForEntry,
+        guessLayout: guessLayout,
         formatEntry: formatEntry,
         checkData: checkData
     };

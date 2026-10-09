@@ -2,7 +2,7 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
-const { openOutfitter, readState, pickFromList, waitForRender, animationFramePixelCounts } = require('./helpers');
+const { openOutfitter, readState, pickFromList, waitForRender, waitForAddressBar, animationFramePixelCounts } = require('./helpers');
 
 test.describe('broken or outdated links still open a working outfitter', () => {
     for (const query of ['?o=999', '?o=abc', '?cr=9999', '?m=999', '?c1=999', '?mc4=-1', '?f=7', '?n=%25', '?utm_source=newsletter']) {
@@ -160,4 +160,109 @@ test('a typo in js/outfitter-assets.js shows a clear message instead of a blank 
     }));
     await page.goto('/');
     await expect(page.locator('.outfiter_fatal')).toContainText('js/outfitter-assets.js did not load');
+});
+
+test.describe('second audit', () => {
+    test('colours go to the creature after the mount was the colour target', async ({ page }) => {
+        await openOutfitter(page, '?o=3&m=239'); // Knight on Alpha Demonosaur (both can be coloured)
+        await page.locator('label.colourise_item', { has: page.locator('[value="mount"]') }).click();
+        await pickFromList(page, 'creatures', 'Cave Chimera'); // a creature with colour masks
+        await waitForRender(page);
+        await expect(page.locator('[name="radio_colourise"][value="outfit"]')).toBeChecked();
+        const before = await page.locator('.body_main').getAttribute('src');
+        await page.locator('.cb_2').click(); // Primary (this sheet has no Head colour area)
+        await page.locator('.dcolor_table div').nth(60).click();
+        await waitForRender(page);
+        expect(await page.locator('.body_main').getAttribute('src')).not.toBe(before);
+        expect((await readState(page)).link).toBe('/?o=105&c2=60&cr=571');
+    });
+
+    test('the colour palette is marked unavailable when nothing can be coloured', async ({ page }) => {
+        await openOutfitter(page, '?o=105&cr=5'); // Orc Shaman has no colour masks
+        await expect(page.locator('.colors_cont')).toHaveClass(/is-unavailable/);
+        await expect(page.locator('.colourise_random')).toBeDisabled();
+        await expect(page.locator('.dcolor_table')).toHaveAttribute('aria-disabled', 'true');
+        await page.locator('.dcolor_table div').nth(60).click({ force: true }); // ignored
+        expect((await readState(page)).link).toBe('/?o=105&cr=5');
+    });
+
+    test('"All Addons" download: nothing can change the outfit until all files are saved', async ({ page }) => {
+        await openOutfitter(page, '?o=3&a');
+        const disabledBefore = await page.locator('.outfiter input:disabled, .outfiter button:disabled').count();
+        await page.locator('label', { has: page.locator('.show_advanced') }).click();
+        await page.locator('label', { has: page.locator('.all_addons') }).click();
+        const names = [];
+        page.on('download', (d) => names.push(d.suggestedFilename()));
+        await page.locator('.download_image').click();
+        await expect(page.locator('.outfiter_status')).toHaveText('Preparing your download...');
+        await expect(page.locator('.outfitp')).toBeDisabled();
+        await expect(page.locator('.charn')).toBeDisabled();
+        await page.locator('.dcolor_table div').nth(60).click(); // ignored while busy
+        await expect(page.locator('.outfiter')).not.toHaveClass(/outfiter_busy/, { timeout: 60000 });
+        expect(names).toEqual(['Outfit_Knight_Male.gif', 'Outfit_Knight_Male_Addon_1.gif', 'Outfit_Knight_Male_Addon_2.gif', 'Outfit_Knight_Male_Addon_3.gif']);
+        expect((await readState(page)).link).toBe('/?o=3&a');
+        await expect(page.locator('.outfitp')).toBeEnabled();
+        // the advanced options were switched on by the test; everything else is as before
+        await page.locator('label', { has: page.locator('.show_advanced') }).click();
+        expect(await page.locator('.outfiter input:disabled, .outfiter button:disabled').count()).toBe(disabledBefore);
+    });
+
+    test('options that were unavailable stay unavailable after a 4x download', async ({ page }) => {
+        await openOutfitter(page, '?o=105&cr=5&a'); // creature: no addons, no mount, no gender
+        const state = () => page.evaluate(() => [...document.querySelectorAll('.outfiter input[type="checkbox"], .outfiter button')]
+            .map((el) => el.className + ':' + el.disabled).join('|'));
+        await page.locator('label', { has: page.locator('.show_advanced') }).click();
+        await page.locator('label', { has: page.locator('.rotate4x') }).click();
+        const before = await state();
+        const download = page.waitForEvent('download');
+        await page.locator('.download_image').click();
+        expect((await download).suggestedFilename()).toBe('Creature_Orc_Shaman.gif');
+        await expect(page.locator('.outfiter')).not.toHaveClass(/outfiter_busy/);
+        expect(await state()).toBe(before);
+    });
+
+    test('the arrow buttons keep the list selection in step', async ({ page }) => {
+        await openOutfitter(page, '?o=3');
+        const checked = (list) => page.locator(`.radio_${list} .list_el`, { has: page.locator('input:checked') }).locator('.t');
+        await page.locator('.mountp').click();
+        await waitForRender(page);
+        await page.locator('.mountp').click();
+        await waitForRender(page);
+        await expect(checked('mounts')).toHaveText((await readState(page)).mount);
+        await page.locator('.creaturep').click();
+        await waitForRender(page);
+        await expect(checked('creatures')).toHaveText((await readState(page)).creature);
+    });
+
+    test('the selected row is scrolled into view in its list', async ({ page }) => {
+        await openOutfitter(page, '?o=105&cr=700');
+        await expect.poll(() => page.evaluate(() => {
+            const row = document.querySelector('.radio_creatures input:checked').closest('label');
+            const box = row.parentElement.getBoundingClientRect(), r = row.getBoundingClientRect();
+            return r.top >= box.top && r.bottom <= box.bottom;
+        })).toBe(true);
+    });
+
+    test('the address bar follows the selection, so a refresh keeps it', async ({ page }) => {
+        await openOutfitter(page);
+        await pickFromList(page, 'outfits', 'Knight');
+        await waitForRender(page);
+        await waitForAddressBar(page);
+        expect(await page.evaluate(() => location.search)).toBe('?o=3');
+        await page.reload();
+        await waitForRender(page);
+        expect((await readState(page)).outfit).toBe('Knight');
+    });
+
+    test('download file names say what is shown', async ({ page }) => {
+        await openOutfitter(page, '?o=105&m=5'); // a mount on its own
+        let download = page.waitForEvent('download');
+        await page.locator('.download_image').click();
+        expect((await download).suggestedFilename()).toBe('Mount_Midnight_Panther_Mount.png');
+        await page.goto('/?o=105&cr=5');
+        await waitForRender(page);
+        download = page.waitForEvent('download');
+        await page.locator('.download_image').click();
+        expect((await download).suggestedFilename()).toBe('Creature_Orc_Shaman.png');
+    });
 });
