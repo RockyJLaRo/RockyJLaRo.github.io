@@ -1662,3 +1662,39 @@
         margin-right: 8px;
     }
 }
+
+/* Nothing on screen can be recoloured (e.g. a creature without colour masks). */
+.outfiter .colors_cont.is-unavailable {
+    opacity: 0.45;
+}
+
+.outfiter .colors_cont.is-unavailable .dcolor_table div {
+    cursor: not-allowed;
+}
+
+/* Narrow but tall-enough screens: keep the preview pinned to the top while the
+ * lists, options and colours scroll underneath, so every change stays visible.
+ * Its height is capped at 40% of the screen, and keyboard focus scrolls to below
+ * it (scroll-padding), so focused controls are never hidden behind it.
+ * Short screens (e.g. phones in landscape) keep the normal scrolling preview. */
+@media (max-width: 1180px) and (min-height: 600px) {
+    html {
+        scroll-padding-top: calc(clamp(260px, min(78vw, 40vh), 420px) + 12px);
+    }
+
+    .outfiter .body_main_div {
+        position: sticky;
+        top: 0;
+        z-index: 150;
+        height: clamp(260px, min(78vw, 40vh), 420px);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.45);
+    }
+
+    /* error / "copied" messages stay visible just below the pinned preview */
+    .outfiter .outfiter_status {
+        position: sticky;
+        top: clamp(260px, min(78vw, 40vh), 420px);
+        z-index: 150;
+        background: #2f2f30;
+    }
+}

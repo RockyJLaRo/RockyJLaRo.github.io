@@ -18,12 +18,51 @@ $(function () {
         if (window.console && console.error) { console.error('[Outfitter] window.OutfiterAssets is missing - js/outfitter-assets.js failed to load or has a syntax error.'); }
         return;
     }
+    // Rules shared with the Asset Helper and the checker (js/outfitter-asset-rules.js).
+    var outfiter_rules = window.OutfiterAssetRules;
+    if (!outfiter_rules) {
+        $('#outfiter_container').html('<p class="outfiter_fatal">The Outfitter could not start because js/outfitter-asset-rules.js did not load.</p>');
+        if (window.console && console.error) { console.error('[Outfitter] window.OutfiterAssetRules is missing - js/outfitter-asset-rules.js failed to load.'); }
+        return;
+    }
+    // Preview of a not-yet-saved item: the Asset Helper (tools/asset-helper.html) loads
+    // this page in a frame with "?preview" and hands over the item and its sprite data.
+    // It exists only inside that frame and is never saved.
+    var outfiter_preview = (function () {
+        try {
+            if (window.parent !== window && /[?&]preview(=|&|$)/.test(location.search) && window.parent.OutfiterPreview) {
+                return window.parent.OutfiterPreview;
+            }
+        } catch (ignore) { } // a parent page from another site is not allowed to preview
+        return null;
+    }());
+    // Add the items from js/outfitter-new-assets.js. A broken entry is skipped (and
+    // reported) instead of stopping the whole Outfitter.
+    var outfiter_new_asset_problems = (function () {
+        var entries = window.OutfiterNewAssets, problems = [];
+        if (entries === undefined) {
+            problems.push('js/outfitter-new-assets.js did not load (missing file, or a typo such as a missing comma or quote). Newly added items are not shown.');
+            entries = [];
+        }
+        if (outfiter_preview && outfiter_preview.entry) {
+            entries = (Object.prototype.toString.call(entries) === '[object Array]' ? entries : []).concat([outfiter_preview.entry]);
+        }
+        $.each(outfiter_rules.mergeNewAssets(outfiter_assets, entries).problems, function (i, problem) {
+            problems.push(problem.message);
+        });
+        if (window.console && console.error) {
+            $.each(problems, function (i, message) { console.error('[Outfitter] ' + message); });
+        }
+        return problems;
+    }());
     // read a numeric setting, falling back to the default when it is missing or invalid
     function outfiter_setting_number(name, fallback) {
         var value = outfiter_settings[name];
         return (typeof value === 'number' && isFinite(value) && value >= 0) ? value : fallback;
     }
     var
+        // true when the Outfitter runs inside the Asset Helper's preview (tools/asset-helper.html)
+        outfiter_preview_mode = !!outfiter_preview,
         loading_img = outfiter_settings.loading_image || 'images/outfitter-loading.gif',
         error_img = outfiter_settings.error_image || 'images/outfitter-error.png',
         outfiter_mount_names = outfiter_assets.outfiter_mount_names,
@@ -526,7 +565,7 @@ $(function () {
                     params = '?',
                     mount_n = outfiter_mount_names[outfiter_GET.mount],
                     can_color_mount = outfiter_mount_colourisable[mount_n] === true,
-                    opt;
+                    opt, url;
                 if (outfiter_title !== '') { params += 'title=' + outfiter_title + '&'; }
                 for (opt in outfiter_def) {
                     if (
@@ -539,7 +578,13 @@ $(function () {
                     }
                 }
                 while (params.substr(-1) === '&') { params = params.substr(0, params.length - 1); }
-                ogebi('url_input').val(encodeURI(base + (params.length > 1 ? params : '')));
+                url = encodeURI(base + (params.length > 1 ? params : ''));
+                ogebi('url_input').val(url);
+                // Also show it in the address bar (without adding history entries), so
+                // reloading or bookmarking the page keeps the current view.
+                if (!outfiter_preview_mode && window.history && history.replaceState && url !== location.href) {
+                    try { history.replaceState(history.state, '', url); } catch (ignore) { }
+                }
             },
             //generate template code for current options
             outfiter_gen_template = function () {
@@ -989,30 +1034,25 @@ $(function () {
                     retry_max = outfiter_setting_number('download_retries', 1),
                     retry_wait = outfiter_setting_number('retry_wait_ms', 500),
                     retry_i = 0,
+                    // turn the downloaded file into the image of the right layer
+                    use_text = function (text) {
+                        var $img, sprite = outfiter_rules.parseSpriteFile(text, iname);
+                        if (token !== outfiter_load_token) { return; } // user already picked something else
+                        if (sprite.error) {
+                            outfiter_load_failed(token, file_url, sprite.error);
+                            return;
+                        }
+                        if (type === 'mount') { $img = ogebi('mount_image'); }
+                        else if (type === 'creature') { $img = ogebi('creature_image'); }
+                        else { $img = ogebi('main_image'); }
+                        $img.data({ outfiter_token: token, outfiter_file: file_url });
+                        $img.attr('src', '').attr('src', sprite.dataUri);
+                    },
+                    preview_text = outfiter_preview && outfiter_preview.files ? outfiter_preview.files[utype + '/' + iname] : undefined,
                     ajax_call = function () {
                         $.ajax({
                             dataType: 'text',
-                            success: function (text) {
-                                var $img,
-                                    r = text.match(
-                                        new RegExp('id="' + (iname.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&').replace(/\s/g, '_').replace(/_/g, '[ _]')) + '">' + '([\\w\\W]*)' + '<' + '/pre>', 'i')
-                                    );
-                                if (token !== outfiter_load_token) { return; } // user already picked something else
-                                if (r === null) {
-                                    outfiter_load_failed(token, file_url, 'expected <pre id="' + iname + '">data:image/png;base64,...</pre>');
-                                    return;
-                                }
-                                text = r[1].replace(/\s+/g, '');
-                                if (text.indexOf('data:image/png;base64,') !== 0) {
-                                    outfiter_load_failed(token, file_url, 'content is not a data:image/png;base64 URI');
-                                    return;
-                                }
-                                if (type === 'mount') { $img = ogebi('mount_image'); }
-                                else if (type === 'creature') { $img = ogebi('creature_image'); }
-                                else { $img = ogebi('main_image'); }
-                                $img.data({ outfiter_token: token, outfiter_file: file_url });
-                                $img.attr('src', '').attr('src', text);
-                            },
+                            success: use_text,
                             error: function (xhr) {
                                 if (token !== outfiter_load_token) { return; }
                                 retry_i++;
@@ -1022,6 +1062,11 @@ $(function () {
                             url: file_url
                         });
                     };
+                // the Asset Helper's preview supplies the sprite of the item being added
+                if (typeof preview_text === 'string') {
+                    setTimeout(function () { use_text(preview_text); }, 0);
+                    return;
+                }
                 ajax_call();
             },
             outfiter_load_outfit = function (param) {
@@ -1670,34 +1715,37 @@ $(function () {
                 outfiter_hide_body(false);
                 outfiter_apply_zoom();
 
-                // Colourise / addon UI — outfit/mount vs creature-mode capabilities
-                if (has_creature) {
-                    (function () {
-                        var cprops = outfiter_creature_get_props(creature_n),
-                            can_color_creature = cprops.colourisable === true;
-                        // Colourise radios are outfit/mount oriented; disable when only a creature is shown
-                        ogebi('[name="radio_colourise"]', 1).prop({ disabled: true }).parent().toggleClass('disabled', true);
-                        ogebi('colourise_copy').prop({ disabled: true });
+                // Colours: what can be recoloured right now? A recolourable creature uses the
+                // "Outfit" colours (c1-c4); the "Mount" colours (mc1-mc4) only exist for
+                // recolourable mounts. The palette always edits the selected target, so the
+                // target is switched when the other one is the only thing that can change.
+                (function () {
+                    var cprops = has_creature ? outfiter_creature_get_props(creature_n) : null,
+                        can_main = has_creature ? cprops.colourisable === true : has_outfit,
+                        can_mnt = !has_creature && can_color_mount,
+                        target = ogebi('[name="radio_colourise"]:checked', 1).val(),
+                        nothing = !can_main && !can_mnt;
+                    if (target === 'mount' && !can_mnt && can_main) { target = 'outfit'; }
+                    if (target === 'outfit' && !can_main && can_mnt) { target = 'mount'; }
+                    ogebi('[name="radio_colourise"][value="' + target + '"]', 1).prop({ checked: true }).trigger('change');
+                    // choosing a target only makes sense when both can be coloured
+                    ogebi('[name="radio_colourise"]', 1).prop({ disabled: !(can_main && can_mnt) }).parent().toggleClass('disabled', !(can_main && can_mnt));
+                    ogebi('colourise_copy').prop({ disabled: !(can_main && can_mnt) });
+                    ogebi('colourise_random').prop({ disabled: nothing });
+                    ogebi('colors_cont').toggleClass('is-unavailable', nothing);
+                    ogebi('dcolor_table').attr('aria-disabled', nothing ? 'true' : 'false');
+                    if (has_creature) {
                         ogebi('female').parent().toggleClass('disabled', true);
                         // Per-addon enable based on creature props
                         ogebi('addon1').parent().toggleClass('disabled', !cprops.addon1);
                         ogebi('addon2').parent().toggleClass('disabled', !cprops.addon2);
                         if (!cprops.addon1) { ogebi('addon1').prop({ checked: false }); }
                         if (!cprops.addon2) { ogebi('addon2').prop({ checked: false }); }
-                        // Note: creature colourisation uses c1–c4 directly when colourisable
-                        if (!can_color_creature) {
-                            // no colour mask — leave colour table usable for URL params but no visual effect
-                        }
-                    }());
-                } else {
-                    if (!can_color_mount) {
-                        ogebi('[name="radio_colourise"][value="outfit"]', 1).prop({ checked: true }).trigger('change');
+                    } else {
+                        ogebi('female').parent().toggleClass('disabled', outfiter_u_names[outfit_n] === true);
+                        ogebi('.addon1, .addon2', 1).parent().toggleClass('disabled', outfiter_a_names[outfit_n] === true);
                     }
-                    ogebi('[name="radio_colourise"]', 1).prop({ disabled: !can_color_mount }).parent().toggleClass('disabled', !can_color_mount);
-                    ogebi('colourise_copy').prop({ disabled: !can_color_mount });
-                    ogebi('female').parent().toggleClass('disabled', outfiter_u_names[outfit_n] === true);
-                    ogebi('.addon1, .addon2', 1).parent().toggleClass('disabled', outfiter_a_names[outfit_n] === true);
-                }
+                }());
                 ogebi('sanim').prop({ disabled: !has_standing_animation_any }).parent().toggleClass('disabled', !has_standing_animation_any);
 
                 if (outfiter_GET.outfit === outfiter_outfit_none_id && show_outfit_prev === outfiter_outfit_none_id) { show_outfit_disabled = true; }
@@ -1715,6 +1763,7 @@ $(function () {
                 ogebi('show_creature').prop({ checked: show_creature_checked, disabled: show_creature_disabled }).parent().toggleClass('disabled', show_creature_disabled);
 
                 ogebi('.mountm, .mountp', 1).parent().toggleClass('disabled', !can_have_mount);
+                outfiter_sync_lists();
                 outfiter_gen_url();
             },
             outfiter_do_display = function () {
@@ -1873,6 +1922,25 @@ $(function () {
                 outfiter_pan_x = 0;
                 outfiter_pan_y = 0;
                 outfiter_apply_zoom();
+            },
+            // Multi-file downloads (4x Rotate / All Addons) render frames over several timer
+            // ticks. While that runs, every enabled button / checkbox / list row is locked:
+            // picking something else used to mix two outfits into one download and leave the
+            // view turned the wrong way. Unlocking re-enables exactly what was locked.
+            outfiter_busy_controls = null,
+            outfiter_set_busy = function (busy) {
+                if (busy) {
+                    if (outfiter_busy_controls) { return; }
+                    outfiter_busy_controls = ogebi('button, input[type="checkbox"], input[type="radio"]', 1).filter(':enabled');
+                    outfiter_busy_controls.prop({ disabled: true });
+                    $this_main.addClass('outfiter_busy');
+                    outfiter_set_status('Preparing your download...');
+                } else if (outfiter_busy_controls) {
+                    outfiter_busy_controls.prop({ disabled: false });
+                    outfiter_busy_controls = null;
+                    $this_main.removeClass('outfiter_busy');
+                    outfiter_set_status('');
+                }
             },
             /* ---- Download helpers: APNG assembler + compact GIF encoder ---- */
             outfiter_file_comment = String(outfiter_settings.file_comment || 'Created using the TibiaWiki Outfitter, developed collaboratively by the TibiaWiki Team.'),
@@ -2399,8 +2467,10 @@ $(function () {
                 // Addon_3 = both addons. opts.forceAddon1/2 override current selection (All Addons batch).
                 var
                     parts = [],
+                    // letters, digits and - only; other characters become single underscores
+                    // ("Midnight_Panther_(Mount)" -> "Midnight_Panther_Mount")
                     clean = function (s) {
-                        return String(s || '').replace(/[^a-zA-Z0-9_\-]/g, '_');
+                        return String(s || '').replace(/[^a-zA-Z0-9\-]+/g, '_').replace(/^_+|_+$/g, '');
                     },
                     includeAddons = !opts || opts.includeAddons !== false,
                     a1 = opts && opts.hasOwnProperty('forceAddon1') ? opts.forceAddon1 : outfiter_GET.addon1,
@@ -2416,6 +2486,10 @@ $(function () {
                         else if (a1) { parts.push('Addon_1'); }
                         else if (a2) { parts.push('Addon_2'); }
                     }
+                } else if (outfiter_GET.outfit === outfiter_outfit_none_id && outfiter_GET.mount > 0) {
+                    // only a mount is shown
+                    parts.push('Mount');
+                    parts.push(clean(outfiter_mount_names[outfiter_GET.mount]));
                 } else {
                     parts.push('Outfit');
                     // Prefer gendered display name when female + mapped (Noblewoman etc.), else list name
@@ -2564,7 +2638,7 @@ $(function () {
                             outfiter_GET.animate = saved.animate;
                             outfiter_GET.sanim = saved.sanim;
                             outfiter_preview_restore(previewSnap);
-                            outfiter_hide_body(false);
+                            outfiter_set_busy(false);
                         }
                         emitFile();
                     },
@@ -2622,6 +2696,7 @@ $(function () {
                         setTimeout(processDir, 0);
                     };
 
+                if (doRestore) { outfiter_set_busy(true); }
                 outfiter_GET.animate = true;
                 outfiter_GET.sanim = false;
                 outfiter_bake_silent = true;
@@ -2659,7 +2734,7 @@ $(function () {
                         outfiter_GET.animate = saved.animate;
                         outfiter_GET.sanim = saved.sanim;
                         outfiter_preview_restore(previewSnap);
-                        outfiter_hide_body(false);
+                        outfiter_set_busy(false);
                     },
                     nextCombo = function () {
                         var combo, nameBase;
@@ -2682,6 +2757,7 @@ $(function () {
                         });
                     };
 
+                outfiter_set_busy(true);
                 clearTimeout(outfiter_atime);
                 outfiter_bake_silent = true;
                 nextCombo();
@@ -2857,6 +2933,30 @@ $(function () {
                 }
                 ogebi('radio_' + kind)[0].appendChild(fragment);
             },
+            // Tick the list rows of the current outfit, mount and creature (the arrow buttons
+            // used to leave the mount / creature lists showing the old row) and scroll each
+            // list - not the page - so a newly selected row is visible.
+            outfiter_revealed = {},
+            outfiter_sync_lists = function () {
+                $.each({ outfits: outfiter_GET.outfit, mounts: outfiter_GET.mount, creatures: outfiter_GET.creature }, function (kind, id) {
+                    var box = ogebi('radio_' + kind)[0],
+                        input = box && box.querySelector('.radio_' + kind + '_' + id),
+                        row, search, box_rect, row_rect, top_limit;
+                    if (!input) { return; }
+                    input.checked = true;
+                    if (outfiter_revealed[kind] === id) { return; } // don't fight the user's own scrolling
+                    row = input.parentNode;
+                    if (!row.offsetParent || !box.clientHeight) { return; } // list hidden or row filtered out
+                    outfiter_revealed[kind] = id;
+                    search = box.querySelector('.omsearch');
+                    box_rect = box.getBoundingClientRect();
+                    row_rect = row.getBoundingClientRect();
+                    top_limit = box_rect.top + (search ? search.offsetHeight : 0);
+                    if (row_rect.top < top_limit || row_rect.bottom > box_rect.bottom) {
+                        box.scrollTop += (row_rect.top - top_limit) - Math.max(0, (box_rect.bottom - top_limit - row_rect.height) / 2);
+                    }
+                });
+            },
             // keep screen-reader state of the colour palette in sync with the highlighted swatch
             outfiter_sync_swatches = function () {
                 ogebi('.dcolor_table div', 1).each(function () {
@@ -2976,7 +3076,7 @@ $(function () {
                 }
 
                 ogebi('.dcolor_table div', 1).on('click', function () {
-                    if ($this_main.hasClass('outfiter_loading')) { return; }
+                    if ($this_main.hasClass('outfiter_loading') || ogebi('colors_cont').hasClass('is-unavailable')) { return; }
                     var
                         num = (ogebi('.cb_1, .cb_2, .cb_3, .cb_4', 1).filter('.sel').attr('class').match(/\bcb_(\d+)\b/) || [])[1],
                         i = parseInt(num, 10),
@@ -3244,6 +3344,7 @@ $(function () {
                     ogebi('.list_tab', 1).attr('aria-pressed', 'false');
                     $(this).attr('aria-pressed', 'true');
                     $this_main.removeClass('show-list-oselector show-list-mselector show-list-cselector').addClass('show-list-' + list);
+                    outfiter_sync_lists();
                 });
                 // re-fit the preview after rotating a phone / resizing the window
                 (function () {
@@ -3327,6 +3428,15 @@ $(function () {
 
                 return true;
             };
-        if (outfiter_init()) { outfiter_load_outfit(); }
+        if (outfiter_init()) {
+            if (outfiter_new_asset_problems.length) {
+                $('<p class="outfiter_notice" role="status" />')
+                    .text(outfiter_new_asset_problems.length === 1 ?
+                        'One newly added item could not be added: ' + outfiter_new_asset_problems[0] :
+                        outfiter_new_asset_problems.length + ' newly added items could not be added. Details are in the browser console (F12), or check them with tools/asset-helper.html.')
+                    .insertBefore($this_main);
+            }
+            outfiter_load_outfit();
+        }
     });
 });
