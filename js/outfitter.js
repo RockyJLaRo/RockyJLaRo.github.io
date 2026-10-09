@@ -428,6 +428,13 @@ $(function () {
             canvas_creature = $canvas_creature[0],
             canvas_work = $canvas_work[0],
             canvas_zoom = $canvas_zoom[0],
+            // Rendering reads pixels back from these canvases many times per frame
+            // (getImageData). Creating their contexts with willReadFrequently keeps them
+            // in normal memory, which makes those reads much faster (browsers that do not
+            // know the option ignore it). Must happen before any other getContext call.
+            outfiter_canvas_contexts = $.map([canvas_main, canvas_mount, canvas_creature, canvas_work, canvas_zoom], function (canvas) {
+                return canvas.getContext('2d', { willReadFrequently: true });
+            }),
             //map values depending on key/value.
             empty_string_maps_to = {
                 addon1: true,
@@ -919,6 +926,10 @@ $(function () {
                 }
                 return new_pixels;
             },
+            // Controls that are locked while a sprite loads: buttons, checkboxes and radios,
+            // except the list rows (users may pick another item at any time). Plain CSS
+            // selectors keep this fast; it runs twice for every redraw.
+            outfiter_lockable_controls = 'button, input[type="checkbox"], input[type="radio"]:not([name="radio_outfits"]):not([name="radio_mounts"]):not([name="radio_creatures"])',
             //toggle loading and some controls usability
             outfiter_hide_body = function (h, is_fail) {
                 if (h === true) {
@@ -927,8 +938,8 @@ $(function () {
                         i = ogebi('.body_main_div .body_main', 1),
                         src = i.attr('src'),
                         new_src = is_fail ? error_img : loading_img;
-                    ogebi(':button, :checkbox, :radio', 1)
-                        .not('.outfitm, .outfitp, .mountm, .mountp, .creaturem, .creaturep, .list_tab, [name="radio_outfits"], [name="radio_mounts"], [name="radio_creatures"]')
+                    ogebi(outfiter_lockable_controls, 1)
+                        .not('.outfitm, .outfitp, .mountm, .mountp, .creaturem, .creaturep, .list_tab')
                         .prop({ disabled: true });
                     $this_main.addClass('outfiter_loading');
                     if (new_src && src !== new_src) {
@@ -945,7 +956,7 @@ $(function () {
                     }
                 }
                 else {
-                    ogebi(':button, :checkbox, :radio', 1).filter(':disabled').prop({ disabled: false });
+                    ogebi(outfiter_lockable_controls, 1).filter(':disabled').prop({ disabled: false });
                     $this_main.removeClass('outfiter_loading');
                 }
             },
@@ -1793,27 +1804,46 @@ $(function () {
                 return !!(window.matchMedia && window.matchMedia(outfiter_compact_query).matches);
             },
             outfiter_zoom_user_set = false, // true once the user used the zoom buttons / wheel
+            // Size of the preview box on narrow screens. Reading an element's size forces the
+            // browser to lay out the whole page, so it is measured once and again only after
+            // a resize / rotation (see the resize handler in outfiter_init).
+            outfiter_box_size = null,
+            outfiter_preview_box_size = function () {
+                var box;
+                if (!outfiter_box_size) {
+                    box = ogebi('body_main_div')[0];
+                    outfiter_box_size = box ? { w: box.clientWidth, h: box.clientHeight } : { w: 0, h: 0 };
+                }
+                return outfiter_box_size;
+            },
             // Narrow screens only: until the user zooms, pick the largest zoom (up to the
             // default) at which the whole sprite fits inside the preview box.
             outfiter_fit_zoom = function () {
-                var box = ogebi('body_main_div')[0], z;
-                if (outfiter_zoom_user_set || !outfiter_is_compact() || !box || !box.clientWidth) { return; }
+                var box, z;
+                if (outfiter_zoom_user_set || !outfiter_is_compact()) { return; }
+                box = outfiter_preview_box_size();
+                if (!box.w) { return; }
                 z = outfiter_setting_number('default_zoom', 2);
-                while (z > outfiter_zoom_min && (outfiter_base_w * z > box.clientWidth || outfiter_base_h * z > box.clientHeight)) { z--; }
+                while (z > outfiter_zoom_min && (outfiter_base_w * z > box.w || outfiter_base_h * z > box.h)) { z--; }
                 outfiter_zoom = z;
             },
             outfiter_apply_zoom = function () {
                 var
                     $img = ogebi('.body_main_div .body_main', 1),
-                    box = ogebi('body_main_div')[0],
                     w = Math.round(outfiter_base_w * outfiter_zoom),
                     h = Math.round(outfiter_base_h * outfiter_zoom),
-                    tx;
+                    box, tx;
                 // used by the narrow-screen CSS to centre the sprite vertically
                 if ($img[0]) { $img[0].style.setProperty('--outfiter-img-h', h + 'px'); }
-                // touch-dragging (panning) is only enabled when the sprite is bigger than the
-                // preview, so swiping over it still scrolls the page on phones
-                $img.toggleClass('is-pannable', outfiter_zoom > 1 && !!box && (w > box.clientWidth || h > box.clientHeight));
+                // Touch-dragging (panning) is allowed whenever zoomed in on the desktop layout
+                // (as before). On narrow screens only when the sprite is bigger than the
+                // preview, so swiping over it still scrolls the page on phones.
+                if (outfiter_is_compact()) {
+                    box = outfiter_preview_box_size();
+                    $img.toggleClass('is-pannable', outfiter_zoom > 1 && (w > box.w || h > box.h));
+                } else {
+                    $img.toggleClass('is-pannable', outfiter_zoom > 1);
+                }
                 if (outfiter_zoom <= 1) {
                     outfiter_pan_x = 0;
                     outfiter_pan_y = 0;
@@ -2800,6 +2830,42 @@ $(function () {
                     .replace(/\s+/g, ' ')
                     .replace(/^\s+|\s+$/g, '');
             },
+            // Create the rows of one selection list ("outfits", "mounts" or "creatures").
+            // Rows are built with plain DOM calls into a fragment and inserted in one go:
+            // growing a jQuery set row by row re-sorted it every time and made start-up slow.
+            //   sorted_ids  - ids in display order       names      - id -> name
+            //   separators  - names with a line above     checked_id - id selected initially
+            //   alt_names   - extra searchable names (female outfit names)
+            outfiter_build_list = function (kind, sorted_ids, names, separators, checked_id, alt_names) {
+                var fragment = document.createDocumentFragment(), i, id, name, label, input, mark, text, line;
+                for (i = 0; i < sorted_ids.length; i++) {
+                    id = sorted_ids[i];
+                    name = names[id];
+                    if (separators[name]) {
+                        line = document.createElement('div');
+                        line.className = 'sep_line';
+                        fragment.appendChild(line);
+                    }
+                    label = document.createElement('label');
+                    label.className = 'list_el' + (i % 2 === 1 ? ' list_el_alt' : ''); // alternate row shading
+                    label.setAttribute('data-search', outfiter_search_key(name + ' ' + ((alt_names && alt_names[name]) || '')));
+                    input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'radio_' + kind;
+                    input.className = 'darkrad radio_' + kind + '_' + id;
+                    input.checked = checked_id !== null && String(id) === String(checked_id);
+                    mark = document.createElement('span');
+                    mark.className = 'darkrad_in';
+                    text = document.createElement('div');
+                    text.className = 't';
+                    text.textContent = name.replace(/_/g, ' ');
+                    label.appendChild(input);
+                    label.appendChild(mark);
+                    label.appendChild(text);
+                    fragment.appendChild(label);
+                }
+                ogebi('radio_' + kind)[0].appendChild(fragment);
+            },
             // keep screen-reader state of the colour palette in sync with the highlighted swatch
             outfiter_sync_swatches = function () {
                 ogebi('.dcolor_table div', 1).each(function () {
@@ -2984,69 +3050,18 @@ $(function () {
                     });
                 });
 
-                var x, t = $(), toggle = true, sep_line = false;
-                for (x = 0; x < outfiter_names_sorted.length; x++) {
-                    if (outfiter_separator[outfiter_names[outfiter_names_sorted[x]]]) { sep_line = true; }
-                    toggle = !toggle;
-                    if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
-                    t = t.add(
-                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_names[outfiter_names_sorted[x]] + ' ' + (outfiter_f_names[outfiter_names[outfiter_names_sorted[x]]] || '')) }).append(
-                            $('<input type="radio" />').attr({ name: 'radio_outfits', class: 'darkrad radio_outfits_' + outfiter_names_sorted[x] }),
-                            $('<span>').attr({ class: 'darkrad_in' }),
-                            $('<div />', { class: 't' }).text(outfiter_names[outfiter_names_sorted[x]].replace(/_/g, ' '))
-                        ).toggleClass('list_el_alt', toggle)
-                    );
-                    sep_line = false;
-                }
-                ogebi('radio_outfits').append(t).find('[name=radio_outfits]').on('click', function () {
-                    var
-                        cls = $(this).attr('class').split(/\s+/), id;
-                    $.each(cls, function (i) { if (cls[i].substr(0, 13) === 'radio_outfits') { id = parseInt(cls[i].split(/_/g)[2], 10); } });
-                    if (id !== parseInt(ogebi('outfit').val(), 10)) { outfiter_do_outfit(id, true); }
-                });
-
-                t = $(); toggle = true; sep_line = false;
-                for (x = 0; x < outfiter_mount_names_sorted.length; x++) {
-                    if (outfiter_mount_separator[outfiter_mount_names[outfiter_mount_names_sorted[x]]]) { sep_line = true; }
-                    toggle = !toggle;
-                    if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
-                    t = t.add(
-                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_mount_names[outfiter_mount_names_sorted[x]]) }).append(
-                            $('<input type="radio" />').attr({ name: 'radio_mounts', class: 'darkrad radio_mounts_' + outfiter_mount_names_sorted[x] })
-                                .prop({ checked: String(outfiter_mount_names_sorted[x]) === ogebi('mount').val() }),
-                            $('<span>').attr({ class: 'darkrad_in' }),
-                            $('<div />', { class: 't' }).text(outfiter_mount_names[outfiter_mount_names_sorted[x]].replace(/_/g, ' '))
-                        ).toggleClass('list_el_alt', toggle)
-                    );
-                    sep_line = false;
-                }
-                ogebi('radio_mounts').append(t).find('[name=radio_mounts]').on('click', function () {
-                    var
-                        num = ($(this).attr('class').match(/\bradio_mounts_(\d+)\b/) || [])[1],
-                        id = parseInt(num, 10);
-                    if (id !== parseInt(ogebi('mount').val(), 10)) { outfiter_do_mount(id, true); }
-                });
-
-                t = $(); toggle = true; sep_line = false;
-                for (x = 0; x < outfiter_creature_names_sorted.length; x++) {
-                    if (outfiter_creature_separator[outfiter_creature_names[outfiter_creature_names_sorted[x]]]) { sep_line = true; }
-                    toggle = !toggle;
-                    if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
-                    t = t.add(
-                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_creature_names[outfiter_creature_names_sorted[x]]) }).append(
-                            $('<input type="radio" />').attr({ name: 'radio_creatures', class: 'darkrad radio_creatures_' + outfiter_creature_names_sorted[x] })
-                                .prop({ checked: String(outfiter_creature_names_sorted[x]) === ogebi('creature').val() }),
-                            $('<span>').attr({ class: 'darkrad_in' }),
-                            $('<div />', { class: 't' }).text(outfiter_creature_names[outfiter_creature_names_sorted[x]].replace(/_/g, ' '))
-                        ).toggleClass('list_el_alt', toggle)
-                    );
-                    sep_line = false;
-                }
-                ogebi('radio_creatures').append(t).find('[name=radio_creatures]').on('click', function () {
-                    var
-                        num = ($(this).attr('class').match(/\bradio_creatures_(\d+)\b/) || [])[1],
-                        id = parseInt(num, 10);
-                    if (id !== parseInt(ogebi('creature').val(), 10)) { outfiter_do_creature(id, true); }
+                // Fill the three selection lists, then react to clicks on any row.
+                outfiter_build_list('outfits', outfiter_names_sorted, outfiter_names, outfiter_separator, null, outfiter_f_names);
+                outfiter_build_list('mounts', outfiter_mount_names_sorted, outfiter_mount_names, outfiter_mount_separator, ogebi('mount').val(), null);
+                outfiter_build_list('creatures', outfiter_creature_names_sorted, outfiter_creature_names, outfiter_creature_separator, ogebi('creature').val(), null);
+                // One click handler per list (instead of one per row). The id is the number in
+                // the radio's class name, e.g. "radio_mounts_12".
+                $.each({ outfits: ['outfit', outfiter_do_outfit], mounts: ['mount', outfiter_do_mount], creatures: ['creature', outfiter_do_creature] }, function (kind, cfg) {
+                    ogebi('radio_' + kind).on('click', 'input[name="radio_' + kind + '"]', function () {
+                        var match = this.className.match(new RegExp('\\bradio_' + kind + '_(\\d+)\\b')),
+                            id = match ? parseInt(match[1], 10) : NaN;
+                        if (!isNaN(id) && id !== parseInt(ogebi(cfg[0]).val(), 10)) { cfg[1](id, true); }
+                    });
                 });
 
                 ogebi('animate').on('change', outfiter_do_addon);
@@ -3245,6 +3260,7 @@ $(function () {
                     $(window).on('resize.outfiter orientationchange.outfiter', function () {
                         clearTimeout(resize_timer);
                         resize_timer = setTimeout(function () {
+                            outfiter_box_size = null; // measure the preview box again
                             if ($this_main.hasClass('outfiter_loading')) { return; }
                             outfiter_fit_zoom();
                             outfiter_apply_zoom();
