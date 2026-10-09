@@ -665,7 +665,8 @@ $(function () {
             Necromancer: 8,
             Bat_Knight: 8,
             Phoenix_Evoker: 8,
-            Aerial_Disciple: 8
+            Aerial_Disciple: 8,
+            Sugar_Fairy: 8
         },
         outfiter_sprites_walking = {
             //None: 2,
@@ -789,7 +790,10 @@ $(function () {
             'Storm_(B)': 8,
             'Phosphorus_(A)': 8,
             'Phosphorus_(B)': 8,
-            Sugar_Cube_Worker: 4
+            Sugar_Cube_Worker: 4,
+            Slime: 8,
+            Wasp: 8,
+            'Rotrender_(A)': 8
         },
         outfiter_sprites_creature_walking = {
             // e.g. SomeCreature: 2,
@@ -820,7 +824,6 @@ $(function () {
             Destroyer: 4,
             Defiler: 2,
             Hellhound: 2,
-            Massive_Fire_Elemental: 2,
             Juggernaut: 2,
             Nightmare: 2,
             Blightwalker: 2,
@@ -831,9 +834,7 @@ $(function () {
             Customer_Support: 2,
             Sea_Serpent: 2,
             The_Count: 2,
-            Massive_Energy_Elemental: 4,
             Wyrm: 2,
-            The_Mutated_Pumpkin: 4,
             Energy_Elemental: 3,
             Grim_Reaper: 2,
             Community_Manager: 2,
@@ -843,7 +844,6 @@ $(function () {
             Werewolf: 2,
             Vampire_Bride: 2,
             Mutated_Tiger: 2,
-            Green_Shade: 4,
             Nightmare_Scion: 2,
             Hellspawn: 2,
             War_Golem: 2,
@@ -938,7 +938,6 @@ $(function () {
             Minotaur_Amazon: 2,
             Minotaur_Hunter: 2,
             Worm_Priestess: 2,
-            Glooth_Blob: 6,
             Devourer: 2,
             Glooth_Bomb: 3,
             Giant_Spider_Red_Eyes: 2,
@@ -952,7 +951,7 @@ $(function () {
             'Pig_(Nostalgia)': 2,
             'Spider_(Nostalgia)': 2,
             'Wasp_(Nostalgia)': 2,
-            'Bonelord_(Nostalgia)': 2,
+            'Bonelord_(Nostalgia)': 4,
             Ancient_Spawn_Of_Morgathla: 2,
             Sugar_Cube_Worker: 8
         },
@@ -976,8 +975,9 @@ $(function () {
         //
         // Sprite sheet layout (256px wide, height = rows * 64):
         //   columns per direction = colourisable ? 2 : 1  (base [+ mask])
-        //   rows per frame        = (addon1||addon2) ? 3 : 1  (base, addon1, addon2)
-        //   total rows            = standing_frames + walking_frames * rows_per_frame
+        //   rows per frame        = 1 + (addon1 ? 1 : 0) + (addon2 ? 1 : 0)
+        //                           (base row, then addon1 row, then addon2 row)
+        //   total rows            = (standing_frames + walking_frames) * rows_per_frame
         // Height is taken from the loaded image (canvas is resized on load).
         // ---------------------------------------------------------------------------
         outfiter_creature_props = {
@@ -998,6 +998,16 @@ $(function () {
                 walking_delay: 300,
                 addon1: false, addon2: false,
             },
+            // Sheets that only contain walking frames (no separate standing row):
+            Massive_Fire_Elemental: { standing: 0, walking: 2 },
+            Massive_Energy_Elemental: { standing: 0, walking: 4 },
+            The_Mutated_Pumpkin: { standing: 0, walking: 4 },
+            Green_Shade: { standing: 0, walking: 4 },
+            Glooth_Blob: { standing: 0, walking: 6 },
+            Emerald_Damselfly: { standing: 0, walking: 8 },
+            Lord_Retro: { standing: 0, walking: 1 },
+            // Sheet has one standing row and one walking row:
+            Uninvited: { standing: 1, walking: 1 },
             Cave_Chimera: {
                 standing: 1, walking: 8,
                 walking_delay: 100,
@@ -1597,7 +1607,8 @@ $(function () {
         '<div class="div2_title">Mounts</div>' +
         '<div class="radio_list_cont">' +
         '<div class="radio_list_out radio_mounts">' +
-        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" />' +
+        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" aria-label="Search mounts" autocomplete="off" />' +
+        '<div class="omsearch_empty" hidden>No matches</div>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -1608,7 +1619,8 @@ $(function () {
         '<div class="div2_title">Creatures</div>' +
         '<div class="radio_list_cont">' +
         '<div class="radio_list_out radio_creatures">' +
-        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" />' +
+        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" aria-label="Search creatures" autocomplete="off" />' +
+        '<div class="omsearch_empty" hidden>No matches</div>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -1619,7 +1631,8 @@ $(function () {
         '<div class="div2_title">Outfits & Others</div>' +
         '<div class="radio_list_cont">' +
         '<div class="radio_list_out radio_outfits">' +
-        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" />' +
+        '<input type="text" size="15" class="dark_input omsearch" placeholder="Search" aria-label="Search outfits" autocomplete="off" />' +
+        '<div class="omsearch_empty" hidden>No matches</div>' +
         '</div>' +
         '</div>' +
         '</div>' +
@@ -1711,6 +1724,7 @@ $(function () {
         '<button class="leftb tleftb facingp"></button>' +
         '<button class="rightb trightb facingm"></button>' +
         '</div>' +
+        '<div class="outfiter_status" role="status" aria-live="polite"></div>' +
         '<div class="oitem_select_cont">' +
         '<button class="leftb outfitm"></button>' +
         '<button class="rightb outfitp"></button>' +
@@ -1944,15 +1958,24 @@ $(function () {
                 hpbar: true,
                 floor: true
             },
+            // Decode a URL value without ever throwing (a stray "%" used to stop the app).
+            outfiter_safe_decode = function (value) {
+                var decoded = value;
+                try { decoded = decodeURI(decoded); } catch (ignore) { }
+                try { decoded = decodeURIComponent(decoded); } catch (ignore2) { }
+                return decoded;
+            },
             map_GET_values = function (key, value) {
                 if (value === '') {
                     if (empty_string_maps_to.hasOwnProperty(key)) {
                         return empty_string_maps_to[key];
                     }
                 }
-                return decodeURIComponent(decodeURI(value));
+                return outfiter_safe_decode(value);
             },
             //get options from url "search"
+            //Accepts both short (?o=3) and long (?outfit=3) option names; unknown keys
+            //(e.g. tracking parameters added by other sites) are ignored.
             outfiter_get_get = function () {
                 var
                     i, key, assign, array = window.location.search.substring(1).split(/&|;/);
@@ -1960,15 +1983,53 @@ $(function () {
                 for (i = 0; i < array.length; i++) {
                     if (array[i] !== '') {
                         assign = array[i].indexOf('=');
-                        if (array[i].substr(0, 5) === 'title') { outfiter_title = array[i].substring(assign + 1); }
+                        key = assign === -1 ? array[i] : array[i].substring(0, assign);
+                        if (key === 'title') { outfiter_title = assign === -1 ? '' : array[i].substring(assign + 1); }
                         else {
-                            key = assign === -1 ? array[i] : array[i].substring(0, assign);
-                            if (outfiter_opt_namesr[key] !== undefined || outfiter_def[key] === undefined) {
-                                if (outfiter_opt_namesr[key] !== 'undefined') { key = outfiter_opt_namesr[key]; }
+                            if (outfiter_opt_namesr.hasOwnProperty(key)) { key = outfiter_opt_namesr[key]; }
+                            if (outfiter_def.hasOwnProperty(key)) {
                                 outfiter_GET[key] = map_GET_values(key, assign === -1 ? '' : array[i].substring(assign + 1));
                             }
                         }
                     }
+                }
+            },
+            // Turn URL values into valid options. Anything out of range falls back to the
+            // default, so a mistyped or outdated link still opens a working outfitter.
+            outfiter_sanitize_get = function () {
+                var opt, v, n,
+                    max_index = {
+                        mount: outfiter_mount_names.length - 1,
+                        creature: outfiter_creature_names.length - 1,
+                        facing: 3,
+                        c1: outfiter_color_t.length - 1, c2: outfiter_color_t.length - 1,
+                        c3: outfiter_color_t.length - 1, c4: outfiter_color_t.length - 1,
+                        mc1: outfiter_color_t.length - 1, mc2: outfiter_color_t.length - 1,
+                        mc3: outfiter_color_t.length - 1, mc4: outfiter_color_t.length - 1
+                    };
+                for (opt in outfiter_def) {
+                    if (outfiter_def.hasOwnProperty(opt)) {
+                        v = outfiter_GET[opt];
+                        if (typeof outfiter_def[opt] === 'boolean') {
+                            // "?a1", "?a1=1", "?a1=true" -> on; "?a1=!", "?a1=0", "?a1=false" -> off
+                            outfiter_GET[opt] = v === true || (typeof v === 'string' && !/^(!|0|false|no|off)$/i.test(v));
+                        } else if (typeof outfiter_def[opt] === 'number') {
+                            n = typeof v === 'number' ? v : (/^\s*\d+\s*$/.test(String(v)) ? parseInt(v, 10) : NaN);
+                            if (opt === 'outfit') {
+                                if (isNaN(n) || outfiter_names[n] === undefined) { n = outfiter_def.outfit; }
+                            } else if (isNaN(n) || n < 0 || n > max_index[opt]) {
+                                n = outfiter_def[opt];
+                            }
+                            outfiter_GET[opt] = n;
+                        } else {
+                            outfiter_GET[opt] = v === undefined || v === null ? outfiter_def[opt] : String(v);
+                        }
+                    }
+                }
+                // A creature replaces the outfit and mount (same rule as picking one in the list).
+                if (outfiter_GET.creature > 0) {
+                    outfiter_GET.outfit = outfiter_outfit_none_id;
+                    outfiter_GET.mount = 0;
                 }
             },
             //generate url for current options
@@ -2074,7 +2135,7 @@ $(function () {
                 var
                     big_canvas, context, r, p, m,
                     outfit_n = outfiter_names[outfiter_GET.outfit],
-                    is_4096h = outfiter_4096h[outfit_n] === true;
+                    is_4096h = par.src === 'main' && outfiter_4096h[outfit_n] === true;
 
                 if (par.src === 'mount') { big_canvas = canvas_mount; }
                 else if (par.src === 'creature') { big_canvas = canvas_creature; }
@@ -2213,12 +2274,14 @@ $(function () {
                 var
                     pixel_data = false,
                     creature_n = outfiter_creature_names[outfiter_GET.creature],
-                    props, colourisable_mult, mult_y, base_y_c, standing_frames;
+                    props, colourisable_mult, mult_y, addon2_row, base_y_c, standing_frames;
                 if (outfiter_GET.creature) {
                     props = outfiter_creature_get_props(creature_n);
                     colourisable_mult = props.colourisable ? 2 : 1;
-                    // Outfit-style layering: base + addon1 + addon2 when any addon is supported
-                    mult_y = (props.addon1 || props.addon2) ? 3 : 1;
+                    // One row per layer that exists: base, then addon1 (if any), then addon2 (if any).
+                    // e.g. addon1 only -> 2 rows per frame; both addons -> 3 rows per frame.
+                    mult_y = 1 + (props.addon1 ? 1 : 0) + (props.addon2 ? 1 : 0);
+                    addon2_row = props.addon1 ? 2 : 1;
                     standing_frames = props.standing;
                     base_y_c = (anim * mult_y) + (outfiter_GET.animate ?
                         (!outfiter_GET.sanim ? standing_frames * mult_y : 0) : 0
@@ -2276,19 +2339,19 @@ $(function () {
                                 outfiter_pixels_blend(
                                     outfiter_pixels_get_sub({
                                         x: outfiter_GET.facing * colourisable_mult,
-                                        y: base_y_c + 2,
+                                        y: base_y_c + addon2_row,
                                         src: 'creature'
                                     }),
                                     outfiter_pixels_get_sub({
                                         x: outfiter_GET.facing * colourisable_mult + 1,
-                                        y: base_y_c + 2,
+                                        y: base_y_c + addon2_row,
                                         src: 'creature'
                                     }),
                                     false
                                 ) :
                                 outfiter_pixels_get_sub({
                                     x: outfiter_GET.facing * colourisable_mult,
-                                    y: base_y_c + 2,
+                                    y: base_y_c + addon2_row,
                                     src: 'creature'
                                 })
                         );
@@ -2404,33 +2467,70 @@ $(function () {
                     $this_main.removeClass('outfiter_loading');
                 }
             },
+            // Increases every time a new selection starts loading. Responses that arrive
+            // for an older selection are ignored, so a slow download can never replace
+            // the sprite the user picked afterwards.
+            outfiter_load_token = 0,
+            // Text shown under the preview (and read out by screen readers). Empty hides it.
+            outfiter_status_timer = null,
+            outfiter_set_status = function (message, is_error) {
+                clearTimeout(outfiter_status_timer);
+                ogebi('outfiter_status')
+                    .text(message || '')
+                    .toggleClass('is-error', !!is_error);
+                // confirmations disappear on their own; errors stay until the next selection
+                if (message && !is_error) {
+                    outfiter_status_timer = setTimeout(function () { outfiter_set_status(''); }, 4000);
+                }
+            },
+            // Show the error image plus a readable message, and log details for developers.
+            outfiter_load_failed = function (token, file_url, reason) {
+                if (token !== outfiter_load_token) { return; }
+                if (window.console && console.error) {
+                    console.error('[Outfitter] Could not load sprite sheet "' + file_url + '": ' + reason);
+                }
+                outfiter_hide_body(true, true);
+                outfiter_set_status('Sorry, this sprite could not be loaded. Please pick another item or try again later.', true);
+            },
             // get mount, outfit or creature sprite sheets
             outfiter_get_ajax = function (item_n, type, female_suffix) {
                 var
+                    token = outfiter_load_token,
                     iname = item_n + (female_suffix ? '_Female' : ''),
                     utype = type.substr(0, 1).toUpperCase() + type.substr(1),
+                    file_url = 'base64/' + utype + '/' + iname + '.txt',
                     retry_max = 1, retry_wait = 500, retry_i = 0,
                     ajax_call = function () {
                         $.ajax({
                             dataType: 'text',
                             success: function (text) {
-                                var
+                                var $img,
                                     r = text.match(
                                         new RegExp('id="' + (iname.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&').replace(/\s/g, '_').replace(/_/g, '[ _]')) + '">' + '([\\w\\W]*)' + '<' + '/pre>', 'i')
                                     );
-                                if (r !== null) {
-                                    text = r[1].replace(/\s+/g, '');
-                                    if (type === 'mount') { ogebi('mount_image').attr('src', '').attr('src', text); }
-                                    else if (type === 'creature') { ogebi('creature_image').attr('src', '').attr('src', text); }
-                                    else { ogebi('main_image').attr('src', '').attr('src', text); }
+                                if (token !== outfiter_load_token) { return; } // user already picked something else
+                                if (r === null) {
+                                    outfiter_load_failed(token, file_url, 'expected <pre id="' + iname + '">data:image/png;base64,...</pre>');
+                                    return;
                                 }
+                                text = r[1].replace(/\s+/g, '');
+                                if (text.indexOf('data:image/png;base64,') !== 0) {
+                                    outfiter_load_failed(token, file_url, 'content is not a data:image/png;base64 URI');
+                                    return;
+                                }
+                                if (type === 'mount') { $img = ogebi('mount_image'); }
+                                else if (type === 'creature') { $img = ogebi('creature_image'); }
+                                else { $img = ogebi('main_image'); }
+                                $img.data({ outfiter_token: token, outfiter_file: file_url });
+                                $img.attr('src', '').attr('src', text);
                             },
-                            error: function () {
+                            error: function (xhr) {
+                                if (token !== outfiter_load_token) { return; }
                                 retry_i++;
                                 if (retry_i <= retry_max) { setTimeout(ajax_call, retry_wait); }
-                                else { outfiter_hide_body(true, true); } // lock and mark as fail
+                                else { outfiter_load_failed(token, file_url, 'HTTP ' + (xhr && xhr.status)); }
                             },
-                            url: 'base64/' + utype + '/' + iname + '.txt'
+                            url: file_url
                         });
                     };
                 ajax_call();
@@ -2478,6 +2578,20 @@ $(function () {
                     if (param === 'female') { return; }
                     outfiter_options_to_get();
                 }
+                // Apply addon rules on every load (links used to keep addons the outfit
+                // does not have, which drew an unrelated sprite row on top).
+                (function () {
+                    var cprops = creature > 0 ? outfiter_creature_get_props(creature_n) : null,
+                        can1 = cprops ? !!cprops.addon1 : outfiter_a_names[outfit_n] !== true,
+                        can2 = cprops ? !!cprops.addon2 : outfiter_a_names[outfit_n] !== true,
+                        one_only = cprops ? !!cprops.exclusive_addons : outfiter_o_names[outfit_n] === true;
+                    if (!can1) { ogebi('addon1').prop({ checked: false }); }
+                    if (!can2) { ogebi('addon2').prop({ checked: false }); }
+                    if (one_only && ogebi('addon1').is(':checked') && ogebi('addon2').is(':checked')) {
+                        ogebi('addon2').prop({ checked: false });
+                    }
+                    outfiter_options_to_get();
+                }());
                 if (!has_standing_animation_any) {
                     ogebi('sanim').prop({ checked: false });
                     outfiter_options_to_get();
@@ -2492,6 +2606,8 @@ $(function () {
                 ogebi('mount_name').text(mount_n.replace(/_/g, ' '));
                 ogebi('creature_name').text(creature_n.replace(/_/g, ' '));
 
+                outfiter_load_token++;
+                outfiter_set_status('');
                 outfiter_images_loaded[1] = mount === 0;
                 outfiter_images_loaded[2] = creature === 0;
                 outfiter_images_loaded[0] = false;
@@ -2560,12 +2676,12 @@ $(function () {
                     outfit = outfiter_GET.outfit,
                     outfit_pos = (absolute ? outfiter_do_get_outfit_pos(i) : outfiter_do_get_outfit_pos(outfit) + i),
                     has_standing_animation;
-                outfit = outfiter_names[outfiter_names_sorted[outfit_pos]];
-                mount = outfiter_mount_names[outfiter_mount_names_sorted[mount_pos]];
                 if (outfiter_names_sorted[outfit_pos] === undefined) {
                     if (outfit_pos < 0) { outfit_pos = outfiter_names_sorted.length - 1; }
                     else if (outfit_pos >= outfiter_names_sorted.length) { outfit_pos = 0; }
                 }
+                outfit = outfiter_names[outfiter_names_sorted[outfit_pos]];
+                mount = outfiter_mount_names[outfiter_mount_names_sorted[mount_pos]];
                 ogebi('outfit').val(outfiter_names_sorted[outfit_pos]);
                 if (outfiter_a_names[outfit] === true) {
                     ogebi('addon1').prop({ checked: false });
@@ -2575,7 +2691,7 @@ $(function () {
                     if (ogebi('addon1').is(':checked')) { ogebi('addon2').prop({ checked: false }); }
                     else if (ogebi('addon2').is(':checked')) { ogebi('addon1').prop({ checked: false }); }
                 }
-                if (outfiter_m_names[outfit] === true || outfiter_mount_names[mount_pos] === undefined) {
+                if (outfiter_m_names[outfit] === true || mount === undefined) {
                     ogebi('radio_mounts_0').trigger('click');
                     outfiter_options_to_get();
                     mount = outfiter_GET.mount;
@@ -2599,6 +2715,7 @@ $(function () {
             },
             greatest_common_factor = function (x, y) {
                 var a = Math.max(x, y), b = Math.min(x, y), c = 1, res;
+                if (!(b > 0)) { return a > 0 ? a : 1; } // gcd(n, 0) = n; avoids an endless loop on 0 / NaN
                 do {
                     c = a % b;
                     // capture last value of $b as the potential last GCF result
@@ -2877,7 +2994,7 @@ $(function () {
                     //console.log(special_delays.join(','));
                 }
                 //floor_move frame adjust
-                if (floor_move) {
+                if (floor_move && af > 0) {
                     af_tmp = least_common_multiple(af, floor_spr_w / floor_move_per_frame);
                     af = af_tmp < 128 ? af_tmp : af;
                 }
@@ -4162,14 +4279,31 @@ $(function () {
                     show_mount_prev = checked ? parseInt(ogebi('show_mount_prev').val(), 10) : 0;
                 outfiter_do_mount(show_mount_prev, true);
             },
+            // Sort [id, name] pairs: id 0 ("None") always first, the rest alphabetically.
+            // (The old comparator returned contradictory answers, so "None" ended up mid-list.)
+            // Normalised text used for searching: case, underscores, hyphens, apostrophes,
+            // brackets and extra spaces are ignored ("black_sheep (mount" finds "Black Sheep (Mount)").
+            outfiter_search_key = function (text) {
+                return String(text || '').toLowerCase()
+                    .replace(/[_\-]/g, ' ')
+                    .replace(/['\u2019().,]/g, '')
+                    .replace(/\s+/g, ' ')
+                    .replace(/^\s+|\s+$/g, '');
+            },
+            outfiter_sort_none_first = function (a, b) {
+                if (a[0] === 0 || b[0] === 0) { return a[0] === 0 ? (b[0] === 0 ? 0 : -1) : 1; }
+                if (a[1] < b[1]) { return -1; }
+                if (a[1] > b[1]) { return 1; }
+                return 0;
+            },
             outfiter_init = function () {
                 $.each(outfiter_mount_names, function (i, v) { if ($.inArray(i, outfiter_mount_names_extra) === -1) { outfiter_mount_names_sorted.push([i, v]); } });
-                outfiter_mount_names_sorted.sort(function (a, b) { if (a[1] < b[1] || a[0] === 0) { return -1; } if (a[1] > b[1] || b[0] === 0) { return 1; } return 0; });
+                outfiter_mount_names_sorted.sort(outfiter_sort_none_first);
                 $.each(outfiter_mount_names_sorted, function (i, v) { outfiter_mount_names_sorted[i] = v[0]; });
                 outfiter_mount_names_sorted = outfiter_mount_names_sorted.concat(outfiter_mount_names_extra);
 
                 $.each(outfiter_creature_names, function (i, v) { if ($.inArray(i, outfiter_creature_names_extra) === -1) { outfiter_creature_names_sorted.push([i, v]); } });
-                outfiter_creature_names_sorted.sort(function (a, b) { if (a[1] < b[1] || a[0] === 0) { return -1; } if (a[1] > b[1] || b[0] === 0) { return 1; } return 0; });
+                outfiter_creature_names_sorted.sort(outfiter_sort_none_first);
                 $.each(outfiter_creature_names_sorted, function (i, v) { outfiter_creature_names_sorted[i] = v[0]; });
                 outfiter_creature_names_sorted = outfiter_creature_names_sorted.concat(outfiter_creature_names_extra);
 
@@ -4185,7 +4319,12 @@ $(function () {
                 for (opt in outfiter_def) {
                     if (outfiter_def.hasOwnProperty(opt)) {
                         if (!outfiter_GET.hasOwnProperty(opt)) { outfiter_GET[opt] = outfiter_def[opt]; }
-                        if (outfiter_GET[opt] === true) { ogebi(opt).prop({ checked: true }); }
+                    }
+                }
+                outfiter_sanitize_get();
+                for (opt in outfiter_def) {
+                    if (outfiter_def.hasOwnProperty(opt)) {
+                        if (typeof outfiter_def[opt] === 'boolean') { ogebi(opt).prop({ checked: outfiter_GET[opt] }); }
                         else { ogebi(opt).val(outfiter_GET[opt]); }
                     }
                 }
@@ -4261,10 +4400,17 @@ $(function () {
 
                 ogebi('.main_image, .mount_image, .creature_image', 1).each(function (i) {
                     $(this).on('load', function () {
+                        // ignore the empty src reset and images that belong to an older selection
+                        if (!this.getAttribute('src') || $(this).data('outfiter_token') !== outfiter_load_token) { return true; }
                         outfiter_images_loaded[i] = true;
-                        (i === 0 ? $canvas_main : (i === 1 ? $canvas_mount : $canvas_creature)).attr({ height: $(this).height(), width: $(this).width() });
+                        (i === 0 ? $canvas_main : (i === 1 ? $canvas_mount : $canvas_creature)).attr({ height: this.naturalHeight, width: this.naturalWidth });
                         if (outfiter_images_loaded[0] && outfiter_images_loaded[1] && outfiter_images_loaded[2]) { outfiter_do_display(); }
                         return true;
+                    });
+                    // a file that downloads fine but holds corrupt base64 / PNG data
+                    $(this).on('error', function () {
+                        if (!this.getAttribute('src') || $(this).data('outfiter_token') !== outfiter_load_token) { return; }
+                        outfiter_load_failed(outfiter_load_token, $(this).data('outfiter_file'), 'image data could not be decoded (corrupt base64 or PNG)');
                     });
                 });
 
@@ -4274,7 +4420,7 @@ $(function () {
                     toggle = !toggle;
                     if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
                     t = t.add(
-                        $('<label />', { class: 'list_el' }).append(
+                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_names[outfiter_names_sorted[x]] + ' ' + (outfiter_f_names[outfiter_names[outfiter_names_sorted[x]]] || '')) }).append(
                             $('<input type="radio" />').attr({ name: 'radio_outfits', class: 'darkrad radio_outfits_' + outfiter_names_sorted[x] }),
                             $('<span>').attr({ class: 'darkrad_in' }),
                             $('<div />', { class: 't' }).text(outfiter_names[outfiter_names_sorted[x]].replace(/_/g, ' '))
@@ -4295,7 +4441,7 @@ $(function () {
                     toggle = !toggle;
                     if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
                     t = t.add(
-                        $('<label />', { class: 'list_el' }).append(
+                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_mount_names[outfiter_mount_names_sorted[x]]) }).append(
                             $('<input type="radio" />').attr({ name: 'radio_mounts', class: 'darkrad radio_mounts_' + outfiter_mount_names_sorted[x] })
                                 .prop({ checked: String(outfiter_mount_names_sorted[x]) === ogebi('mount').val() }),
                             $('<span>').attr({ class: 'darkrad_in' }),
@@ -4317,7 +4463,7 @@ $(function () {
                     toggle = !toggle;
                     if (sep_line) { t = t.add($('<div />', { class: 'sep_line' })); }
                     t = t.add(
-                        $('<label />', { class: 'list_el' }).append(
+                        $('<label />', { class: 'list_el', 'data-search': outfiter_search_key(outfiter_creature_names[outfiter_creature_names_sorted[x]]) }).append(
                             $('<input type="radio" />').attr({ name: 'radio_creatures', class: 'darkrad radio_creatures_' + outfiter_creature_names_sorted[x] })
                                 .prop({ checked: String(outfiter_creature_names_sorted[x]) === ogebi('creature').val() }),
                             $('<span>').attr({ class: 'darkrad_in' }),
@@ -4527,46 +4673,60 @@ $(function () {
                 ogebi('random_outfit').on('click', outfiter_do_random_outfit);
                 ogebi('use_name').on('click', outfiter_do_addon);
                 ogebi('clear_name').on('click', function () { ogebi('charn').val(''); outfiter_do_addon(); });
+                // pressing Enter in the name box works like "Use Name"
+                ogebi('charn').on('keydown', function (e) {
+                    if (e.which === 13) { e.preventDefault(); outfiter_do_addon(); }
+                });
                 ogebi('url_input').on('click', function () { $(this).select(); });
 
-                // copy text to clipboard (no confirmation popup)
-                var outfiter_copy_text = function (text) {
-                    var ta;
+                // copy text to clipboard and say whether it worked (no popup)
+                var outfiter_copy_text = function (text, what) {
+                    var
+                        report = function (ok) {
+                            outfiter_set_status(ok ? what + ' copied to clipboard.' : 'Could not copy automatically. Select the text and copy it manually.', !ok);
+                        },
+                        legacy_copy = function () {
+                            var ta = document.createElement('textarea'), ok = false;
+                            ta.value = text;
+                            ta.setAttribute('readonly', 'readonly');
+                            ta.style.position = 'fixed';
+                            ta.style.left = '-9999px';
+                            document.body.appendChild(ta);
+                            ta.select();
+                            try { ok = document.execCommand('copy'); } catch (ignore) { }
+                            document.body.removeChild(ta);
+                            report(ok);
+                        };
                     text = text == null ? '' : String(text);
                     if (!text) { return; }
                     if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(text).catch(function () {
-                        });
+                        // writeText can be refused (permissions, insecure page) — fall back instead of failing silently
+                        navigator.clipboard.writeText(text).then(function () { report(true); }, legacy_copy);
                         return;
                     }
-                    ta = document.createElement('textarea');
-                    ta.value = text;
-                    ta.setAttribute('readonly', 'readonly');
-                    ta.style.position = 'fixed';
-                    ta.style.left = '-9999px';
-                    document.body.appendChild(ta);
-                    ta.select();
-                    try { document.execCommand('copy'); } catch (ignore) { }
-                    document.body.removeChild(ta);
+                    legacy_copy();
                 };
                 $this_main.on('click', '.copy_url', function (e) {
                     e.preventDefault();
-                    outfiter_copy_text(ogebi('url_input').val());
+                    outfiter_copy_text(ogebi('url_input').val(), 'Link');
                 });
                 $this_main.on('click', '.copy_template', function (e) {
                     e.preventDefault();
-                    outfiter_copy_text(ogebi('template_code_code').val());
+                    outfiter_copy_text(ogebi('template_code_code').val(), 'Template code');
                 });
 
-                ogebi('omsearch').keyup(function () {
-                    var query = $(this).val().toLowerCase();
-                    $(this).siblings('label').each(function (i, v) {
-                        if (!$(v).children('div').first().html().toLowerCase().includes(query)) {
-                            $(v).hide();
-                        } else {
-                            $(v).show();
-                        }
+                // Filter a list as the user types (also reacts to paste, autofill and clearing).
+                ogebi('omsearch').on('input', function () {
+                    var
+                        query = outfiter_search_key(this.value),
+                        shown = 0;
+                    $(this).siblings('label').each(function () {
+                        var match = query === '' || this.getAttribute('data-search').indexOf(query) !== -1;
+                        this.style.display = match ? '' : 'none';
+                        if (match) { shown++; }
                     });
+                    $(this).siblings('.sep_line').toggle(query === '');
+                    $(this).siblings('.omsearch_empty').prop('hidden', shown !== 0);
                 });
 
                 var bgs = {

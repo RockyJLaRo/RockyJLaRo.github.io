@@ -1019,3 +1019,26 @@
     opacity: 1;
     visibility: visible;
 }
+/* Status line under the preview (load errors, "Link copied", ...). Empty = hidden. */
+.outfiter .outfiter_status {
+    margin: 0 0 5px 0;
+    padding: 4px 6px;
+    text-align: center;
+    color: #d8d8d8;
+    font-weight: 700;
+}
+
+.outfiter .outfiter_status:empty {
+    display: none;
+}
+
+.outfiter .outfiter_status.is-error {
+    color: #ffb4a8;
+}
+
+/* "No matches" message shown inside a list when the search finds nothing */
+.outfiter .omsearch_empty {
+    padding: 8px 6px;
+    color: #a0a0a0;
+    text-align: center;
+}
