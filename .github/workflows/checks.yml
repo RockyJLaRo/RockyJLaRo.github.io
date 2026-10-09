@@ -1,0 +1,44 @@
+# Runs the asset checker and all tests on GitHub for every push and pull request.
+# Results appear as a green tick / red cross next to each commit.
+# This does not publish anything: GitHub Pages deploys the site on its own.
+name: Checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install test tools
+        run: npm ci
+
+      - name: Check sprite files and asset list
+        run: npm run validate
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Install browser for end-to-end tests
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests (desktop and phone)
+        run: npm run test:e2e
+
+      - name: Keep the test report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

@@ -1,0 +1,19 @@
+{
+  "name": "tibia-outfitter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TibiaWiki Outfitter - static site published with GitHub Pages. Node is only needed for the optional checks and tests.",
+  "scripts": {
+    "start": "node tools/serve.js",
+    "validate": "node tools/validate-assets.js",
+    "test:unit": "node --test tests/unit/validate-assets.test.js",
+    "test:e2e": "playwright test",
+    "test": "npm run validate && npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
