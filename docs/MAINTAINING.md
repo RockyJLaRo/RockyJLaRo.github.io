@@ -461,6 +461,11 @@ The same checks run on GitHub for every push and pull request
   between the two.
 - The narrow-screen layout starts below 1181 px. The breakpoint appears in
   `css/outfitter.css`, `css/page.css` and `js/outfitter.js` (`outfiter_compact_query`).
+- Wide screens ("WIDE SCREENS" in `css/outfitter.css`): the Outfitter fills the window
+  height using the fixed header / footer heights set in `css/page.css`
+  (`--page-header-h`, `--page-footer-h`); change those together with the header or
+  footer. Very large screens scale the Outfitter up (`--outfiter-zoom`). The preview
+  opens bigger when there is room, up to `auto_zoom_max` in `js/outfitter-settings.js`.
 - Link and template parameters are part of the public interface: changing defaults or
   option names breaks existing links and wiki pages.
 - `.nojekyll` makes GitHub Pages publish the files as they are, without Jekyll, so

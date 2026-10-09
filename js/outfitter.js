@@ -160,7 +160,9 @@ $(function () {
         '<div class="div2">' +
         '<div class="div2_title">TibiaWiki Outfitter</div>' +
         '<div class="omain_wrap">' +
+        // side column: options, then colours (desktop); narrow screens reorder them (css)
         '<div class="omain_wrap_left">' +
+        '<div class="omain_opts">' +
         '<div class="omain_cont_left">' +
         '<div class="divtitle">Preview:</div>' +
         '<label class="divcheck">' +
@@ -232,6 +234,34 @@ $(function () {
         '</label>' +
         '</div>' +
         '</div>' +
+        '<div class="colourise_cont">' +
+        '<div class="colourise_title">Colourise:</div>' +
+        '<div class="colourise_btns">' +
+        '<button type="button" class="nbutton colourise_copy">Copy to Mount</button>' +
+        '<button type="button" class="nbutton colourise_random" title="Randomise Head, Primary, Secondary and Detail colours for the selected target (Outfit or Mount)">Random Colours</button>' +
+        '<button type="button" class="nbutton random_outfit" title="Pick a random outfit (gender and addons are also randomised when available)">Random Outfit</button>' +
+        '</div>' +
+        '<label class="colourise_item">' +
+        '<input type="radio" name="radio_colourise" class="darkrad" value="outfit" checked="checked" /><span class="darkrad_in"></span><div class="t">Outfit</div>' +
+        '</label><label class="colourise_item">' +
+        '<input type="radio" name="radio_colourise" class="darkrad" value="mount" /><span class="darkrad_in"></span><div class="t">Mount</div>' +
+        '</label>' +
+        '<div class="clear"></div>' +
+        '</div>' +
+        '<div class="colors_cont">' +
+        '<button type="button" class="color_tab cb_1 sel" aria-pressed="true"><span class="color_tab_in outer_border_no_bottom">Head</span></button>' +
+        '<button type="button" class="color_tab cb_2" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Primary</span></button>' +
+        '<button type="button" class="color_tab cb_3" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Secondary</span></button>' +
+        '<button type="button" class="color_tab cb_4" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Detail</span></button>' +
+        '<div class="clear"></div>' +
+        '<div class="dcolor_table_out outer_border">' +
+        '<div class="dcolor_table" role="radiogroup" aria-label="Head colour">' +
+        // 133 colour swatches (7 rows x 19 colours); colours are filled in by outfiter_init()
+        new Array(134).join('<div role="radio" aria-checked="false" tabindex="-1"></div>') +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
         '<div class="omain_wrap_right">' +
         '<div class="omain_cont_right">' +
         '<div class="body_main_div">' +
@@ -260,33 +290,6 @@ $(function () {
         '<button type="button" class="rightb creaturep" aria-label="Next creature"></button>' +
         '<div class="oitem_select_name creature_name"></div>' +
         '<div class="clear"></div>' +
-        '</div>' +
-        '<div class="colourise_cont">' +
-        '<div class="colourise_title">Colourise:</div>' +
-        '<div class="colourise_btns">' +
-        '<button type="button" class="nbutton colourise_copy">Copy to Mount</button>' +
-        '<button type="button" class="nbutton colourise_random" title="Randomise Head, Primary, Secondary and Detail colours for the selected target (Outfit or Mount)">Random Colours</button>' +
-        '<button type="button" class="nbutton random_outfit" title="Pick a random outfit (gender and addons are also randomised when available)">Random Outfit</button>' +
-        '</div>' +
-        '<label class="colourise_item">' +
-        '<input type="radio" name="radio_colourise" class="darkrad" value="outfit" checked="checked" /><span class="darkrad_in"></span><div class="t">Outfit</div>' +
-        '</label><label class="colourise_item">' +
-        '<input type="radio" name="radio_colourise" class="darkrad" value="mount" /><span class="darkrad_in"></span><div class="t">Mount</div>' +
-        '</label>' +
-        '<div class="clear"></div>' +
-        '</div>' +
-        '<div class="colors_cont">' +
-        '<button type="button" class="color_tab cb_1 sel" aria-pressed="true"><span class="color_tab_in outer_border_no_bottom">Head</span></button>' +
-        '<button type="button" class="color_tab cb_2" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Primary</span></button>' +
-        '<button type="button" class="color_tab cb_3" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Secondary</span></button>' +
-        '<button type="button" class="color_tab cb_4" aria-pressed="false"><span class="color_tab_in outer_border_no_bottom">Detail</span></button>' +
-        '<div class="clear"></div>' +
-        '<div class="dcolor_table_out outer_border">' +
-        '<div class="dcolor_table" role="radiogroup" aria-label="Head colour">' +
-        // 133 colour swatches (7 rows x 19 colours); colours are filled in by outfiter_init()
-        new Array(134).join('<div role="radio" aria-checked="false" tabindex="-1"></div>') +
-        '</div>' +
-        '</div>' +
         '</div>' +
         '<div class="charn_cont">' +
         '<div class="charn_row">' +
@@ -401,6 +404,13 @@ $(function () {
             outfiter_drag_start_y = 0,
             outfiter_pan_start_x = 0,
             outfiter_pan_start_y = 0,
+            // screen pixels per CSS pixel of the preview (very large screens scale the
+            // Outfitter up, see css/page.css), so dragging moves the sprite with the pointer
+            outfiter_drag_scale = 1,
+            outfiter_measure_drag_scale = function () {
+                var box = ogebi('body_main_div')[0];
+                outfiter_drag_scale = (box && box.offsetWidth && box.getBoundingClientRect().width / box.offsetWidth) || 1;
+            },
             //default outfiter options
             outfiter_def = {
                 outfit: 0, addon1: false, addon2: false, female: false, facing: 2,
@@ -1863,15 +1873,26 @@ $(function () {
                 }
                 return outfiter_box_size;
             },
-            // Narrow screens only: until the user zooms, pick the largest zoom (up to the
-            // default) at which the whole sprite fits inside the preview box.
+            // Until the user zooms, pick the zoom that suits the preview box:
+            //  - narrow screens: the largest zoom (up to the default) at which the sprite fits;
+            //  - wide screens: bigger than the default (up to auto_zoom_max in
+            //    js/outfitter-settings.js) when the sprite still fits with room for the
+            //    buttons, otherwise as on narrow screens.
             outfiter_fit_zoom = function () {
-                var box, z;
-                if (outfiter_zoom_user_set || !outfiter_is_compact()) { return; }
+                var box, z,
+                    def = outfiter_setting_number('default_zoom', 2),
+                    fits = function (zoom, margin_w, margin_h) {
+                        return outfiter_base_w * zoom <= box.w - margin_w && outfiter_base_h * zoom <= box.h - margin_h;
+                    };
+                if (outfiter_zoom_user_set) { return; }
                 box = outfiter_preview_box_size();
                 if (!box.w) { return; }
-                z = outfiter_setting_number('default_zoom', 2);
-                while (z > outfiter_zoom_min && (outfiter_base_w * z > box.w || outfiter_base_h * z > box.h)) { z--; }
+                z = def;
+                if (!outfiter_is_compact()) {
+                    z = Math.min(Math.max(def, outfiter_setting_number('auto_zoom_max', 3)), outfiter_zoom_max);
+                    while (z > def && !fits(z, 16, 72)) { z--; }
+                }
+                while (z > outfiter_zoom_min && !fits(z, 0, 0)) { z--; }
                 outfiter_zoom = z;
             },
             outfiter_apply_zoom = function () {
@@ -2968,7 +2989,7 @@ $(function () {
                 $.each({ outfits: outfiter_GET.outfit, mounts: outfiter_GET.mount, creatures: outfiter_GET.creature }, function (kind, id) {
                     var box = ogebi('radio_' + kind)[0],
                         input = box && box.querySelector('.radio_' + kind + '_' + id),
-                        row, search, box_rect, row_rect, top_limit;
+                        row, search, box_rect, row_rect, top_limit, scale;
                     if (!input) { return; }
                     if (outfiter_revealed[kind] === id) { return; } // don't fight the user's own scrolling
                     row = input.parentNode;
@@ -2977,9 +2998,11 @@ $(function () {
                     search = box.querySelector('.omsearch');
                     box_rect = box.getBoundingClientRect();
                     row_rect = row.getBoundingClientRect();
-                    top_limit = box_rect.top + (search ? search.offsetHeight : 0);
+                    // screen pixels per CSS pixel (very large screens scale the Outfitter up)
+                    scale = (box.offsetHeight && box_rect.height / box.offsetHeight) || 1;
+                    top_limit = box_rect.top + (search ? search.offsetHeight * scale : 0);
                     if (row_rect.top < top_limit || row_rect.bottom > box_rect.bottom) {
-                        box.scrollTop += (row_rect.top - top_limit) - Math.max(0, (box_rect.bottom - top_limit - row_rect.height) / 2);
+                        box.scrollTop += ((row_rect.top - top_limit) - Math.max(0, (box_rect.bottom - top_limit - row_rect.height) / 2)) / scale;
                     }
                 });
             },
@@ -3315,6 +3338,7 @@ $(function () {
                 ogebi('.body_main_div .body_main', 1).on('mousedown', function (e) {
                     if (outfiter_zoom <= 1 || e.which !== 1) { return; }
                     outfiter_dragging = true;
+                    outfiter_measure_drag_scale();
                     outfiter_drag_start_x = e.clientX;
                     outfiter_drag_start_y = e.clientY;
                     outfiter_pan_start_x = outfiter_pan_x;
@@ -3324,8 +3348,8 @@ $(function () {
                 });
                 $(document).on('mousemove.outfiter_pan', function (e) {
                     if (!outfiter_dragging) { return; }
-                    outfiter_pan_x = outfiter_pan_start_x + (e.clientX - outfiter_drag_start_x);
-                    outfiter_pan_y = outfiter_pan_start_y + (e.clientY - outfiter_drag_start_y);
+                    outfiter_pan_x = outfiter_pan_start_x + (e.clientX - outfiter_drag_start_x) / outfiter_drag_scale;
+                    outfiter_pan_y = outfiter_pan_start_y + (e.clientY - outfiter_drag_start_y) / outfiter_drag_scale;
                     outfiter_clamp_pan();
                     ogebi('.body_main_div .body_main', 1).css({
                         transform: 'translate(calc(-50% + ' + outfiter_pan_x + 'px), ' + outfiter_pan_y + 'px)'
@@ -3345,6 +3369,7 @@ $(function () {
                     t = e.originalEvent.touches[0];
                     if (!t) { return; }
                     outfiter_dragging = true;
+                    outfiter_measure_drag_scale();
                     outfiter_drag_start_x = t.clientX;
                     outfiter_drag_start_y = t.clientY;
                     outfiter_pan_start_x = outfiter_pan_x;
@@ -3357,8 +3382,8 @@ $(function () {
                     if (!outfiter_dragging) { return; }
                     t = e.originalEvent.touches[0];
                     if (!t) { return; }
-                    outfiter_pan_x = outfiter_pan_start_x + (t.clientX - outfiter_drag_start_x);
-                    outfiter_pan_y = outfiter_pan_start_y + (t.clientY - outfiter_drag_start_y);
+                    outfiter_pan_x = outfiter_pan_start_x + (t.clientX - outfiter_drag_start_x) / outfiter_drag_scale;
+                    outfiter_pan_y = outfiter_pan_start_y + (t.clientY - outfiter_drag_start_y) / outfiter_drag_scale;
                     outfiter_clamp_pan();
                     ogebi('.body_main_div .body_main', 1).css({
                         transform: 'translate(calc(-50% + ' + outfiter_pan_x + 'px), ' + outfiter_pan_y + 'px)'
@@ -3378,18 +3403,24 @@ $(function () {
                     $this_main.removeClass('show-list-oselector show-list-mselector show-list-cselector').addClass('show-list-' + list);
                     outfiter_sync_lists();
                 });
-                // re-fit the preview after rotating a phone / resizing the window
+                // re-fit the preview after rotating a phone / resizing the window, or when the
+                // preview box changes size for another reason (e.g. template code shown on a
+                // wide screen, where the preview takes the room that is left)
                 (function () {
-                    var resize_timer;
-                    $(window).on('resize.outfiter orientationchange.outfiter', function () {
-                        clearTimeout(resize_timer);
-                        resize_timer = setTimeout(function () {
-                            outfiter_box_size = null; // measure the preview box again
-                            if ($this_main.hasClass('outfiter_loading')) { return; }
-                            outfiter_fit_zoom();
-                            outfiter_apply_zoom();
-                        }, 150);
-                    });
+                    var resize_timer,
+                        refit = function () {
+                            clearTimeout(resize_timer);
+                            resize_timer = setTimeout(function () {
+                                outfiter_box_size = null; // measure the preview box again
+                                if ($this_main.hasClass('outfiter_loading')) { return; }
+                                outfiter_fit_zoom();
+                                outfiter_apply_zoom();
+                            }, 150);
+                        };
+                    $(window).on('resize.outfiter orientationchange.outfiter', refit);
+                    if (window.ResizeObserver) {
+                        new window.ResizeObserver(refit).observe(ogebi('body_main_div')[0]);
+                    }
                 }());
                 ogebi('outfitm').on('click', function () { outfiter_do_outfit(-1); });
                 ogebi('outfitp').on('click', function () { outfiter_do_outfit(1); });
