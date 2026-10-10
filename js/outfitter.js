@@ -404,13 +404,6 @@ $(function () {
             outfiter_drag_start_y = 0,
             outfiter_pan_start_x = 0,
             outfiter_pan_start_y = 0,
-            // screen pixels per CSS pixel of the preview (very large screens scale the
-            // Outfitter up, see css/page.css), so dragging moves the sprite with the pointer
-            outfiter_drag_scale = 1,
-            outfiter_measure_drag_scale = function () {
-                var box = ogebi('body_main_div')[0];
-                outfiter_drag_scale = (box && box.offsetWidth && box.getBoundingClientRect().width / box.offsetWidth) || 1;
-            },
             //default outfiter options
             outfiter_def = {
                 outfit: 0, addon1: false, addon2: false, female: false, facing: 2,
@@ -974,7 +967,9 @@ $(function () {
                         npix[npixr + 3] = ppix[pixr + 3];
                     }
                 }
-                if (x_extra > 0) {
+                // pad to min_width (also when only 1px is missing: x_extra is then 0, and
+                // such frames used to stay 63px wide)
+                if (min_width !== false && neww < min_width) {
                     $canvas_work.attr({ width: min_width, height: pixels.height });
                     canvas_work.getContext('2d').putImageData(new_pixels, x_extra, 0);
                     new_pixels = canvas_work.getContext('2d').getImageData(0, 0, min_width, pixels.height);
@@ -1893,6 +1888,13 @@ $(function () {
                     while (z > def && !fits(z, 16, 72)) { z--; }
                 }
                 while (z > outfiter_zoom_min && !fits(z, 0, 0)) { z--; }
+                // Still too big at the smallest zoom (only the floor scene, on phones
+                // narrower than about 340px): shrink it just enough to fit instead of
+                // cutting off its edges. All other cases use whole-number zoom steps,
+                // which keep the pixel art sharp.
+                if (!fits(z, 0, 0)) {
+                    z = Math.max(0.25, Math.floor(Math.min(box.w / outfiter_base_w, box.h / outfiter_base_h) * 100) / 100);
+                }
                 outfiter_zoom = z;
             },
             outfiter_apply_zoom = function () {
@@ -1931,9 +1933,13 @@ $(function () {
                 ogebi('zoomout').prop({ disabled: outfiter_zoom <= outfiter_zoom_min });
             },
             outfiter_do_zoom = function (delta) {
-                var next = outfiter_zoom + parseInt(delta, 10);
+                var cur = outfiter_zoom, next;
+                // from a shrunk-to-fit size (see outfiter_fit_zoom) zooming in goes to the
+                // next whole step, and zooming out does nothing
+                if (cur % 1) { next = delta > 0 ? Math.ceil(cur) : cur; }
+                else { next = cur + parseInt(delta, 10); }
                 outfiter_zoom_user_set = true;
-                if (next < outfiter_zoom_min) { next = outfiter_zoom_min; }
+                if (next < outfiter_zoom_min) { next = Math.min(cur, outfiter_zoom_min); }
                 else if (next > outfiter_zoom_max) { next = outfiter_zoom_max; }
                 if (next === outfiter_zoom) { return; }
                 outfiter_zoom = next;
@@ -1943,9 +1949,11 @@ $(function () {
                 }
                 outfiter_apply_zoom();
             },
+            // "Reset View": back to the size the preview opened at, centred
             outfiter_do_zoom_reset = function () {
-                outfiter_zoom_user_set = true;
-                outfiter_zoom = 1;
+                outfiter_zoom_user_set = false;
+                outfiter_zoom = outfiter_setting_number('default_zoom', 2);
+                outfiter_fit_zoom();
                 outfiter_pan_x = 0;
                 outfiter_pan_y = 0;
                 outfiter_apply_zoom();
@@ -2989,7 +2997,7 @@ $(function () {
                 $.each({ outfits: outfiter_GET.outfit, mounts: outfiter_GET.mount, creatures: outfiter_GET.creature }, function (kind, id) {
                     var box = ogebi('radio_' + kind)[0],
                         input = box && box.querySelector('.radio_' + kind + '_' + id),
-                        row, search, box_rect, row_rect, top_limit, scale;
+                        row, search, box_rect, row_rect, top_limit;
                     if (!input) { return; }
                     if (outfiter_revealed[kind] === id) { return; } // don't fight the user's own scrolling
                     row = input.parentNode;
@@ -2998,11 +3006,9 @@ $(function () {
                     search = box.querySelector('.omsearch');
                     box_rect = box.getBoundingClientRect();
                     row_rect = row.getBoundingClientRect();
-                    // screen pixels per CSS pixel (very large screens scale the Outfitter up)
-                    scale = (box.offsetHeight && box_rect.height / box.offsetHeight) || 1;
-                    top_limit = box_rect.top + (search ? search.offsetHeight * scale : 0);
+                    top_limit = box_rect.top + (search ? search.offsetHeight : 0);
                     if (row_rect.top < top_limit || row_rect.bottom > box_rect.bottom) {
-                        box.scrollTop += ((row_rect.top - top_limit) - Math.max(0, (box_rect.bottom - top_limit - row_rect.height) / 2)) / scale;
+                        box.scrollTop += (row_rect.top - top_limit) - Math.max(0, (box_rect.bottom - top_limit - row_rect.height) / 2);
                     }
                 });
             },
@@ -3338,7 +3344,6 @@ $(function () {
                 ogebi('.body_main_div .body_main', 1).on('mousedown', function (e) {
                     if (outfiter_zoom <= 1 || e.which !== 1) { return; }
                     outfiter_dragging = true;
-                    outfiter_measure_drag_scale();
                     outfiter_drag_start_x = e.clientX;
                     outfiter_drag_start_y = e.clientY;
                     outfiter_pan_start_x = outfiter_pan_x;
@@ -3348,8 +3353,8 @@ $(function () {
                 });
                 $(document).on('mousemove.outfiter_pan', function (e) {
                     if (!outfiter_dragging) { return; }
-                    outfiter_pan_x = outfiter_pan_start_x + (e.clientX - outfiter_drag_start_x) / outfiter_drag_scale;
-                    outfiter_pan_y = outfiter_pan_start_y + (e.clientY - outfiter_drag_start_y) / outfiter_drag_scale;
+                    outfiter_pan_x = outfiter_pan_start_x + (e.clientX - outfiter_drag_start_x);
+                    outfiter_pan_y = outfiter_pan_start_y + (e.clientY - outfiter_drag_start_y);
                     outfiter_clamp_pan();
                     ogebi('.body_main_div .body_main', 1).css({
                         transform: 'translate(calc(-50% + ' + outfiter_pan_x + 'px), ' + outfiter_pan_y + 'px)'
@@ -3369,7 +3374,6 @@ $(function () {
                     t = e.originalEvent.touches[0];
                     if (!t) { return; }
                     outfiter_dragging = true;
-                    outfiter_measure_drag_scale();
                     outfiter_drag_start_x = t.clientX;
                     outfiter_drag_start_y = t.clientY;
                     outfiter_pan_start_x = outfiter_pan_x;
@@ -3382,8 +3386,8 @@ $(function () {
                     if (!outfiter_dragging) { return; }
                     t = e.originalEvent.touches[0];
                     if (!t) { return; }
-                    outfiter_pan_x = outfiter_pan_start_x + (t.clientX - outfiter_drag_start_x) / outfiter_drag_scale;
-                    outfiter_pan_y = outfiter_pan_start_y + (t.clientY - outfiter_drag_start_y) / outfiter_drag_scale;
+                    outfiter_pan_x = outfiter_pan_start_x + (t.clientX - outfiter_drag_start_x);
+                    outfiter_pan_y = outfiter_pan_start_y + (t.clientY - outfiter_drag_start_y);
                     outfiter_clamp_pan();
                     ogebi('.body_main_div .body_main', 1).css({
                         transform: 'translate(calc(-50% + ' + outfiter_pan_x + 'px), ' + outfiter_pan_y + 'px)'

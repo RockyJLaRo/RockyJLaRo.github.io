@@ -138,6 +138,11 @@ textarea {
     /* 16px: phones don't zoom in on focus */
 }
 
+::placeholder {
+    color: #9a9a9a;
+    opacity: 1;
+}
+
 #name {
     width: 100%;
     margin-top: 4px;

@@ -117,14 +117,18 @@ test('colour palette changes the colours in the link', async ({ page }) => {
     await expect(page.locator('.dcolor_table div').nth(40)).toHaveClass(/color_table_d_sel/);
 });
 
-test('zoom buttons change the preview size', async ({ page }) => {
+test('zoom buttons change the preview size; Reset View goes back to the opening size', async ({ page }) => {
     await openOutfitter(page, '?o=3');
     const img = page.locator('.body_main');
     const w1 = await img.evaluate((el) => el.width);
     await page.locator('.zoomin').click();
     expect(await img.evaluate((el) => el.width)).toBeGreaterThan(w1);
-    await page.locator('.zoomreset').click();
+    await page.locator('.zoomout').click();
+    await page.locator('.zoomout').click();
     expect(await img.evaluate((el) => el.width)).toBeLessThan(w1);
+    await page.locator('.zoomreset').click();
+    expect(await img.evaluate((el) => el.width)).toBe(w1);
+    await expect(img).not.toHaveClass(/is-dragging/);
 });
 
 test('download a still PNG and an animated GIF', async ({ page }) => {
