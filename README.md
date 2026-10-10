@@ -68,6 +68,13 @@ docs/MAINTAINING.md        maintenance guide
 
 `Vocab.txt` is unrelated to the Outfitter.
 
+## Keyboard
+
+After picking an outfit, mount or creature (in a list or with the arrow buttons under
+the preview), the **Left / Right** arrow keys step to the previous / next item of that
+list; in the list itself **Up / Down** work too. A search filter is respected. Tab moves
+between all controls; in the colour palette the arrow keys pick colours.
+
 ## Links into the Outfitter
 
 Every view has a shareable link, for example `?o=3&a1&a2&m=5&c1=20`

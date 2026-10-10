@@ -2973,6 +2973,10 @@ $(function () {
             // used to leave the mount / creature lists showing the old row) and scroll each
             // list - not the page - so a newly selected row is visible.
             outfiter_revealed = {},
+            // the list ('outfits', 'mounts' or 'creatures') used last; the Left / Right
+            // arrow keys step through it
+            outfiter_last_list = 'outfits',
+            outfiter_key_step = false, // true while the Left / Right keys select a row
             outfiter_reveal_pending = false,
             outfiter_url_timer,
             outfiter_sync_lists = function () {
@@ -3091,6 +3095,7 @@ $(function () {
                 // narrow screens show one list at a time: start with the creature list when
                 // the link shows a creature
                 if (outfiter_GET.creature > 0) {
+                    outfiter_last_list = 'creatures';
                     $this_main.removeClass('show-list-oselector').addClass('show-list-cselector');
                     ogebi('.list_tab', 1).attr('aria-pressed', 'false').filter('[data-list="cselector"]').attr('aria-pressed', 'true');
                 }
@@ -3209,9 +3214,22 @@ $(function () {
                 // One click handler per list (instead of one per row). The id is the number in
                 // the radio's class name, e.g. "radio_mounts_12".
                 $.each({ outfits: ['outfit', outfiter_do_outfit], mounts: ['mount', outfiter_do_mount], creatures: ['creature', outfiter_do_creature] }, function (kind, cfg) {
-                    ogebi('radio_' + kind).on('click', 'input[name="radio_' + kind + '"]', function () {
+                    ogebi('radio_' + kind).on('click', 'input[name="radio_' + kind + '"]', function (e) {
                         var match = this.className.match(new RegExp('\\bradio_' + kind + '_(\\d+)\\b')),
-                            id = match ? parseInt(match[1], 10) : NaN;
+                            id = match ? parseInt(match[1], 10) : NaN,
+                            by_user = outfiter_key_step || !!(e.originalEvent && e.originalEvent.isTrusted);
+                        outfiter_key_step = false; // not for the clicks made while loading below
+                        // Picked by the user (mouse, touch, keys) - not one of the clicks the
+                        // Outfitter makes itself to tick a row (e.g. the outfit "None" when a
+                        // creature is picked): remember the list and keep the keyboard focus on
+                        // the row, so the arrow keys step through this list next (Safari does
+                        // not focus a radio button that is clicked with the mouse).
+                        if (by_user) {
+                            outfiter_last_list = kind;
+                            if (document.activeElement !== this) {
+                                try { this.focus({ preventScroll: true }); } catch (ignore) { this.focus(); }
+                            }
+                        }
                         if (!isNaN(id) && id !== parseInt(ogebi(cfg[0]).val(), 10)) { cfg[1](id, true); }
                     });
                 });
@@ -3426,12 +3444,34 @@ $(function () {
                         new window.ResizeObserver(refit).observe(ogebi('body_main_div')[0]);
                     }
                 }());
-                ogebi('outfitm').on('click', function () { outfiter_do_outfit(-1); });
-                ogebi('outfitp').on('click', function () { outfiter_do_outfit(1); });
-                ogebi('mountm').on('click', function () { outfiter_do_mount(-1); });
-                ogebi('mountp').on('click', function () { outfiter_do_mount(1); });
-                ogebi('creaturem').on('click', function () { outfiter_do_creature(-1); });
-                ogebi('creaturep').on('click', function () { outfiter_do_creature(1); });
+                ogebi('outfitm').on('click', function () { outfiter_last_list = 'outfits'; outfiter_do_outfit(-1); });
+                ogebi('outfitp').on('click', function () { outfiter_last_list = 'outfits'; outfiter_do_outfit(1); });
+                ogebi('mountm').on('click', function () { outfiter_last_list = 'mounts'; outfiter_do_mount(-1); });
+                ogebi('mountp').on('click', function () { outfiter_last_list = 'mounts'; outfiter_do_mount(1); });
+                ogebi('creaturem').on('click', function () { outfiter_last_list = 'creatures'; outfiter_do_creature(-1); });
+                ogebi('creaturep').on('click', function () { outfiter_last_list = 'creatures'; outfiter_do_creature(1); });
+                // Left / Right arrow keys: previous / next item of the list used last, in
+                // the order of that list (a search filter is respected), wherever the focus
+                // is in the Outfitter. Not in text fields, the colour palette or radio
+                // buttons, which use the arrow keys themselves (in a list, the browser's own
+                // radio-button keys already step through it, with Up / Down as well).
+                $(document).on('keydown.outfiter_step', function (e) {
+                    var dir = e.which === 39 ? 1 : (e.which === 37 ? -1 : 0),
+                        target = e.target, $rows, cur, next;
+                    if (!dir || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.isDefaultPrevented()) { return; }
+                    if (target !== document.body && !$.contains($this_main[0], target)) { return; }
+                    if ($(target).is('input[type="text"], textarea, input[type="radio"], .dcolor_table div') ||
+                            $this_main.hasClass('outfiter_busy')) { return; }
+                    $rows = ogebi('radio_' + outfiter_last_list).children('label').filter(function () { return this.style.display !== 'none'; });
+                    if (!$rows.length) { return; }
+                    cur = $rows.index($rows.filter(function () { return $(this).find('input')[0].checked; }));
+                    if (cur === -1) { cur = dir > 0 ? -1 : 0; } // selection hidden by the search: start at an end
+                    next = $rows.eq((cur + dir + $rows.length) % $rows.length).find('input')[0];
+                    e.preventDefault();
+                    outfiter_key_step = true;
+                    next.click(); // selects it like a mouse click (and moves the focus there)
+                    outfiter_key_step = false;
+                });
                 ogebi('colourise_copy').on('click', outfiter_do_colourise_copy);
                 ogebi('colourise_random').on('click', outfiter_do_random_colours);
                 ogebi('random_outfit').on('click', outfiter_do_random_outfit);

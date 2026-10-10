@@ -196,3 +196,73 @@ test('the share link reproduces the same view', async ({ page }) => {
     expect((await readState(page)).link).toBe(link);
     expect(await page.locator('.body_main').getAttribute('src')).toBe(src);
 });
+
+test.describe('keyboard: arrow keys step through the list after picking an item', () => {
+    const shown = (page) => page.evaluate(() => ({
+        outfit: document.querySelector('.outfit_name').textContent,
+        mount: document.querySelector('.mount_name').textContent,
+        creature: document.querySelector('.creature_name').textContent
+    }));
+    // name of the row before / after the ticked one in a list (the list order)
+    const neighbour = (page, list, step) => page.evaluate(({ list, step }) => {
+        const rows = [...document.querySelectorAll(`.radio_${list} > label`)].filter((r) => r.style.display !== 'none');
+        const i = rows.findIndex((r) => r.querySelector('input').checked);
+        return rows[(i + step + rows.length) % rows.length].textContent.trim();
+    }, { list, step });
+    const press = async (page, key) => { await page.keyboard.press(key); await waitForRender(page); };
+
+    for (const [list, name, field] of [['outfits', 'Knight', 'outfit'], ['mounts', 'War Bear', 'mount'], ['creatures', 'Dragon', 'creature']]) {
+        test(`${list}: Right / Left / Down / Up after a click`, async ({ page }) => {
+            await openOutfitter(page);
+            await pickFromList(page, list, name);
+            await waitForRender(page);
+            for (const [key, step] of [['ArrowRight', 1], ['ArrowRight', 1], ['ArrowLeft', -1], ['ArrowDown', 1], ['ArrowUp', -1]]) {
+                const expected = await neighbour(page, list, step);
+                await press(page, key);
+                expect((await shown(page))[field]).toBe(expected);
+            }
+        });
+    }
+
+    test('also when the browser did not keep the focus on the clicked row (Safari)', async ({ page }) => {
+        await openOutfitter(page);
+        await pickFromList(page, 'outfits', 'Knight');
+        await waitForRender(page);
+        await page.evaluate(() => document.activeElement.blur());
+        const next = await neighbour(page, 'outfits', 1);
+        await press(page, 'ArrowRight');
+        expect((await shown(page)).outfit).toBe(next);
+    });
+
+    test('after the arrow buttons under the preview, the keys step through that list', async ({ page }) => {
+        await openOutfitter(page, '?o=3');
+        await page.locator('.mountp').click();
+        await waitForRender(page);
+        const before = await shown(page);
+        const next = await neighbour(page, 'mounts', 1);
+        await press(page, 'ArrowRight');
+        const after = await shown(page);
+        expect(after.mount).toBe(next);
+        expect(after.outfit).toBe(before.outfit);
+    });
+
+    test('a search filter is respected; text fields and the colour palette keep their arrow keys', async ({ page }) => {
+        await openOutfitter(page);
+        await page.locator('.radio_creatures .omsearch').fill('dragon');
+        await pickFromList(page, 'creatures', 'Dragon');
+        await waitForRender(page);
+        for (let i = 0; i < 3; i++) {
+            await press(page, 'ArrowRight');
+            expect((await shown(page)).creature.toLowerCase()).toContain('dragon');
+        }
+        await openOutfitter(page, '?o=3'); // an outfit that can be recoloured
+        const before = await shown(page);
+        await page.locator('.charn').fill('Rocky');
+        await page.locator('.charn').press('ArrowLeft');
+        await page.locator('.dcolor_table div').first().focus();
+        await page.keyboard.press('ArrowRight');
+        await waitForRender(page);
+        expect(await shown(page)).toEqual(before);
+        expect((await readState(page)).link).toContain('c1=1'); // the palette moved instead
+    });
+});
