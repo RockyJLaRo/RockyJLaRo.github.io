@@ -1118,6 +1118,13 @@
     color: #b4b4b4;
 }
 
+/* Placeholder text ("Search", "Name"): the browser default grey reached only
+ * 2.5:1 on the dark fields; this one 4.8:1. */
+.outfiter input::placeholder {
+    color: #a6a6a6;
+    opacity: 1;
+}
+
 /* Hover highlight only for devices that can hover (no "stuck" highlight after a tap). */
 .list_el:hover {
     background-color: transparent;
@@ -1180,13 +1187,13 @@
 /* ===========================================================================
  * WIDE SCREENS (1181px and wider)
  * ---------------------------------------------------------------------------
- * The Outfitter grows with the window (css/page.css sets the maximum width)
- * and fills the window height:
+ * The Outfitter grows with the window up to a maximum size (width: see
+ * #outfiter_container in css/page.css; height: --outfiter-max-h below):
  *
- *   lists      | side column        | main column
- *   (stacked,  | options            | preview (takes all the room that is left)
- *   sharing    | colours            | outfit / mount / creature
- *   the height)|                    | name
+ *   lists      | side column        | main column (centred, at most
+ *   (stacked,  | options            |   --outfiter-preview-max-w wide)
+ *   sharing    | colours            | preview (at most --outfiter-preview-max-h)
+ *   the height)|                    | outfit / mount / creature, name
  *              | link and template code across the bottom
  *
  * Several rules above still carry the sizes of the original fixed 1135px
@@ -1195,13 +1202,27 @@
  * ========================================================================= */
 @media (min-width: 1181px) {
     .outfiter {
+        /* Largest preview box. Every sprite is a 64 x 64px frame (the floor scene
+           159 x 95px), drawn at whole-number zoom steps (outfitter.js; zoom 1 = 2x,
+           zoom 2 = 4x, zoom 3 = 6x the original pixels):
+           - 720px wide: the floor scene at zoom 2 (636 x 380px) plus room for the
+             corner buttons;
+           - 540px high: a sprite at zoom 3 (384px) plus the button rows above
+             and below it (2 x 36px), with some air.
+           The box shrinks with the window; below about 456 x 400px the sprite
+           is shown at zoom 2 (256px), and narrow screens use their own sizes. */
+        --outfiter-preview-max-w: 720px;
+        --outfiter-preview-max-h: 540px;
+        /* the Outfitter stops growing taller than this (the lists would only get
+           longer, and the preview has stopped growing well before) */
+        --outfiter-max-h: 820px;
         grid-template-columns: clamp(250px, 17vw, 320px) minmax(0, 1fr);
         grid-template-rows: repeat(3, minmax(200px, 1fr)) auto;
-        /* fill the window: its height minus header, footer and the page padding
-           (2 x 25px), in the Outfitter's own (possibly scaled) pixels, minus the
-           container's padding and border (2 x 8px). A min-height, not a stretching
-           flex box: that made the browser lay out all list rows twice per redraw. */
-        min-height: calc((100vh - var(--page-header-h, 82px) - var(--page-footer-h, 68px) - 50px) / var(--outfiter-zoom, 1) - 16px);
+        /* fill the window up to --outfiter-max-h: its height minus header, footer,
+           the page padding (2 x --page-pad-y) and the container's padding and
+           border (2 x 8px). A min-height, not a stretching flex box: that made the
+           browser lay out all list rows twice per redraw. */
+        min-height: min(var(--outfiter-max-h), calc(100vh - var(--page-header-h, 82px) - var(--page-footer-h, 68px) - 2 * var(--page-pad-y, 25px) - 16px));
     }
 
     /* --- lists: fill their share of the height -------------------------- */
@@ -1263,8 +1284,14 @@
         grid-area: 1 / 2;
     }
 
+    /* preview, outfit / mount / creature and name: one block of at most the
+       preview's width, centred in the main column; its top lines up with the
+       side column */
     .outfiter .omain_cont_right {
         flex: 1 1 auto;
+        width: 100%;
+        max-width: var(--outfiter-preview-max-w);
+        margin: 0 auto;
     }
 
     .outfiter .url_input_cont,
@@ -1422,13 +1449,14 @@
         border-width: 2px;
     }
 
-    /* --- preview: takes the room that is left ------------------------------ */
+    /* --- preview: grows with the room it gets, up to its maximum ----------- */
     .outfiter .body_main_div {
         flex: 1 1 auto;
         width: 100%;
         min-width: 0;
         height: auto;
-        min-height: 380px;
+        min-height: 320px;
+        max-height: var(--outfiter-preview-max-h);
     }
 
     /* centre the sprite (its height is set by outfitter.js) */

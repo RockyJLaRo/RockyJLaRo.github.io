@@ -81,14 +81,16 @@ footer a:hover {
     color: #ffffff;
 }
 
-/* Wide screens: the Outfitter uses the window width (up to 1680px) and fills the
- * height between header and footer. Header and footer get fixed heights so that
- * css/outfitter.css ("WIDE SCREENS") can work out the room that is left. */
+/* Wide screens: the Outfitter uses the window width up to 1460px - at that width
+ * the preview column reaches the preview's maximum width (720px, see "WIDE
+ * SCREENS" in css/outfitter.css) - and fills the height between header and footer
+ * up to a maximum. Header and footer get fixed heights so that css/outfitter.css
+ * can work out the room that is left. On larger screens the Outfitter is centred. */
 @media (min-width: 1181px) {
     :root {
         --page-header-h: 82px;
         --page-footer-h: 68px;
-        --outfiter-zoom: 1;
+        --page-pad-y: 25px;
     }
 
     header {
@@ -101,28 +103,50 @@ footer a:hover {
         box-sizing: border-box;
     }
 
+    main {
+        padding-top: var(--page-pad-y);
+        padding-bottom: var(--page-pad-y);
+    }
+
     #outfiter_container {
         width: 100%;
-        max-width: 1680px;
+        max-width: 1460px;
         box-sizing: border-box;
+        /* centred vertically once it has reached its maximum height */
+        align-self: safe center;
     }
 }
 
-/* Very large screens (e.g. 2560 x 1440 at 100% scaling): show the Outfitter
- * bigger, so it fills the screen the way it does at 1920 x 1080. */
-@media (min-width: 2200px) and (min-height: 1250px) {
+/* Short wide screens (e.g. 1366 x 768 laptops): a slimmer header and footer leave
+ * enough height for the whole Outfitter, link included. */
+@media (min-width: 1181px) and (max-height: 820px) {
     :root {
-        --outfiter-zoom: 1.25;
+        --page-header-h: 54px;
+        --page-footer-h: 46px;
+        --page-pad-y: 12px;
     }
 
-    #outfiter_container {
-        zoom: var(--outfiter-zoom);
+    header {
+        padding-top: 8px;
+        padding-bottom: 8px;
     }
-}
 
-@media (min-width: 2900px) and (min-height: 1600px) {
-    :root {
-        --outfiter-zoom: 1.5;
+    header h1 {
+        font-size: 20px;
+        margin-bottom: 2px;
+    }
+
+    header p {
+        font-size: 11px;
+    }
+
+    footer {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+    footer p {
+        margin: 2px 0;
     }
 }
 

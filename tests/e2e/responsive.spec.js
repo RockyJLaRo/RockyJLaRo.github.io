@@ -28,7 +28,7 @@ test.describe('no sideways scrolling at common sizes', () => {
     }
 });
 
-test.describe('wide screens use the space', () => {
+test.describe('wide screens', () => {
     test('lists on the left, options and colours beside the preview', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
         await openOutfitter(page);
@@ -44,18 +44,12 @@ test.describe('wide screens use the space', () => {
         expect(colours.x + colours.width).toBeLessThanOrEqual(preview.x); // ... left of the preview
     });
 
-    for (const [width, height] of [[1280, 800], [1920, 1080]]) {
-        test(`${width}x${height}: fills the window, everything visible without scrolling`, async ({ page }) => {
+    for (const [width, height] of [[1280, 720], [1366, 768], [1920, 1080]]) {
+        test(`${width}x${height}: the whole Outfitter, link included, is on screen`, async ({ page }) => {
             await page.setViewportSize({ width, height });
             await openOutfitter(page, '?o=3&m=5');
-            const box = await page.locator('#outfiter_container').boundingBox();
-            expect(width - box.width).toBeLessThanOrEqual(width >= 1800 ? 260 : 40); // at most 1680px wide
-            expect((await page.locator('.url_input').boundingBox()).y).toBeLessThan(height); // link on screen
-            if (height >= 1000) {
-                // no empty band under the Outfitter: the footer ends at the bottom of the window
-                const footer = await page.locator('footer').boundingBox();
-                expect(Math.abs(footer.y + footer.height - height)).toBeLessThanOrEqual(1);
-            }
+            const link = await page.locator('.url_input').boundingBox();
+            expect(link.y + link.height).toBeLessThanOrEqual(height);
             expect(await horizontalOverflow(page)).toEqual([]);
         });
     }
@@ -69,17 +63,9 @@ test.describe('wide screens use the space', () => {
         expect(big / normal).toBeCloseTo(1.5, 2);
     });
 
-    test('very large screens show the Outfitter bigger; lists and dragging still line up', async ({ page }) => {
-        await page.setViewportSize({ width: 2560, height: 1440 });
+    test('dragging the zoomed-in sprite moves it as far as the mouse moves', async ({ page }) => {
+        await page.setViewportSize({ width: 1440, height: 900 });
         await openOutfitter(page, '?o=3&m=239');
-        expect(await page.locator('#outfiter_container').evaluate((el) => getComputedStyle(el).zoom)).toBe('1.25');
-        // the selected rows are scrolled into view
-        await expect.poll(() => page.evaluate(() => ['outfits', 'mounts'].every((k) => {
-            const row = document.querySelector('.radio_' + k + ' input:checked').closest('label');
-            const box = row.parentElement.getBoundingClientRect(), r = row.getBoundingClientRect();
-            return r.top >= box.top && r.bottom <= box.bottom;
-        }))).toBe(true);
-        // dragging the zoomed-in sprite moves it as far as the mouse moves
         await page.locator('.zoomin').click();
         const img = page.locator('.body_main');
         const before = await img.boundingBox();
@@ -91,6 +77,61 @@ test.describe('wide screens use the space', () => {
         expect(after.x - before.x).toBeCloseTo(100, 0);
         expect(after.y - before.y).toBeCloseTo(50, 0);
     });
+});
+
+test.describe('the preview has a maximum size', () => {
+    // css/outfitter.css: --outfiter-preview-max-w / --outfiter-preview-max-h
+    const MAX_W = 720, MAX_H = 540;
+
+    const measure = (page) => page.evaluate(() => {
+        const box = document.querySelector('.body_main_div').getBoundingClientRect();
+        const img = document.querySelector('.body_main').getBoundingClientRect();
+        const column = document.querySelector('.omain_wrap_right');
+        const col = column && getComputedStyle(column).display !== 'contents' ? column.getBoundingClientRect() : null;
+        return {
+            w: box.width, h: box.height,
+            spriteInside: img.left >= box.left - 1 && img.right <= box.right + 1 && img.top >= box.top - 1 && img.bottom <= box.bottom + 1,
+            spriteCentred: Math.abs((img.left + img.right) / 2 - (box.left + box.right) / 2) <= 1 && Math.abs((img.top + img.bottom) / 2 - (box.top + box.bottom) / 2) <= 1,
+            boxCentredInColumn: !col || Math.abs((box.left + box.right) / 2 - (col.left + col.right) / 2) <= 1,
+            scale: img.width / document.querySelector('.body_main').naturalWidth
+        };
+    });
+
+    for (const [width, height] of [[1920, 1080], [2560, 1440], [3840, 2160]]) {
+        test(`${width}x${height}: stops growing at ${MAX_W} x ${MAX_H}px, centred`, async ({ page }) => {
+            await page.setViewportSize({ width, height });
+            for (const query of ['?o=3&m=239', '?o=105&m=239', '?o=105&cr=37']) { // outfit on mount, mount, creature
+                await openOutfitter(page, query);
+                const m = await measure(page);
+                expect(Math.round(m.w)).toBeGreaterThanOrEqual(MAX_W - 2);
+                expect(Math.round(m.w)).toBeLessThanOrEqual(MAX_W);
+                expect(Math.round(m.h)).toBe(MAX_H);
+                expect(m).toMatchObject({ spriteInside: true, spriteCentred: true, boxCentredInColumn: true, scale: 6 });
+            }
+            // the Outfitter itself is centred and does not stretch across the screen
+            const container = await page.locator('#outfiter_container').boundingBox();
+            expect(container.width).toBeLessThanOrEqual(1460);
+            expect(Math.abs(container.x + container.width / 2 - width / 2)).toBeLessThanOrEqual(1);
+            expect(await horizontalOverflow(page)).toEqual([]);
+        });
+    }
+
+    for (const [width, height] of [[1280, 720], [1440, 900], [1024, 768], [768, 1024], [390, 844], [320, 568], [844, 390]]) {
+        test(`${width}x${height}: smaller, sprite inside and sharp`, async ({ page }) => {
+            await page.setViewportSize({ width, height });
+            for (const query of ['?o=3&m=239', '?o=105&cr=37', '?o=3&fl&h&n=Rocky']) { // + floor scene
+                await openOutfitter(page, query);
+                const m = await measure(page);
+                expect(m.w).toBeLessThanOrEqual(width >= 1181 ? MAX_W : 760);
+                expect(m.h).toBeLessThanOrEqual(MAX_H);
+                expect(m.spriteInside && m.spriteCentred).toBe(true);
+                // whole-number scaling keeps pixel art crisp; the only exception is the
+                // floor scene (318px at the smallest zoom) in a box narrower than that
+                if (!(query.includes('&fl') && m.w < 318)) { expect(Number.isInteger(m.scale)).toBe(true); }
+            }
+            expect(await horizontalOverflow(page)).toEqual([]);
+        });
+    }
 });
 
 test.describe('phone layout @mobile', () => {

@@ -266,3 +266,29 @@ test.describe('second audit', () => {
         expect((await download).suggestedFilename()).toBe('Creature_Orc_Shaman.png');
     });
 });
+
+test.describe('final audit', () => {
+    test('frames are always padded to the full 64px (Dragon Lord used to come out 63px wide)', async ({ page }) => {
+        for (const query of ['?o=105&cr=37', '?o=105&cr=32', '?o=105&cr=657']) { // Dragon Lord, Dragon, Albino Dragon
+            await openOutfitter(page, query);
+            const size = await page.locator('.body_main').evaluate((img) => [img.naturalWidth, img.naturalHeight]);
+            expect(size).toEqual([64, 64]);
+        }
+        await expect(page.locator('.template_code_code')).toHaveCount(0);
+    });
+
+    test('placeholder text ("Search", "Name") is readable: contrast at least 4.5:1', async ({ page }) => {
+        await openOutfitter(page);
+        const ratios = await page.evaluate(() => {
+            const lum = (c) => { const v = c.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+            const field = [56, 56, 57]; // #383839, the base colour of the dark input texture
+            return [...document.querySelectorAll('.outfiter input[placeholder]')].map((input) => {
+                const ph = getComputedStyle(input, '::placeholder').color.match(/\d+/g).slice(0, 3).map(Number);
+                const a = lum(ph), b = lum(field);
+                return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+            });
+        });
+        expect(ratios.length).toBeGreaterThan(0);
+        for (const r of ratios) { expect(r).toBeGreaterThanOrEqual(4.5); }
+    });
+});
